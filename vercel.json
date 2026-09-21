@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/line/daily-summary",
+      "schedule": "0 13 * * *"
+    },
+    {
+      "path": "/api/orders/expire",
+      "schedule": "0 14 * * *"
+    }
+  ]
+}
