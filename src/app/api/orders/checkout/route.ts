@@ -1,10 +1,28 @@
 import { NextResponse } from "next/server";
 import { supabaseRest } from "@/lib/supabase/rest";
 import type { CheckoutPayload, Order } from "@/types";
-import { formatOrderNotification, orderFlexMessage, pushLineFlex, pushLineMessage } from "@/lib/line/messaging";
+import { customerOrderFlexMessage, formatOrderNotification, orderFlexMessage, pushLineFlex, pushLineMessage } from "@/lib/line/messaging";
+import { getLineFriendship, getLineSession, LINE_SESSION_COOKIE } from "@/lib/line/login";
+import { orderCustomerUrl } from "@/lib/orders/workflow";
 
 export async function POST(request: Request) {
   try {
+    const lineSession = await getLineSession();
+    if (!lineSession) {
+      return NextResponse.json(
+        { success: false, message: "กรุณาเข้าสู่ระบบด้วย LINE ก่อนยืนยันออเดอร์", code: "LINE_LOGIN_REQUIRED" },
+        { status: 401 },
+      );
+    }
+    if (!(await getLineFriendship(lineSession.accessToken))) {
+      const response = NextResponse.json(
+        { success: false, message: "กรุณาเพิ่ม LINE Official Account เป็นเพื่อนก่อนยืนยันออเดอร์", code: "LINE_FRIEND_REQUIRED" },
+        { status: 403 },
+      );
+      response.cookies.delete(LINE_SESSION_COOKIE);
+      return response;
+    }
+
     const body = (await request.json()) as CheckoutPayload;
     if (!body.customerName?.trim() || !body.customerPhone?.trim()) {
       return NextResponse.json(
@@ -33,8 +51,24 @@ export async function POST(request: Request) {
         p_customer_address: body.customerAddress ?? "",
         p_notes: body.notes ?? "",
         p_items: body.items,
+        p_line_user_id: lineSession.userId,
       }),
+      serviceRole: true,
     });
+
+    if (process.env.LINE_CHANNEL_ACCESS_TOKEN && order.customerToken) {
+      try {
+        await pushLineFlex(
+          lineSession.userId,
+          customerOrderFlexMessage(
+            order,
+            orderCustomerUrl(order.id, order.customerToken),
+          ),
+        );
+      } catch (lineError) {
+        console.error("LINE customer order notification failed", lineError);
+      }
+    }
 
     const lineRecipient = process.env.LINE_SUMMARY_TO;
     if (lineRecipient && process.env.LINE_CHANNEL_ACCESS_TOKEN) {

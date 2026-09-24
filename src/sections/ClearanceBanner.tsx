@@ -65,7 +65,7 @@ export default function ClearanceBanner() {
             >
               <div className="relative w-full aspect-[4/3] max-w-md ml-auto">
                 <Image
-                  src="/assets/leaftailGold.png"
+                  src="/assets/bettafishgold.png"
                   alt="leaf tail gold"
                   fill
                   className="object-contain rounded-3xl"

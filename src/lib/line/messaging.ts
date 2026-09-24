@@ -64,6 +64,25 @@ export function orderFlexMessage(order: { id: string; customerName: string; cust
   };
 }
 
+export function customerOrderFlexMessage(order: { id: string; shippingFee?: number; totalPrice?: number; items: Array<{ productName?: string; product: { name: string }; quantity: number; price?: number }> }, orderUrl: string) {
+  const lines = order.items.map(item => ({
+    type: "text", text: `${item.productName || item.product.name} × ${item.quantity}  ฿${(Number(item.price || 0) * item.quantity).toLocaleString("th-TH")}`,
+    size: "sm", wrap: true, color: "#555555",
+  }));
+  return {
+    type: "flex", altText: `ยืนยันออเดอร์ ${order.id.slice(0, 8).toUpperCase()} ยอด ฿${Number(order.totalPrice || 0).toLocaleString("th-TH")}`,
+    contents: { type: "bubble", body: { type: "box", layout: "vertical", spacing: "md", contents: [
+      { type: "text", text: "ยืนยันคำสั่งซื้อแล้ว 🐟", weight: "bold", size: "xl" },
+      { type: "text", text: `ออเดอร์ #${order.id.slice(0, 8).toUpperCase()}`, size: "sm", color: "#666666" },
+      ...lines.slice(0, 15),
+      { type: "separator" },
+      { type: "text", text: `ค่าส่ง ฿${Number(order.shippingFee || 0).toLocaleString("th-TH")}`, size: "sm" },
+      { type: "text", text: `ยอดชำระ ฿${Number(order.totalPrice || 0).toLocaleString("th-TH")}`, weight: "bold", size: "lg" },
+      { type: "text", text: "กรุณาชำระเงินและแนบสลิปภายในเวลาที่กำหนด", size: "sm", wrap: true, color: "#666666" },
+    ] }, footer: { type: "box", layout: "vertical", contents: [{ type: "button", style: "primary", color: "#06C755", action: { type: "uri", label: "ดูวิธีชำระเงิน", uri: orderUrl } }] } },
+  };
+}
+
 export function buildAutoReply(message: string) {
   const value = message.trim().toLowerCase();
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";

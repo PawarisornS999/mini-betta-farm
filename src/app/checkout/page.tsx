@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Header from "@/sections/Header";
@@ -13,6 +13,29 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLine } from "@fortawesome/free-brands-svg-icons";
 import { apiClient } from "@/lib/api-client/browser";
 import { orderTotal, SHIPPING_FEE } from "@/lib/orders/workflow";
+import BaseDropdown from "@/components/BaseDropdown";
+import { searchAddressByProvince } from "thai-address-database";
+
+const thaiAddresses = searchAddressByProvince(".", 10000);
+const CHECKOUT_DRAFT_KEY = "mini-betta-line-checkout-draft";
+
+type CheckoutDraft = {
+  customerName: string;
+  customerPhone: string;
+  customerAddress: string;
+  items: { productId: string; quantity: number }[];
+};
+
+type LineState =
+  | { status: "loading" }
+  | { status: "required" }
+  | { status: "connected"; displayName: string };
+
+function uniqueValues(values: string[]) {
+  return Array.from(new Set(values)).sort((first, second) =>
+    first.localeCompare(second, "th"),
+  );
+}
 
 export default function CheckoutPage() {
   const items = useCartStore((s) => s.items);
@@ -20,28 +43,56 @@ export default function CheckoutPage() {
   const clearCart = useCartStore((s) => s.clearCart);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
+  const [province, setProvince] = useState("");
+  const [district, setDistrict] = useState("");
+  const [subdistrict, setSubdistrict] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+  const [addressDetails, setAddressDetails] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [lineState, setLineState] = useState<LineState>({ status: "loading" });
   const lang = useLangStore((s) => s.lang);
   const t = getT(lang).checkout;
+  const provinces = useMemo(
+    () => uniqueValues(thaiAddresses.map((item) => item.province)),
+    [],
+  );
+  const districts = useMemo(
+    () =>
+      uniqueValues(
+        thaiAddresses
+          .filter((item) => item.province === province)
+          .map((item) => item.amphoe),
+      ),
+    [province],
+  );
+  const subdistricts = useMemo(
+    () =>
+      uniqueValues(
+        thaiAddresses
+          .filter(
+            (item) => item.province === province && item.amphoe === district,
+          )
+          .map((item) => item.district),
+      ),
+    [province, district],
+  );
+  const address = [
+    addressDetails.trim(),
+    subdistrict.trim(),
+    district.trim(),
+    province.trim(),
+    postalCode.trim(),
+  ]
+    .filter(Boolean)
+    .join(" ");
 
-  const handlePlaceOrder = async () => {
-    if (!name.trim() || !phone.trim() || submitting) return;
-
+  const completeCheckout = useCallback(async (payload: CheckoutDraft) => {
     setSubmitting(true);
     setSubmitError(null);
 
     try {
-      const response = await apiClient.orders.checkout({
-        customerName: name,
-        customerPhone: phone,
-        customerAddress: address,
-        items: items.map((item) => ({
-          productId: item.product.id,
-          quantity: item.quantity,
-        })),
-      });
+      const response = await apiClient.orders.checkout(payload);
 
       const order = response.data;
 
@@ -53,10 +104,94 @@ export default function CheckoutPage() {
         typeof error === "object" && error && "message" in error
           ? String(error.message)
           : "ไม่สามารถสร้างคำสั่งซื้อได้ กรุณาลองใหม่";
+      if (
+        typeof error === "object" &&
+        error &&
+        "code" in error &&
+        (error.code === "LINE_LOGIN_REQUIRED" || error.code === "LINE_FRIEND_REQUIRED")
+      ) {
+        setLineState({ status: "required" });
+      }
       setSubmitError(message);
     } finally {
       setSubmitting(false);
     }
+  }, [clearCart]);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/line/session", { cache: "no-store" })
+      .then(async (response) => {
+        const result = await response.json() as {
+          data: { authenticated: boolean; displayName?: string };
+        };
+        if (!active) return;
+        const params = new URLSearchParams(window.location.search);
+        const lineResult = params.get("line");
+        if (lineResult === "friend-required") {
+          setSubmitError("กรุณาเพิ่ม LINE Official Account เป็นเพื่อน แล้วกดเข้าสู่ระบบ LINE อีกครั้ง");
+        } else if (lineResult === "invalid-state" || lineResult === "login-failed") {
+          setSubmitError("เข้าสู่ระบบ LINE ไม่สำเร็จหรือหมดเวลา กรุณาลองใหม่");
+        } else if (lineResult === "config-error") {
+          setSubmitError("ระบบ LINE Login ยังตั้งค่าไม่สมบูรณ์ กรุณาติดต่อร้าน");
+        }
+        if (!result.data.authenticated) {
+          setLineState({ status: "required" });
+          return;
+        }
+        setLineState({
+          status: "connected",
+          displayName: result.data.displayName || "LINE user",
+        });
+
+        const savedDraft = window.sessionStorage.getItem(CHECKOUT_DRAFT_KEY);
+        if (params.get("line") !== "connected" || !savedDraft) return;
+        window.sessionStorage.removeItem(CHECKOUT_DRAFT_KEY);
+        const draft = JSON.parse(savedDraft) as CheckoutDraft;
+        if (!draft.customerName || !draft.customerPhone || !draft.customerAddress || !draft.items?.length) {
+          throw new Error("ข้อมูลออเดอร์ที่บันทึกไว้ไม่ครบ กรุณากรอกใหม่");
+        }
+        setName(draft.customerName);
+        setPhone(draft.customerPhone);
+        void completeCheckout(draft);
+      })
+      .catch((error) => {
+        if (!active) return;
+        setLineState({ status: "required" });
+        setSubmitError(error instanceof Error ? error.message : "ตรวจสอบ LINE Login ไม่สำเร็จ");
+      });
+    return () => { active = false; };
+  }, [completeCheckout]);
+
+  const handlePlaceOrder = async () => {
+    if (
+      !name.trim() ||
+      !phone.trim() ||
+      !province.trim() ||
+      !district.trim() ||
+      !subdistrict.trim() ||
+      postalCode.trim().length !== 5 ||
+      submitting ||
+      lineState.status === "loading"
+    ) return;
+
+    const payload: CheckoutDraft = {
+      customerName: name,
+      customerPhone: phone,
+      customerAddress: address,
+      items: items.map((item) => ({
+        productId: item.product.id,
+        quantity: item.quantity,
+      })),
+    };
+
+    if (lineState.status !== "connected") {
+      window.sessionStorage.setItem(CHECKOUT_DRAFT_KEY, JSON.stringify(payload));
+      window.location.assign("/api/line/login?returnTo=/checkout");
+      return;
+    }
+
+    await completeCheckout(payload);
   };
 
   if (items.length === 0) {
@@ -120,14 +255,97 @@ export default function CheckoutPage() {
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-foreground block mb-1.5">
-                      {t.address}
+                    <p className="text-sm font-medium text-foreground mb-3">
+                      {t.address} *
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm text-muted block mb-1.5">
+                          {t.province} *
+                        </label>
+                        <BaseDropdown
+                          value={province}
+                          onChange={(e) => {
+                            setProvince(e);
+                            setDistrict("");
+                            setSubdistrict("");
+                            setPostalCode("");
+                          }}
+                          placeholder={t.province}
+                          options={provinces.map((option) => ({
+                            value: option,
+                            label: option,
+                          }))}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm text-muted block mb-1.5">
+                          {t.district} *
+                        </label>
+                        <BaseDropdown
+                          value={district}
+                          disabled={!province}
+                          onChange={(e) => {
+                            setDistrict(e);
+                            setSubdistrict("");
+                            setPostalCode("");
+                          }}
+                          placeholder={t.district}
+                          options={districts.map((option) => ({
+                            value: option,
+                            label: option,
+                          }))}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm text-muted block mb-1.5">
+                          {t.subdistrict} *
+                        </label>
+                        <BaseDropdown
+                          value={subdistrict}
+                          disabled={!district}
+                          onChange={(e) => {
+                            const selectedSubdistrict = e;
+                            setSubdistrict(selectedSubdistrict);
+                            setPostalCode(
+                              thaiAddresses.find(
+                                (item) =>
+                                  item.province === province &&
+                                  item.amphoe === district &&
+                                  item.district === selectedSubdistrict,
+                              )?.zipcode ?? "",
+                            );
+                          }}
+                          placeholder={t.subdistrict}
+                          options={subdistricts.map((option) => ({
+                            value: option,
+                            label: option,
+                          }))}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm text-muted block mb-1.5">
+                          {t.postalCode} *
+                        </label>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={5}
+                          value={postalCode}
+                          onChange={(e) => setPostalCode(e.target.value.replace(/\D/g, ""))}
+                          placeholder="10110"
+                          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-accent focus:outline-none text-sm"
+                        />
+                      </div>
+                    </div>
+                    <label className="text-sm text-muted block mt-4 mb-1.5">
+                      {t.addressDetails}
                     </label>
                     <textarea
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      placeholder="Your shipping address"
-                      rows={3}
+                      value={addressDetails}
+                      onChange={(e) => setAddressDetails(e.target.value)}
+                      placeholder={t.addressDetailsPlaceholder}
+                      rows={2}
                       className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-accent focus:outline-none text-sm resize-none"
                     />
                   </div>
@@ -142,6 +360,18 @@ export default function CheckoutPage() {
                   All fish are carefully packed with oxygen bags and insulated
                   packaging. We guarantee live arrival or your money back.
                 </p>
+              </div>
+
+              <div className="rounded-2xl border border-green-200 bg-white p-5 shadow-sm">
+                <div className="flex items-start gap-3">
+                  <FontAwesomeIcon icon={faLine} className="mt-0.5 h-6 w-6 text-green-600" />
+                  <div>
+                    <h3 className="font-bold text-foreground">LINE Login และเพิ่มเพื่อน OA</h3>
+                    {lineState.status === "loading" && <p className="mt-1 text-sm text-muted">กำลังตรวจสอบการเชื่อมต่อ LINE...</p>}
+                    {lineState.status === "required" && <p className="mt-1 text-sm text-muted">เมื่อยืนยันออเดอร์ ระบบจะพาไปเข้าสู่ระบบ LINE และเพิ่มร้านเป็นเพื่อนก่อนสร้างออเดอร์</p>}
+                    {lineState.status === "connected" && <p className="mt-1 text-sm font-medium text-green-700">เชื่อมต่อแล้ว: {lineState.displayName}</p>}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -187,14 +417,27 @@ export default function CheckoutPage() {
 
                 <button
                   onClick={handlePlaceOrder}
-                  disabled={!name.trim() || !phone.trim() || submitting}
+                  disabled={
+                    !name.trim() ||
+                    !phone.trim() ||
+                    !province.trim() ||
+                    !district.trim() ||
+                    !subdistrict.trim() ||
+                    postalCode.trim().length !== 5 ||
+                    submitting ||
+                    lineState.status === "loading"
+                  }
                   className="w-full bg-green-500 text-white py-4 rounded-2xl font-semibold hover:bg-green-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   <FontAwesomeIcon icon={faLine} className="w-5 h-5" />
                   {/*
                     <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314" />
                   */}
-                  {submitting ? "กำลังสร้างคำสั่งซื้อ..." : "ยืนยันออเดอร์และดูวิธีชำระเงิน"}
+                  {submitting
+                    ? "กำลังสร้างคำสั่งซื้อ..."
+                    : lineState.status === "connected"
+                      ? "ยืนยันออเดอร์และดูวิธีชำระเงิน"
+                      : "เข้าสู่ระบบ LINE และยืนยันออเดอร์"}
                 </button>
                 {submitError && (
                   <p className="text-sm text-red-600 text-center mt-3">

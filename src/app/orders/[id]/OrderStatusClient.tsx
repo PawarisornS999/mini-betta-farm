@@ -61,7 +61,7 @@ export default function OrderStatusClient({ id, token }: { id: string; token: st
 
   const order = detail?.order;
   const expired = Boolean(order?.reservationExpiresAt && new Date(order.reservationExpiresAt).getTime() < now && order.paymentStatus !== "slip_submitted");
-  const lineMessage = order ? `ORDER ${order.id} ${token}\nสวัสดีค่ะ/ครับ ขอแจ้งออเดอร์ ${shortOrderId(order.id)} ยอด ${formatMoney(order.totalPrice || 0)}` : "";
+  const lineMessage = order ? `สวัสดีค่ะ/ครับ ต้องการสอบถามออเดอร์ #${shortOrderId(order.id)}` : "";
   const lineUrl = getLineOrderUrl(lineMessage);
   return <><Header /><main className="mx-auto max-w-3xl px-4 pb-20 pt-28 text-foreground">
     <Link href="/shop" className="text-sm text-accent">← กลับไปเลือกปลา</Link>
@@ -84,7 +84,7 @@ export default function OrderStatusClient({ id, token }: { id: string; token: st
         {detail.payment.accountNumber || detail.payment.promptpayNumber ? <div className="mt-4 space-y-3 rounded-xl bg-emerald-50 p-4 text-sm leading-7"><p>ชื่อผู้รับเงิน: <strong>{detail.payment.accountName}</strong></p>{detail.payment.promptpayNumber && <p>PromptPay: <strong>{detail.payment.promptpayNumber}</strong></p>}{detail.payment.accountNumber && <p>{detail.payment.bank || "ธนาคาร"}: <strong>{detail.payment.accountNumber}</strong></p>}</div> : <p className="mt-3 rounded-xl bg-amber-50 p-4 text-sm">ร้านกำลังตั้งค่าบัญชีรับเงิน กรุณาติดต่อผ่าน LINE ก่อนโอนเงิน</p>}
         {(detail.payment.accountNumber || detail.payment.promptpayNumber) && <><label className="mt-5 block text-sm font-medium">แนบรูปสลิป (JPG, PNG, WebP ไม่เกิน 5 MB)</label><input aria-label="แนบสลิป" type="file" accept="image/jpeg,image/png,image/webp" onChange={event => setFile(event.target.files?.[0] || null)} className="mt-2 block w-full text-sm" /><button type="button" disabled={!file || busy} onClick={() => void submitSlip()} className="mt-4 rounded-xl bg-accent px-6 py-3 font-semibold text-white disabled:opacity-50">{busy ? "กำลังส่ง..." : detail.order.hasSlip ? "ส่งสลิปใหม่" : "ส่งสลิป"}</button></>}
       </section>}
-      <section className="rounded-2xl bg-white p-6 shadow-sm"><h2 className="text-lg font-bold">ติดต่อร้านผ่าน LINE OA</h2><p className="mt-2 text-sm text-muted">กดปุ่มแล้วส่งข้อความที่เตรียมไว้ เพื่อให้ร้านเชื่อม LINE กับออเดอร์นี้และแจ้งสถานะกลับได้</p>{lineUrl ? <a href={lineUrl} target="_blank" rel="noreferrer" className="mt-4 inline-block rounded-xl bg-green-600 px-6 py-3 font-semibold text-white">เปิดแชต LINE OA</a> : <p className="mt-3 text-sm text-amber-700">ลิงก์ LINE OA ยังไม่พร้อมใช้งาน กรุณาติดต่อร้านตามช่องทางที่แจ้งไว้</p>}</section>
+      <section className="rounded-2xl bg-white p-6 shadow-sm"><h2 className="text-lg font-bold">ติดต่อร้านผ่าน LINE OA</h2><p className="mt-2 text-sm text-muted">ออเดอร์นี้เชื่อมกับ LINE ที่ใช้ยืนยันคำสั่งซื้อแล้ว ร้านจะแจ้งสถานะกลับทาง LINE โดยอัตโนมัติ หากต้องการสอบถามเพิ่มเติมสามารถเปิดแชตได้เลย</p>{lineUrl ? <a href={lineUrl} target="_blank" rel="noreferrer" className="mt-4 inline-block rounded-xl bg-green-600 px-6 py-3 font-semibold text-white">เปิดแชต LINE OA</a> : <p className="mt-3 text-sm text-amber-700">ลิงก์ LINE OA ยังไม่พร้อมใช้งาน กรุณาติดต่อร้านตามช่องทางที่แจ้งไว้</p>}</section>
       <p className="text-xs text-muted">เก็บลิงก์หน้านี้ไว้เพื่อตรวจสอบสถานะออเดอร์ อย่าส่งต่อให้บุคคลอื่น</p>
     </div>}
   </main><Footer /></>;
