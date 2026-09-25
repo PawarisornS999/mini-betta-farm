@@ -3,6 +3,7 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import type { Category, Product } from "@/types";
+import { maximumStockDecrease } from "@/lib/inventory";
 import { adminText, useAdminLanguage } from "./LanguageProvider";
 import BaseDropdown from "../BaseDropdown";
 import Modal from "../Modal";
@@ -113,6 +114,7 @@ export default function ProductsAdminClient({
   const [stockProduct, setStockProduct] = useState<Product | null>(null);
   const [deleteProductTarget, setDeleteProductTarget] = useState<Product | null>(null);
   const [delta, setDelta] = useState("1");
+  const [stockOperation, setStockOperation] = useState<"increase" | "decrease">("increase");
   const [reason, setReason] = useState("manual_adjustment");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -144,6 +146,17 @@ export default function ProductsAdminClient({
     }),
     [products],
   );
+  const currentStock = stockProduct?.stockQty ?? 0;
+  const reservedStock = stockProduct?.reservedQty ?? 0;
+  const adjustmentQuantity = Number(delta);
+  const maxDecrease = maximumStockDecrease(currentStock, reservedStock);
+  const adjustmentInvalid =
+    !Number.isInteger(adjustmentQuantity) ||
+    adjustmentQuantity <= 0 ||
+    (stockOperation === "decrease" && adjustmentQuantity > maxDecrease);
+  const projectedStock = stockOperation === "decrease"
+    ? currentStock - (Number.isFinite(adjustmentQuantity) ? adjustmentQuantity : 0)
+    : currentStock + (Number.isFinite(adjustmentQuantity) ? adjustmentQuantity : 0);
 
   function showToast(message: string) {
     setToast(message);
@@ -155,11 +168,11 @@ export default function ProductsAdminClient({
 
   async function uploadImage(file: File) {
     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-      setError("รองรับเฉพาะไฟล์ JPG, PNG หรือ WebP");
+      setError(text("รองรับเฉพาะไฟล์ JPG, PNG หรือ WebP", "Only JPG, PNG, or WebP files are supported"));
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      setError("รูปภาพต้องมีขนาดไม่เกิน 10 MB");
+      setError(text("รูปภาพต้องมีขนาดไม่เกิน 10 MB", "Image must not exceed 10 MB"));
       return;
     }
 
@@ -178,7 +191,7 @@ export default function ProductsAdminClient({
       } | null;
       if (!response.ok || !body?.data?.url) {
         throw new Error(
-          body?.message ?? `อัปโหลดรูปไม่สำเร็จ (${response.status})`,
+          body?.message ?? text(`อัปโหลดรูปไม่สำเร็จ (${response.status})`, `Image upload failed (${response.status})`),
         );
       }
       const imageUrl = body.data.url;
@@ -192,12 +205,12 @@ export default function ProductsAdminClient({
             }
           : current,
       );
-      showToast("อัปโหลดรูปสินค้าแล้ว");
+      showToast(text("อัปโหลดรูปสินค้าแล้ว", "Product image uploaded"));
     } catch (uploadError) {
       setError(
         uploadError instanceof Error
           ? uploadError.message
-          : "อัปโหลดรูปไม่สำเร็จ กรุณาลองอีกครั้ง",
+          : text("อัปโหลดรูปไม่สำเร็จ กรุณาลองอีกครั้ง", "Image upload failed. Please try again"),
       );
     } finally {
       setUploading(false);
@@ -231,7 +244,7 @@ export default function ProductsAdminClient({
     );
     const body = await response.json();
     if (!response.ok) {
-      setError(body.message ?? "บันทึกสินค้าไม่สำเร็จ");
+      setError(body.message ?? text("บันทึกสินค้าไม่สำเร็จ", "Unable to save product"));
       setSaving(false);
       return;
     }
@@ -242,7 +255,7 @@ export default function ProductsAdminClient({
     );
     setForm(null);
     setSaving(false);
-    showToast(form.id ? "อัปเดตสินค้าแล้ว" : "เพิ่มสินค้าแล้ว");
+    showToast(form.id ? text("อัปเดตสินค้าแล้ว", "Product updated") : text("เพิ่มสินค้าแล้ว", "Product created"));
   }
 
   async function hideProduct(product: Product) {
@@ -251,7 +264,7 @@ export default function ProductsAdminClient({
     });
     if (!response.ok) {
       const body = await response.json().catch(() => null);
-      setError(body?.message ?? "ซ่อนสินค้าไม่สำเร็จ");
+      setError(body?.message ?? text("ซ่อนสินค้าไม่สำเร็จ", "Unable to hide product"));
       return;
     }
     setProducts((current) => current.map((item) => item.id === product.id ? { ...item, adminStatus: "hidden", published: false } : item));
@@ -268,13 +281,15 @@ export default function ProductsAdminClient({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         productId: stockProduct.id,
-        delta: Number(delta),
+        operation: stockOperation,
+        quantity: Number(delta),
         reason,
+        language,
       }),
     });
     const body = await response.json();
     if (!response.ok) {
-      setError(body.message ?? "ปรับสต็อกไม่สำเร็จ");
+      setError(body.message ?? text("ปรับสต็อกไม่สำเร็จ", "Unable to adjust stock"));
       setSaving(false);
       return;
     }
@@ -293,7 +308,7 @@ export default function ProductsAdminClient({
     setStockProduct(null);
     setSaving(false);
     setDelta("1");
-    showToast("ปรับสต็อกเรียบร้อยแล้ว");
+    showToast(text("ปรับสต็อกเรียบร้อยแล้ว", "Stock adjusted successfully"));
   }
 
   return (
@@ -309,15 +324,15 @@ export default function ProductsAdminClient({
       <div className="mb-7 flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
         <div>
           <p className="text-sm text-[#7d7d75]">
-            จัดการปลากัดแบบรายตัว ราคา สถานะ และสต็อก
+            {text("จัดการปลากัดแบบรายตัว ราคา สถานะ และสต็อก", "Manage individual fish, pricing, status, and stock")}
           </p>
           <h2 className="mt-1 text-3xl font-bold tracking-tight">
-            Product management
+            {text("จัดการสินค้าและสต็อก", "Product and inventory management")}
           </h2>
         </div>
         <div className="flex gap-3">
           <button className="rounded-xl border border-black/10 bg-white px-4 py-3 text-sm font-semibold text-[#55554f]">
-            ↓ Export
+            ↓ {text("ส่งออก", "Export")}
           </button>
           <button
             onClick={() => {
@@ -326,16 +341,16 @@ export default function ProductsAdminClient({
             }}
             className="rounded-xl bg-gradient-to-r from-[#d79639] to-[#ba6c22] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-orange-900/15"
           >
-            ＋ Add product
+            ＋ {text("เพิ่มสินค้า", "Add product")}
           </button>
         </div>
       </div>
       <div className="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {[
-          ["สินค้าทั้งหมด", counts.total, "#222"],
-          ["พร้อมขาย", counts.available, "#18825e"],
-          ["จองแล้ว", counts.reserved, "#b06e14"],
-          ["ขายแล้ว", counts.sold, "#667085"],
+          [text("สินค้าทั้งหมด", "All products"), counts.total, "#222"],
+          [text("พร้อมขาย", "Available"), counts.available, "#18825e"],
+          [text("จองแล้ว", "Reserved"), counts.reserved, "#b06e14"],
+          [text("ขายแล้ว", "Sold"), counts.sold, "#667085"],
         ].map(([label, value, color]) => (
           <div
             key={String(label)}
@@ -362,7 +377,7 @@ export default function ProductsAdminClient({
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="ค้นหาชื่อสินค้า, SKU หรือสายพันธุ์..."
+              placeholder={text("ค้นหาชื่อสินค้า, SKU หรือสายพันธุ์...", "Search name, SKU, or strain...")}
               className="w-full rounded-xl border border-black/8 bg-[#fafaf8] py-3 pl-11 pr-4 text-sm outline-none focus:border-[#d28a31]"
             />
           </div>
@@ -370,7 +385,7 @@ export default function ProductsAdminClient({
             <BaseDropdown
               value={status}
               onChange={setStatus}
-              options={statuses.map((item) => ({ value: item, label: ({ all: "ทั้งหมด", available: "พร้อมขาย", reserved: "จองแล้ว", sold: "ขายแล้ว", draft: "ฉบับร่าง", hidden: "ซ่อนแล้ว" } as Record<string, string>)[item] }))}
+              options={statuses.map((item) => ({ value: item, label: ({ all: text("ทั้งหมด", "All"), available: text("พร้อมขาย", "Available"), reserved: text("จองแล้ว", "Reserved"), sold: text("ขายแล้ว", "Sold"), draft: text("ฉบับร่าง", "Draft"), hidden: text("ซ่อนแล้ว", "Hidden") } as Record<string, string>)[item] }))}
               className="min-w-36"
             />
           </div>
@@ -379,13 +394,13 @@ export default function ProductsAdminClient({
           <table className="w-full min-w-[1050px] text-left">
             <thead>
               <tr className="border-b border-black/6 bg-[#fafaf8] text-[11px] uppercase tracking-[.12em] text-[#8a8a82]">
-                <th className="px-5 py-4">สินค้า</th>
-                <th className="px-5 py-4">SKU / สายพันธุ์</th>
-                <th className="px-5 py-4">เพศ</th>
-                <th className="px-5 py-4">ราคา</th>
-                <th className="px-5 py-4">สต็อก</th>
-                <th className="px-5 py-4">สถานะ</th>
-                <th className="px-5 py-4 text-right">การจัดการ</th>
+                <th className="px-5 py-4">{text("สินค้า", "Product")}</th>
+                <th className="px-5 py-4">{text("SKU / สายพันธุ์", "SKU / Strain")}</th>
+                <th className="px-5 py-4">{text("เพศ", "Gender")}</th>
+                <th className="px-5 py-4">{text("ราคา", "Price")}</th>
+                <th className="px-5 py-4">{text("สต็อก", "Stock")}</th>
+                <th className="px-5 py-4">{text("สถานะ", "Status")}</th>
+                <th className="px-5 py-4 text-right">{text("การจัดการ", "Actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black/5">
@@ -424,7 +439,13 @@ export default function ProductsAdminClient({
                     </p>
                   </td>
                   <td className="px-5 py-4 text-sm capitalize">
-                    {product.gender ?? "—"}
+                    {product.gender === "male"
+                      ? text("เพศผู้", "Male")
+                      : product.gender === "female"
+                        ? text("เพศเมีย", "Female")
+                        : product.gender === "unsexed"
+                          ? text("ไม่ระบุ", "Unsexed")
+                          : "—"}
                   </td>
                   <td className="px-5 py-4 font-semibold">
                     ฿{product.price.toLocaleString()}
@@ -435,12 +456,13 @@ export default function ProductsAdminClient({
                         setError("");
                         setStockProduct(product);
                         setDelta("1");
+                        setStockOperation("increase");
                       }}
                       className="rounded-lg bg-[#f4f1eb] px-3 py-2 font-bold hover:bg-[#eee6da]"
                     >
                       {product.stockQty ?? 0}{" "}
                       <span className="ml-1 text-xs font-normal text-[#8b8174]">
-                        adjust
+                        {text("ปรับ", "adjust")}
                       </span>
                     </button>
                   </td>
@@ -448,7 +470,7 @@ export default function ProductsAdminClient({
                     <span
                       className={`inline-flex rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider ring-1 ring-inset ${statusClass(product.adminStatus)}`}
                     >
-                      {product.adminStatus}
+                      {({ available: text("พร้อมขาย", "Available"), reserved: text("จองแล้ว", "Reserved"), sold: text("ขายแล้ว", "Sold"), draft: text("ฉบับร่าง", "Draft"), hidden: text("ซ่อนแล้ว", "Hidden") } as Record<string, string>)[product.adminStatus ?? ""] ?? product.adminStatus}
                     </span>
                   </td>
                   <td className="px-5 py-4">
@@ -460,13 +482,13 @@ export default function ProductsAdminClient({
                         }}
                         className="rounded-lg border border-black/8 px-3 py-2 text-xs font-semibold hover:border-[#d28a31] hover:text-[#a86524]"
                       >
-                        Edit
+                        {text("แก้ไข", "Edit")}
                       </button>
                       <button
                         onClick={() => setDeleteProductTarget(product)}
                         className="rounded-lg border border-black/8 px-3 py-2 text-xs font-semibold text-red-600 hover:border-red-200 hover:bg-red-50"
                       >
-                        Hide
+                        {text("ซ่อน", "Hide")}
                       </button>
                     </div>
                   </td>
@@ -499,7 +521,7 @@ export default function ProductsAdminClient({
                     <span
                       className={`rounded-full px-2 py-1 text-[9px] font-bold uppercase ring-1 ring-inset ${statusClass(product.adminStatus)}`}
                     >
-                      {product.adminStatus}
+                      {({ available: text("พร้อมขาย", "Available"), reserved: text("จองแล้ว", "Reserved"), sold: text("ขายแล้ว", "Sold"), draft: text("ฉบับร่าง", "Draft"), hidden: text("ซ่อนแล้ว", "Hidden") } as Record<string, string>)[product.adminStatus ?? ""] ?? product.adminStatus}
                     </span>
                   </div>
                   <div className="mt-3 flex items-center justify-between">
@@ -507,7 +529,7 @@ export default function ProductsAdminClient({
                       ฿{product.price.toLocaleString()}
                     </p>
                     <p className="text-sm">
-                      Stock <b>{product.stockQty ?? 0}</b>
+                      {text("สต็อก", "Stock")} <b>{product.stockQty ?? 0}</b>
                     </p>
                   </div>
                 </div>
@@ -517,19 +539,24 @@ export default function ProductsAdminClient({
                   onClick={() => setForm(productToForm(product))}
                   className="flex-1 rounded-lg bg-[#20201e] py-2 text-xs font-semibold text-white"
                 >
-                  Edit
+                  {text("แก้ไข", "Edit")}
                 </button>
                 <button
-                  onClick={() => setStockProduct(product)}
+                  onClick={() => {
+                    setError("");
+                    setDelta("1");
+                    setStockOperation("increase");
+                    setStockProduct(product);
+                  }}
                   className="flex-1 rounded-lg bg-[#f0ece4] py-2 text-xs font-semibold"
                 >
-                  Adjust stock
+                  {text("ปรับสต็อก", "Adjust stock")}
                 </button>
                 <button
                   onClick={() => setDeleteProductTarget(product)}
                   className="flex-1 rounded-lg border border-red-200 py-2 text-xs font-semibold text-red-600"
                 >
-                  Hide
+                  {text("ซ่อน", "Hide")}
                 </button>
               </div>
             </div>
@@ -538,17 +565,17 @@ export default function ProductsAdminClient({
         {!filtered.length && (
           <div className="py-20 text-center">
             <p className="text-4xl">🐟</p>
-            <p className="mt-3 font-semibold">ไม่พบสินค้า</p>
+            <p className="mt-3 font-semibold">{text("ไม่พบสินค้า", "No products found")}</p>
             <p className="mt-1 text-sm text-[#92928a]">
-              ลองเปลี่ยนคำค้นหาหรือตัวกรอง
+              {text("ลองเปลี่ยนคำค้นหาหรือตัวกรอง", "Try changing the search or filter")}
             </p>
           </div>
         )}
         <div className="flex items-center justify-between border-t border-black/6 px-5 py-4 text-xs text-[#83837b]">
           <span>
-            Showing {filtered.length} of {products.length} products
+            {text(`แสดง ${filtered.length} จาก ${products.length} รายการ`, `Showing ${filtered.length} of ${products.length} products`)}
           </span>
-              <span>หน้า 1 จาก 1</span>
+              <span>{text("หน้า 1 จาก 1", "Page 1 of 1")}</span>
         </div>
       </section>
 
@@ -561,10 +588,10 @@ export default function ProductsAdminClient({
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-black/6 bg-white/95 px-6 py-5 backdrop-blur">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[.18em] text-[#b1742c]">
-                  Product editor
+                  {text("แก้ไขข้อมูลสินค้า", "Product editor")}
                 </p>
                 <h3 className="text-xl font-bold">
-                  {form.id ? "Edit product" : "Add new fish"}
+                  {form.id ? text("แก้ไขสินค้า", "Edit product") : text("เพิ่มปลาใหม่", "Add new fish")}
                 </h3>
               </div>
               <button
@@ -577,8 +604,8 @@ export default function ProductsAdminClient({
             </div>
             <div className="grid gap-7 p-6 lg:grid-cols-[1.4fr_1fr]">
               <div className="space-y-6">
-                <FormSection title="Product information">
-                  <Field label="Product name *">
+                <FormSection title={text("ข้อมูลสินค้า", "Product information")}>
+                  <Field label={text("ชื่อสินค้า *", "Product name *")}>
                     <input
                       required
                       value={form.name}
@@ -597,7 +624,7 @@ export default function ProductsAdminClient({
                         className="input-admin font-mono"
                       />
                     </Field>
-                    <Field label="URL slug">
+                    <Field label={text("ชื่อ URL", "URL slug")}>
                       <input
                         value={form.slug}
                         onChange={(e) => setField("slug", e.target.value)}
@@ -606,7 +633,7 @@ export default function ProductsAdminClient({
                     </Field>
                   </div>
                   <div className="flex flex-col gap-4">
-                      <Field label="Strain">
+                      <Field label={text("สายพันธุ์", "Strain")}>
                       <input
                         required
                         value={form.species}
@@ -614,10 +641,10 @@ export default function ProductsAdminClient({
                         className="input-admin"
                       />
                       </Field>
-                      <Field label="Category *">
+                      <Field label={text("หมวดหมู่ *", "Category *")}>
                         <BaseDropdown value={form.category} onChange={(value) => setField("category", value)} options={categories.filter((category) => category.isActive !== false).map((category) => ({ value: category.slug, label: category.name }))} />
                       </Field>
-                    <Field label="Color *">
+                    <Field label={text("สี *", "Color *")}>
                       <input
                         required
                         value={form.color}
@@ -625,23 +652,23 @@ export default function ProductsAdminClient({
                         className="input-admin"
                       />
                     </Field>
-                    <Field label="Gender">
+                    <Field label={text("เพศ", "Gender")}>
                       <BaseDropdown
                         value={form.gender}
                         onChange={(value) => setField("gender", value as FormState["gender"])}
-                        options={[{ value: "male", label: "เพศผู้" }, { value: "female", label: "เพศเมีย" }, { value: "unsexed", label: "ไม่ระบุเพศ" }]}
+                        options={[{ value: "male", label: text("เพศผู้", "Male") }, { value: "female", label: text("เพศเมีย", "Female") }, { value: "unsexed", label: text("ไม่ระบุเพศ", "Unsexed") }]}
                       />
                     </Field>
                   </div>
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Field label="Pattern">
+                    <Field label={text("ลวดลาย", "Pattern")}>
                       <input
                         value={form.pattern}
                         onChange={(e) => setField("pattern", e.target.value)}
                         className="input-admin"
                       />
                     </Field>
-                    <Field label="Tail type">
+                    <Field label={text("ประเภทหาง", "Tail type")}>
                       <input
                         value={form.tailType}
                         onChange={(e) => setField("tailType", e.target.value)}
@@ -649,7 +676,7 @@ export default function ProductsAdminClient({
                       />
                     </Field>
                   </div>
-                  <Field label="Description">
+                  <Field label={text("รายละเอียด", "Description")}>
                     <textarea
                       rows={5}
                       value={form.description}
@@ -658,14 +685,14 @@ export default function ProductsAdminClient({
                     />
                   </Field>
                 </FormSection>
-                <FormSection title="Product images">
+                <FormSection title={text("รูปสินค้า", "Product images")}>
                   <label
                     className={`flex cursor-pointer items-center justify-center rounded-xl border border-dashed border-[#d7b17d] bg-[#fffaf2] px-4 py-4 text-sm font-bold text-[#9c6226] ${uploading ? "pointer-events-none opacity-60" : ""}`}
                   >
                     <span>
                       {uploading
-                        ? "กำลังอัปโหลด..."
-                        : "↑ อัปโหลด JPG, PNG หรือ WebP"}
+                        ? text("กำลังอัปโหลด...", "Uploading...")
+                        : text("↑ อัปโหลด JPG, PNG หรือ WebP", "↑ Upload JPG, PNG, or WebP")}
                     </span>
                     <input
                       type="file"
@@ -680,9 +707,9 @@ export default function ProductsAdminClient({
                     />
                   </label>
                   <p className="text-xs text-[#8a8a82]">
-                    สูงสุด 10 MB และเก็บใน Supabase Storage
+                    {text("สูงสุด 10 MB และเก็บใน Supabase Storage", "Maximum 10 MB, stored in Supabase Storage")}
                   </p>
-                  <Field label="Image URLs (one per line)">
+                  <Field label={text("URL รูปภาพ (หนึ่งรายการต่อบรรทัด)", "Image URLs (one per line)")}>
                     <textarea
                       rows={4}
                       value={form.images}
@@ -701,9 +728,9 @@ export default function ProductsAdminClient({
                 </FormSection>
               </div>
               <div className="space-y-6">
-                <FormSection title="Pricing & inventory">
+                <FormSection title={text("ราคาและสต็อก", "Pricing & inventory")}>
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                    <Field label="Price (THB) *">
+                    <Field label={text("ราคา (บาท) *", "Price (THB) *")}>
                       <input
                         required
                         min="0"
@@ -713,7 +740,7 @@ export default function ProductsAdminClient({
                         className="input-admin"
                       />
                     </Field>
-                    <Field label="Cost (THB)">
+                    <Field label={text("ต้นทุน (บาท)", "Cost (THB)")}>
                       <input
                         min="0"
                         type="number"
@@ -722,7 +749,7 @@ export default function ProductsAdminClient({
                         className="input-admin"
                       />
                     </Field>
-                    <Field label="Stock *">
+                    <Field label={text("สต็อก *", "Stock *")}>
                       <input
                         required
                         min="0"
@@ -732,15 +759,32 @@ export default function ProductsAdminClient({
                         className="input-admin"
                         disabled={Boolean(form.id)}
                       />
+                      {form.id && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const product = products.find((item) => item.id === form.id);
+                            if (!product) return;
+                            setForm(null);
+                            setError("");
+                            setDelta("1");
+                            setStockOperation("decrease");
+                            setStockProduct(product);
+                          }}
+                          className="mt-2 text-left text-xs font-bold text-[#a16522] hover:underline"
+                        >
+                          {text("ปรับเพิ่มหรือลดสต็อก →", "Increase or decrease stock →")}
+                        </button>
+                      )}
                     </Field>
-                    <Field label="Status">
+                    <Field label={text("สถานะ", "Status")}>
                       <BaseDropdown
                         value={form.adminStatus}
                         onChange={(value) => setField("adminStatus", value as FormState["adminStatus"])}
-                        options={["available", "reserved", "sold", "draft", "hidden"].map((value) => ({ value, label: ({ available: "พร้อมขาย", reserved: "จองแล้ว", sold: "ขายแล้ว", draft: "ฉบับร่าง", hidden: "ซ่อนแล้ว" } as Record<string, string>)[value] }))}
+                        options={["available", "reserved", "sold", "draft", "hidden"].map((value) => ({ value, label: ({ available: text("พร้อมขาย", "Available"), reserved: text("จองแล้ว", "Reserved"), sold: text("ขายแล้ว", "Sold"), draft: text("ฉบับร่าง", "Draft"), hidden: text("ซ่อนแล้ว", "Hidden") } as Record<string, string>)[value] }))}
                       />
                     </Field>
-                    <Field label="Age (months)">
+                    <Field label={text("อายุ (เดือน)", "Age (months)")}>
                       <input
                         min="0"
                         type="number"
@@ -749,7 +793,7 @@ export default function ProductsAdminClient({
                         className="input-admin"
                       />
                     </Field>
-                    <Field label="Size (cm)">
+                    <Field label={text("ขนาด (ซม.)", "Size (cm)")}>
                       <input
                         min="0"
                         step="0.1"
@@ -761,8 +805,8 @@ export default function ProductsAdminClient({
                     </Field>
                   </div>
                 </FormSection>
-                <FormSection title="Merchandising">
-                  <Field label="Badge">
+                <FormSection title={text("การนำเสนอสินค้า", "Merchandising")}>
+                  <Field label={text("ป้ายสินค้า", "Badge")}>
                     <input
                       value={form.badge}
                       onChange={(e) => setField("badge", e.target.value)}
@@ -772,9 +816,9 @@ export default function ProductsAdminClient({
                   </Field>
                   <label className="flex cursor-pointer items-center justify-between rounded-xl bg-[#f6f3ed] p-4">
                     <div>
-                      <p className="text-sm font-semibold">Featured product</p>
+                      <p className="text-sm font-semibold">{text("สินค้าแนะนำ", "Featured product")}</p>
                       <p className="text-xs text-[#878077]">
-                        แสดงสินค้าในส่วนแนะนำ
+                        {text("แสดงสินค้าในส่วนแนะนำ", "Show this product in featured sections")}
                       </p>
                     </div>
                     <input
@@ -798,17 +842,17 @@ export default function ProductsAdminClient({
                 onClick={() => setForm(null)}
                 className="rounded-xl border border-black/10 px-5 py-3 text-sm font-semibold"
               >
-                Cancel
+                {text("ยกเลิก", "Cancel")}
               </button>
               <button
                 disabled={saving || uploading}
                 className="rounded-xl bg-[#20201e] px-6 py-3 text-sm font-bold text-white disabled:opacity-50"
               >
                 {saving
-                  ? "Saving..."
+                  ? text("กำลังบันทึก...", "Saving...")
                   : form.id
-                    ? "Save changes"
-                    : "Create product"}
+                    ? text("บันทึกการแก้ไข", "Save changes")
+                    : text("สร้างสินค้า", "Create product")}
               </button>
             </div>
           </form>
@@ -824,11 +868,12 @@ export default function ProductsAdminClient({
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[.18em] text-[#b1742c]">
-                  Inventory adjustment
+                  {text("ปรับสต็อก", "Inventory adjustment")}
                 </p>
                 <h3 className="mt-1 text-xl font-bold">{stockProduct.name}</h3>
                 <p className="mt-1 text-sm text-[#85857d]">
-                  Current stock: <b>{stockProduct.stockQty ?? 0}</b>
+                  {text("สต็อกปัจจุบัน", "Current stock")}: <b>{currentStock}</b>
+                  {reservedStock > 0 && <> · {text("จองแล้ว", "Reserved")}: <b>{reservedStock}</b></>}
                 </p>
               </div>
               <button
@@ -840,24 +885,50 @@ export default function ProductsAdminClient({
               </button>
             </div>
             <div className="mt-6 space-y-4">
-              <Field label="Change quantity">
+              <Field label={text("ประเภทการปรับ", "Adjustment type")}>
+                <div className="grid grid-cols-2 gap-2 rounded-xl bg-[#f2f2ef] p-1">
+                  <button
+                    type="button"
+                    onClick={() => { setStockOperation("increase"); setError(""); }}
+                    className={`rounded-lg px-4 py-2.5 text-sm font-bold transition ${stockOperation === "increase" ? "bg-emerald-600 text-white shadow-sm" : "text-[#66665f]"}`}
+                  >
+                    ＋ {text("เพิ่มสต็อก", "Increase")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setStockOperation("decrease"); setError(""); }}
+                    className={`rounded-lg px-4 py-2.5 text-sm font-bold transition ${stockOperation === "decrease" ? "bg-red-600 text-white shadow-sm" : "text-[#66665f]"}`}
+                  >
+                    − {text("ลดสต็อก", "Decrease")}
+                  </button>
+                </div>
+              </Field>
+              <Field label={text("จำนวน", "Quantity")}>
                 <input
                   autoFocus
                   required
                   type="number"
+                  min="1"
+                  step="1"
                   value={delta}
                   onChange={(e) => setDelta(e.target.value)}
                   className="input-admin text-lg font-bold"
                 />
                 <p className="mt-1 text-xs text-[#8a8a82]">
-                  ใช้ค่าบวกเพื่อเพิ่ม และค่าลบเพื่อลดสต็อก
+                  {stockOperation === "decrease"
+                    ? text(`ลดได้สูงสุด ${maxDecrease} ตัว (ไม่นับ ${reservedStock} ตัวที่จองไว้)`, `You can remove up to ${maxDecrease} (${reservedStock} reserved)`)
+                    : text("ระบุจำนวนที่รับเข้าสต็อก", "Enter the quantity being added")}
                 </p>
               </Field>
-              <Field label="Reason">
+              <div className={`flex items-center justify-between rounded-xl p-4 ${adjustmentInvalid ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-800"}`}>
+                <span className="text-sm">{text("สต็อกหลังปรับ", "Stock after adjustment")}</span>
+                <strong className="text-xl">{adjustmentInvalid ? "—" : projectedStock}</strong>
+              </div>
+              <Field label={text("เหตุผล", "Reason")}>
                 <BaseDropdown
                   value={reason}
                   onChange={setReason}
-                  options={[{ value: "new_stock", label: "New stock" }, { value: "manual_adjustment", label: "Manual adjustment" }, { value: "damaged", label: "Damaged fish" }, { value: "reservation_release", label: "Reservation release" }]}
+                  options={[{ value: "new_stock", label: text("รับสินค้าเข้า", "New stock") }, { value: "manual_adjustment", label: text("ปรับยอดด้วยตนเอง", "Manual adjustment") }, { value: "damaged", label: text("ปลาเสียหาย/ตาย", "Damaged fish") }, { value: "reservation_release", label: text("คืนจากการจอง", "Reservation release") }]}
                 />
               </Field>
               {error && (
@@ -872,13 +943,13 @@ export default function ProductsAdminClient({
                 onClick={() => setStockProduct(null)}
                 className="rounded-xl border border-black/10 px-4 py-3 text-sm font-semibold"
               >
-                Cancel
+                {text("ยกเลิก", "Cancel")}
               </button>
               <button
-                disabled={saving || !Number(delta)}
+                disabled={saving || adjustmentInvalid}
                 className="rounded-xl bg-[#20201e] px-5 py-3 text-sm font-bold text-white disabled:opacity-50"
               >
-                {saving ? "Adjusting..." : "Confirm adjustment"}
+                {saving ? text("กำลังปรับสต็อก...", "Adjusting...") : text("ยืนยันการปรับสต็อก", "Confirm adjustment")}
               </button>
             </div>
           </form>
@@ -888,11 +959,11 @@ export default function ProductsAdminClient({
         isOpen={Boolean(deleteProductTarget)}
         onClose={() => setDeleteProductTarget(null)}
         onConfirm={() => deleteProductTarget && void hideProduct(deleteProductTarget)}
-        title="ซ่อนสินค้าใช่ไหม?"
-        description={deleteProductTarget ? `สินค้า “${deleteProductTarget.name}” จะถูกซ่อนจากหน้าร้าน แต่ข้อมูลและประวัติออเดอร์จะยังคงอยู่` : undefined}
+        title={text("ซ่อนสินค้าใช่ไหม?", "Hide this product?")}
+        description={deleteProductTarget ? text(`สินค้า “${deleteProductTarget.name}” จะถูกซ่อนจากหน้าร้าน แต่ข้อมูลและประวัติออเดอร์จะยังคงอยู่`, `“${deleteProductTarget.name}” will be hidden from the storefront, while its data and order history remain available.`) : undefined}
         variant="warning"
-        confirmText="ซ่อนสินค้า"
-        cancelText="ยกเลิก"
+        confirmText={text("ซ่อนสินค้า", "Hide product")}
+        cancelText={text("ยกเลิก", "Cancel")}
       />
     </div>
   );

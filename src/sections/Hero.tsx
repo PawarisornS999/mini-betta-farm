@@ -47,7 +47,7 @@ export default function Hero() {
               <div className="relative w-full aspect-square max-w-lg mx-auto">
                 <div className="absolute inset-4 bg-accent/20 rounded-full blur-3xl" />
                 <Image
-                  src="/assets/bettaHMPKHero.png"
+                  src="/assets/goldHalfmoon.png"
                   alt="Premium Betta Fish from Aurora Betta Farm"
                   fill
                   className="object-contain rounded-3xl relative z-10"

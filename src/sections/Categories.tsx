@@ -5,6 +5,8 @@ import { motion } from "motion/react";
 import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
 import { useCategories } from "@/lib/hooks/useCatalog";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFish } from "@fortawesome/free-solid-svg-icons";
 
 export default function Categories() {
   const lang = useLangStore((s) => s.lang);
@@ -44,7 +46,7 @@ export default function Categories() {
                 className="flex flex-col items-center gap-3 cursor-pointer group"
               >
                 <div className="w-16 h-16 sm:w-20 sm:h-20 bg-card-bg rounded-2xl flex items-center justify-center shadow-sm group-hover:shadow-md group-hover:bg-accent/10 transition-all duration-300">
-                  <span className="text-2xl sm:text-3xl">🐟</span>
+                    <FontAwesomeIcon icon={faFish} className="w-5 h-5" />
                 </div>
                 <div className="text-center">
                   <span className="text-xs sm:text-sm font-medium text-foreground/70 group-hover:text-accent transition-colors block">

@@ -14,6 +14,7 @@ async function loadModule(path) {
 const workflow = await loadModule("src/lib/orders/workflow.ts");
 const line = await loadModule("src/lib/utils/line.ts");
 const messaging = await loadModule("src/lib/line/messaging.ts");
+const inventory = await loadModule("src/lib/inventory.ts");
 
 test("fixed shipping is included exactly once", () => {
   assert.equal(workflow.orderTotal(350, workflow.SHIPPING_FEE), 430);
@@ -68,4 +69,14 @@ test("customer LINE order message links to the private payment page", () => {
   assert.equal(message.type, "flex");
   assert.match(message.altText, /11111111/);
   assert.equal(message.contents.footer.contents[0].action.uri, "https://example.com/orders/111?token=private-token");
+});
+
+test("inventory operations produce safe signed deltas", () => {
+  assert.equal(inventory.inventoryDelta("increase", 3), 3);
+  assert.equal(inventory.inventoryDelta("decrease", 3), -3);
+  assert.equal(inventory.inventoryDelta("decrease", 0), null);
+  assert.equal(inventory.inventoryDelta("decrease", -2), null);
+  assert.equal(inventory.inventoryDelta(undefined, undefined, -1), -1);
+  assert.equal(inventory.maximumStockDecrease(5, 2), 3);
+  assert.equal(inventory.maximumStockDecrease(1, 1), 0);
 });
