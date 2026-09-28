@@ -13,6 +13,7 @@ const navigation = [
   { href: "/admin/payment-settings", label: "Payment", icon: "฿" },
   { href: "/admin/categories", label: "Categories", icon: "◇" },
   { href: "/admin/inventory", label: "Inventory", icon: "▦" },
+  { href: "/admin/blogs", label: "Blogs", icon: "✎" },
 ];
 
 export default function AdminShell({ username, children }: { username: string; children: React.ReactNode }) {
@@ -48,7 +49,7 @@ export default function AdminShell({ username, children }: { username: string; c
           <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[.22em] text-white/35">{text("จัดการร้าน", "Management")}</p>
           {navigation.map((item) => {
             const active = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));
-            const label = item.label === "Dashboard" ? text("ภาพรวม", "Dashboard") : item.label === "Products" ? text("สินค้า", "Products") : item.label === "Orders" ? text("ออเดอร์", "Orders") : item.label === "Payment" ? text("บัญชีรับเงิน", "Payment") : item.label === "Categories" ? text("หมวดหมู่", "Categories") : text("สต็อก", "Inventory");
+            const label = item.label === "Dashboard" ? text("ภาพรวม", "Dashboard") : item.label === "Products" ? text("สินค้า", "Products") : item.label === "Orders" ? text("ออเดอร์", "Orders") : item.label === "Payment" ? text("บัญชีรับเงิน", "Payment") : item.label === "Categories" ? text("หมวดหมู่", "Categories") : item.label === "Blogs" ? text("บทความ", "Blog content") : text("สต็อก", "Inventory");
             return <Link key={item.href} href={item.href} onClick={() => setOpen(false)} className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition ${active ? "bg-[#d89232] text-white shadow-lg shadow-orange-950/20" : "text-white/65 hover:bg-white/7 hover:text-white"}`}><span className="w-5 text-center text-base">{item.icon}</span>{label}</Link>;
           })}
           <div className="my-5 border-t border-white/10" />
@@ -64,7 +65,7 @@ export default function AdminShell({ username, children }: { username: string; c
       </aside>
       <div className="lg:pl-72">
         <header className="sticky top-0 z-20 flex h-20 items-center justify-between border-b border-black/6 bg-[#f6f6f3]/90 px-4 backdrop-blur-xl sm:px-8">
-          <div className="flex items-center gap-4"><button onClick={() => setOpen(true)} className="grid h-10 w-10 place-items-center rounded-xl border border-black/10 bg-white lg:hidden">☰</button><div><p className="text-[11px] font-semibold uppercase tracking-[.2em] text-[#a16522]">{text("จัดการร้านค้า", "Store management")}</p><h1 className="text-lg font-bold">{pathname.includes("inventory") ? text("สต็อก", "Inventory") : pathname.includes("orders") ? text("ออเดอร์", "Orders") : pathname.includes("products") ? text("สินค้า", "Products") : text("ภาพรวม", "Dashboard")}</h1></div></div>
+          <div className="flex items-center gap-4"><button onClick={() => setOpen(true)} className="grid h-10 w-10 place-items-center rounded-xl border border-black/10 bg-white lg:hidden">☰</button><div><p className="text-[11px] font-semibold uppercase tracking-[.2em] text-[#a16522]">{text("จัดการร้านค้า", "Store management")}</p><h1 className="text-lg font-bold">{pathname.includes("inventory") ? text("สต็อก", "Inventory") : pathname.includes("orders") ? text("ออเดอร์", "Orders") : pathname.includes("products") ? text("สินค้า", "Products") : pathname.includes("blogs") ? text("บทความ", "Blog content") : pathname.includes("categories") ? text("หมวดหมู่", "Categories") : pathname.includes("payment-settings") ? text("บัญชีรับเงิน", "Payment") : text("ภาพรวม", "Dashboard")}</h1></div></div>
           <div className="flex items-center gap-3"><div className="hidden rounded-xl border border-black/8 bg-white px-4 py-2 text-xs text-[#77776f] sm:block">⌘ K &nbsp; {text("ค้นหา", "Search")}</div><div className="flex items-center rounded-xl border border-black/8 bg-white p-1 text-xs font-bold"><button onClick={() => setLanguage("th")} className={`rounded-lg px-2 py-1 ${language === "th" ? "bg-[#20201e] text-white" : "text-[#77776f]"}`}>ไทย</button><button onClick={() => setLanguage("en")} className={`rounded-lg px-2 py-1 ${language === "en" ? "bg-[#20201e] text-white" : "text-[#77776f]"}`}>EN</button></div><button className="grid h-10 w-10 place-items-center rounded-xl border border-black/8 bg-white">●</button></div>
         </header>
         <main className="p-4 sm:p-8">{children}</main>

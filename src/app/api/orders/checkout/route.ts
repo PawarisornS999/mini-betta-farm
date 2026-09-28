@@ -4,6 +4,8 @@ import type { CheckoutPayload, Order } from "@/types";
 import { customerOrderFlexMessage, formatOrderNotification, orderFlexMessage, pushLineFlex, pushLineMessage } from "@/lib/line/messaging";
 import { getLineFriendship, getLineSession, LINE_SESSION_COOKIE } from "@/lib/line/login";
 import { orderCustomerUrl } from "@/lib/orders/workflow";
+import { saveCustomerProfile } from "@/lib/customer/profile";
+import { validateCustomerProfile } from "@/lib/customer/profile-validation";
 
 export async function POST(request: Request) {
   try {
@@ -55,6 +57,22 @@ export async function POST(request: Request) {
       }),
       serviceRole: true,
     });
+
+    if (body.rememberProfile && body.profile) {
+      try {
+        const validationError = validateCustomerProfile(body.profile);
+        if (validationError) throw new Error(validationError);
+        await saveCustomerProfile(
+          lineSession.userId,
+          lineSession.displayName,
+          lineSession.pictureUrl,
+          body.profile,
+        );
+      } catch (profileError) {
+        // An order must remain successful even if saving this optional convenience data fails.
+        console.error("Customer profile save after checkout failed", profileError);
+      }
+    }
 
     if (process.env.LINE_CHANNEL_ACCESS_TOKEN && order.customerToken) {
       try {

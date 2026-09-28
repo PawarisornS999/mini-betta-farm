@@ -22,7 +22,7 @@ The application now includes:
    In the LINE Login channel settings, link the OA/Messaging API channel so the
    add-friend option and friendship API are available.
 2. Register this exact callback URL in the LINE Login channel:
-   `https://YOUR-DOMAIN/api/line/login/callback`.
+   `https://YOUR-DOMAIN/api/line/callback`.
 3. Add `LINE_LOGIN_CHANNEL_ID`, `LINE_LOGIN_CHANNEL_SECRET`,
    `LINE_LOGIN_CALLBACK_URL`, and a random 32+ character
    `LINE_LOGIN_SESSION_SECRET` to the deployed server environment.
@@ -38,7 +38,8 @@ The application now includes:
 9. Disable the LINE OA Manager greeting/automatic response if it duplicates
    the bot responses.
 10. Apply `supabase/migrations/202609210001_order_workflow.sql`, followed by
-   `supabase/migrations/202609240001_line_login_checkout.sql`, to the existing
+   `supabase/migrations/202609240001_line_login_checkout.sql`, and then
+   `supabase/migrations/202609260001_customer_profiles.sql` to the existing
    Supabase database. It initializes the supplied PromptPay and TTB details;
    verify them at `/admin/payment-settings` before taking the first order.
 11. Test with one small real order: log in, accept/add the OA as a friend,
@@ -62,3 +63,16 @@ OA ID and must be set as server environment variables.
 Never commit the channel secret, channel access token, recipient user ID, or
 cron secret to Git. Localhost cannot receive webhook requests directly from
 LINE; use the deployed HTTPS URL for the final connection.
+
+## Local LINE Login test
+
+For a browser running on the same computer as the development server, set both
+the application environment and the LINE Login channel's Callback URL to this
+exact value:
+
+`http://localhost:3000/api/line/callback`
+
+Start login at `/api/line/login`; the implemented routes don't use the
+`/api/auth/line/*` prefix. Restart the development server after changing
+`.env.local`. The Messaging API webhook still requires a public HTTPS URL and
+cannot use localhost.

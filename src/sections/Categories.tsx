@@ -5,8 +5,40 @@ import { motion } from "motion/react";
 import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
 import { useCategories } from "@/lib/hooks/useCatalog";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFish } from "@fortawesome/free-solid-svg-icons";
+import Image from "next/image";
+import { useState } from "react";
+
+function categoryIconPath(image?: string) {
+  const path = image?.trim();
+  if (!path) return null;
+  if (/^(https?:|data:|blob:)/i.test(path)) return path;
+
+  // Files inside /public are served from the site root. This lets Admin accept
+  // public/assets/icon.png, assets/icon.png, or /assets/icon.png.
+  const publicPath = path.replace(/^\/?public\//i, "");
+  return publicPath.startsWith("/") ? publicPath : `/${publicPath}`;
+}
+
+function CategoryIcon({ image, name }: { image?: string; name: string }) {
+  const src = categoryIconPath(image);
+  const [failed, setFailed] = useState(false);
+  if (!src || failed) return <span className="text-2xl" aria-hidden="true">
+    <Image src="/assets/iconBettaCategory/default.svg" alt={`betta icon`} width={60} height={60} />
+    
+  </span>;
+
+  return (
+    <Image
+      src={src}
+      alt={`${name} icon`}
+      width={48}
+      height={48}
+      unoptimized
+      onError={() => setFailed(true)}
+      className="h-10 w-10 object-contain sm:h-12 sm:w-12"
+    />
+  );
+}
 
 export default function Categories() {
   const lang = useLangStore((s) => s.lang);
@@ -34,7 +66,7 @@ export default function Categories() {
         >
           {categories.map((cat, i) => (
             <Link
-              key={cat.name}
+              key={cat.id}
               href={`/shop?category=${encodeURIComponent(cat.slug)}`}
             >
               <motion.div
@@ -46,7 +78,8 @@ export default function Categories() {
                 className="flex flex-col items-center gap-3 cursor-pointer group"
               >
                 <div className="w-16 h-16 sm:w-20 sm:h-20 bg-card-bg rounded-2xl flex items-center justify-center shadow-sm group-hover:shadow-md group-hover:bg-accent/10 transition-all duration-300">
-                    <FontAwesomeIcon icon={faFish} className="w-5 h-5" />
+                  <CategoryIcon image={cat.image} name={cat.name} />
+                  
                 </div>
                 <div className="text-center">
                   <span className="text-xs sm:text-sm font-medium text-foreground/70 group-hover:text-accent transition-colors block">

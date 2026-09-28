@@ -61,6 +61,24 @@ export interface User {
   updatedAt?: string;
 }
 
+export interface CustomerProfile {
+  displayName: string;
+  pictureUrl?: string;
+  customerName: string;
+  customerPhone: string;
+  addressDetails: string;
+  province: string;
+  district: string;
+  subdistrict: string;
+  postalCode: string;
+  updatedAt?: string;
+}
+
+export type CustomerProfileInput = Omit<
+  CustomerProfile,
+  "displayName" | "pictureUrl" | "updatedAt"
+>;
+
 // ─── Products (Betta Fish) ───────────────
 
 export interface Product {
@@ -291,6 +309,8 @@ export interface CheckoutPayload {
   customerAddress?: string;
   notes?: string;
   items: { productId: string; quantity: number }[];
+  rememberProfile?: boolean;
+  profile?: CustomerProfileInput;
 }
 
 export interface LineOrderPayload {

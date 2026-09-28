@@ -19,6 +19,7 @@ type LineAuthTransaction = {
 export type LineSession = {
   userId: string;
   displayName: string;
+  pictureUrl?: string;
   accessToken: string;
   expiresAt: number;
 };
@@ -32,6 +33,7 @@ type LineTokenResponse = {
 type LineProfile = {
   userId: string;
   displayName: string;
+  pictureUrl?: string;
 };
 
 function getEncryptionKey() {
@@ -97,18 +99,26 @@ export function getLineLoginConfig(origin?: string) {
   }
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || origin;
   if (!siteUrl) throw new Error("NEXT_PUBLIC_SITE_URL is not configured");
+  const redirectUri =
+    process.env.LINE_LOGIN_CALLBACK_URL || `${siteUrl}/api/line/callback`;
+  if (!redirectUri.endsWith("/api/line/callback")) {
+    throw new Error(
+      "LINE_LOGIN_CALLBACK_URL must end with /api/line/callback",
+    );
+  }
   return {
     clientId,
     clientSecret,
-    redirectUri:
-      process.env.LINE_LOGIN_CALLBACK_URL || `${siteUrl}/api/line/login/callback`,
+    redirectUri,
   };
 }
 
 export function createLineAuthTransaction(returnTo: string): LineAuthTransaction {
   return {
-    state: randomBytes(24).toString("base64url"),
-    nonce: randomBytes(24).toString("base64url"),
+    // LINE documents state as an alphanumeric value. Hex keeps both state and
+    // nonce URL-safe without punctuation while preserving strong randomness.
+    state: randomBytes(24).toString("hex"),
+    nonce: randomBytes(24).toString("hex"),
     codeVerifier: randomBytes(48).toString("base64url"),
     returnTo,
     expiresAt: Date.now() + LINE_AUTH_MAX_AGE * 1000,
@@ -192,6 +202,7 @@ export async function exchangeLineCode(
     session: {
       userId: profile.userId,
       displayName: profile.displayName,
+      pictureUrl: profile.pictureUrl,
       accessToken: token.access_token,
       expiresAt: Date.now() + Math.min(token.expires_in, LINE_SESSION_MAX_AGE) * 1000,
     } satisfies LineSession,

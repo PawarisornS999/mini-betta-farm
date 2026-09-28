@@ -8,6 +8,7 @@ const translations = {
       blog: "Blog",
       about: "About",
       contact: "Contact",
+      profile: "Profile",
       admin: "Admin",
     },
     hero: {
@@ -87,8 +88,8 @@ const translations = {
       noSpam: "No spam. Unsubscribe at any time.",
     },
     blog: {
-      title: "Betta Care Blog",
-      pageTitle: "Betta Fish Care Blog",
+      title: "Learn Betta Fish Care",
+      pageTitle: "Learn Betta Fish Care",
       pageSubtitle:
         "Expert guides on betta fish care, disease treatment, feeding, breeding, and species information. Everything you need to keep your betta healthy and happy.",
       viewAll: "View All",
@@ -315,6 +316,7 @@ const translations = {
       blog: "บทความ",
       about: "เกี่ยวกับเรา",
       contact: "ติดต่อ",
+      profile: "โปรไฟล์",
       admin: "ผู้ดูแล",
     },
     hero: {
@@ -394,8 +396,8 @@ const translations = {
       noSpam: "ไม่มีสแปม สามารถยกเลิกได้ทุกเมื่อ",
     },
     blog: {
-      title: "บล็อกการดูแลปลากัด",
-      pageTitle: "บล็อกการดูแลปลากัด",
+      title: "เรียนรู้การดูแลปลากัด",
+      pageTitle: "เรียนรู้การดูแลปลากัด",
       pageSubtitle:
         "คู่มือจากผู้เชี่ยวชาญเรื่องการดูแลปลากัด การรักษาโรค การให้อาหาร การเพาะพันธุ์ และข้อมูลสายพันธุ์ เพื่อให้ปลากัดของคุณแข็งแรงและสวยงาม",
       viewAll: "ดูทั้งหมด",

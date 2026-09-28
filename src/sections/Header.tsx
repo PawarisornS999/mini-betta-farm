@@ -12,6 +12,7 @@ import {
   faBars,
   faCartShopping,
   faFishFins,
+  faUser,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -102,6 +103,15 @@ export default function Header() {
                 <span>{lang === "en" ? "TH" : "EN"}</span>
               </motion.button>
 
+              <Link
+                href="/profile"
+                aria-label={t.nav.profile}
+                title={t.nav.profile}
+                className="p-2 rounded-xl hover:bg-foreground/5 hover:text-accent transition-colors"
+              >
+                <FontAwesomeIcon icon={faUser} className="w-5 h-5" />
+              </Link>
+
               <button
                 onClick={() => setCartOpen(true)}
                 id="header-cart-button"
@@ -148,6 +158,13 @@ export default function Header() {
                   {link.label}
                 </Link>
               ))}
+              <Link
+                href="/profile"
+                onClick={() => setMobileOpen(false)}
+                className="block px-4 p-2.5 text-sm font-medium text-foreground/70 hover:text-accent transition-colors"
+              >
+                {t.nav.profile}
+              </Link>
               <button
                 onClick={() => {
                   toggle();

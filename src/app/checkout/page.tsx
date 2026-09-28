@@ -15,16 +15,12 @@ import { apiClient } from "@/lib/api-client/browser";
 import { orderTotal, SHIPPING_FEE } from "@/lib/orders/workflow";
 import BaseDropdown from "@/components/BaseDropdown";
 import { searchAddressByProvince } from "thai-address-database";
+import type { CheckoutPayload, CustomerProfile } from "@/types";
 
 const thaiAddresses = searchAddressByProvince(".", 10000);
 const CHECKOUT_DRAFT_KEY = "mini-betta-line-checkout-draft";
 
-type CheckoutDraft = {
-  customerName: string;
-  customerPhone: string;
-  customerAddress: string;
-  items: { productId: string; quantity: number }[];
-};
+type CheckoutDraft = CheckoutPayload;
 
 type LineState =
   | { status: "loading" }
@@ -48,6 +44,7 @@ export default function CheckoutPage() {
   const [subdistrict, setSubdistrict] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [addressDetails, setAddressDetails] = useState("");
+  const [rememberProfile, setRememberProfile] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [lineState, setLineState] = useState<LineState>({ status: "loading" });
@@ -130,6 +127,8 @@ export default function CheckoutPage() {
         const lineResult = params.get("line");
         if (lineResult === "friend-required") {
           setSubmitError("กรุณาเพิ่ม LINE Official Account เป็นเพื่อน แล้วกดเข้าสู่ระบบ LINE อีกครั้ง");
+        } else if (lineResult === "access-denied") {
+          setSubmitError("คุณยกเลิกการเข้าสู่ระบบ LINE กรุณาเข้าสู่ระบบอีกครั้งเพื่อยืนยันออเดอร์");
         } else if (lineResult === "invalid-state" || lineResult === "login-failed") {
           setSubmitError("เข้าสู่ระบบ LINE ไม่สำเร็จหรือหมดเวลา กรุณาลองใหม่");
         } else if (lineResult === "config-error") {
@@ -144,6 +143,23 @@ export default function CheckoutPage() {
           displayName: result.data.displayName || "LINE user",
         });
 
+        try {
+          const profileResponse = await fetch("/api/customer/profile", { cache: "no-store" });
+          if (profileResponse.ok) {
+            const profileResult = await profileResponse.json() as { data: CustomerProfile };
+            const profile = profileResult.data;
+            setName((current) => current || profile.customerName);
+            setPhone((current) => current || profile.customerPhone);
+            setAddressDetails((current) => current || profile.addressDetails);
+            setProvince((current) => current || profile.province);
+            setDistrict((current) => current || profile.district);
+            setSubdistrict((current) => current || profile.subdistrict);
+            setPostalCode((current) => current || profile.postalCode);
+          }
+        } catch (profileError) {
+          console.error("Customer profile preload failed", profileError);
+        }
+
         const savedDraft = window.sessionStorage.getItem(CHECKOUT_DRAFT_KEY);
         if (params.get("line") !== "connected" || !savedDraft) return;
         window.sessionStorage.removeItem(CHECKOUT_DRAFT_KEY);
@@ -153,6 +169,14 @@ export default function CheckoutPage() {
         }
         setName(draft.customerName);
         setPhone(draft.customerPhone);
+        if (draft.profile) {
+          setAddressDetails(draft.profile.addressDetails);
+          setProvince(draft.profile.province);
+          setDistrict(draft.profile.district);
+          setSubdistrict(draft.profile.subdistrict);
+          setPostalCode(draft.profile.postalCode);
+        }
+        setRememberProfile(draft.rememberProfile !== false);
         void completeCheckout(draft);
       })
       .catch((error) => {
@@ -170,6 +194,7 @@ export default function CheckoutPage() {
       !province.trim() ||
       !district.trim() ||
       !subdistrict.trim() ||
+      !addressDetails.trim() ||
       postalCode.trim().length !== 5 ||
       submitting ||
       lineState.status === "loading"
@@ -183,6 +208,16 @@ export default function CheckoutPage() {
         productId: item.product.id,
         quantity: item.quantity,
       })),
+      rememberProfile,
+      profile: {
+        customerName: name,
+        customerPhone: phone,
+        addressDetails,
+        province,
+        district,
+        subdistrict,
+        postalCode,
+      },
     };
 
     if (lineState.status !== "connected") {
@@ -339,7 +374,7 @@ export default function CheckoutPage() {
                       </div>
                     </div>
                     <label className="text-sm text-muted block mt-4 mb-1.5">
-                      {t.addressDetails}
+                      {t.addressDetails} *
                     </label>
                     <textarea
                       value={addressDetails}
@@ -348,6 +383,17 @@ export default function CheckoutPage() {
                       rows={2}
                       className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-accent focus:outline-none text-sm resize-none"
                     />
+                    {lineState.status === "connected" && (
+                      <label className="mt-4 flex cursor-pointer items-center gap-3 rounded-xl bg-green-50 p-3 text-sm text-foreground">
+                        <input
+                          type="checkbox"
+                          checked={rememberProfile}
+                          onChange={(event) => setRememberProfile(event.target.checked)}
+                          className="h-5 w-5 accent-green-600"
+                        />
+                        <span>{lang === "en" ? "Remember my contact and shipping address" : "จดจำชื่อ เบอร์โทร และที่อยู่สำหรับครั้งถัดไป"}</span>
+                      </label>
+                    )}
                   </div>
                 </div>
               </div>
@@ -368,7 +414,17 @@ export default function CheckoutPage() {
                   <div>
                     <h3 className="font-bold text-foreground">LINE Login และเพิ่มเพื่อน OA</h3>
                     {lineState.status === "loading" && <p className="mt-1 text-sm text-muted">กำลังตรวจสอบการเชื่อมต่อ LINE...</p>}
-                    {lineState.status === "required" && <p className="mt-1 text-sm text-muted">เมื่อยืนยันออเดอร์ ระบบจะพาไปเข้าสู่ระบบ LINE และเพิ่มร้านเป็นเพื่อนก่อนสร้างออเดอร์</p>}
+                    {lineState.status === "required" && <>
+                      <p className="mt-1 text-sm text-muted">เข้าสู่ระบบ LINE และเพิ่มร้านเป็นเพื่อนก่อนสร้างออเดอร์</p>
+                      <button
+                        type="button"
+                        onClick={() => window.location.assign("/api/line/login?returnTo=/checkout")}
+                        className="mt-3 inline-flex items-center gap-2 rounded-xl bg-green-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-600"
+                      >
+                        <FontAwesomeIcon icon={faLine} className="h-5 w-5" />
+                        Login with LINE
+                      </button>
+                    </>}
                     {lineState.status === "connected" && <p className="mt-1 text-sm font-medium text-green-700">เชื่อมต่อแล้ว: {lineState.displayName}</p>}
                   </div>
                 </div>
@@ -423,6 +479,7 @@ export default function CheckoutPage() {
                     !province.trim() ||
                     !district.trim() ||
                     !subdistrict.trim() ||
+                    !addressDetails.trim() ||
                     postalCode.trim().length !== 5 ||
                     submitting ||
                     lineState.status === "loading"

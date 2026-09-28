@@ -9,8 +9,10 @@ import {
   readLineAuthTransaction,
 } from "@/lib/line/login";
 
-function checkoutError(request: NextRequest, code: string) {
-  const response = NextResponse.redirect(new URL(`/checkout?line=${code}`, request.url));
+function loginError(request: NextRequest, code: string, returnTo = "/checkout") {
+  const redirectUrl = new URL(returnTo, request.url);
+  redirectUrl.searchParams.set("line", code);
+  const response = NextResponse.redirect(redirectUrl);
   response.cookies.delete(LINE_AUTH_COOKIE);
   return response;
 }
@@ -18,12 +20,15 @@ function checkoutError(request: NextRequest, code: string) {
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
   const state = request.nextUrl.searchParams.get("state");
+  const oauthError = request.nextUrl.searchParams.get("error");
   const transaction = readLineAuthTransaction(
     request.cookies.get(LINE_AUTH_COOKIE)?.value,
   );
-  if (!code || !state || !transaction || state !== transaction.state) {
-    return checkoutError(request, "invalid-state");
+  if (!state || !transaction || state !== transaction.state) {
+    return loginError(request, "invalid-state");
   }
+  if (oauthError) return loginError(request, "access-denied", transaction.returnTo);
+  if (!code) return loginError(request, "login-failed", transaction.returnTo);
 
   try {
     const { friend, session } = await exchangeLineCode(
@@ -31,7 +36,7 @@ export async function GET(request: NextRequest) {
       transaction,
       request.nextUrl.origin,
     );
-    if (!friend) return checkoutError(request, "friend-required");
+    if (!friend) return loginError(request, "friend-required", transaction.returnTo);
 
     const redirectUrl = new URL(transaction.returnTo, request.nextUrl.origin);
     redirectUrl.searchParams.set("line", "connected");
@@ -48,6 +53,6 @@ export async function GET(request: NextRequest) {
     return response;
   } catch (error) {
     console.error("LINE login callback failed", error);
-    return checkoutError(request, "login-failed");
+    return loginError(request, "login-failed", transaction.returnTo);
   }
 }

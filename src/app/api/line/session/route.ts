@@ -7,7 +7,7 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       data: session
-        ? { authenticated: true, displayName: session.displayName }
+        ? { authenticated: true, displayName: session.displayName, pictureUrl: session.pictureUrl }
         : { authenticated: false },
     });
   } catch (error) {

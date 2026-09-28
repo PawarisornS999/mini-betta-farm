@@ -15,6 +15,7 @@ const workflow = await loadModule("src/lib/orders/workflow.ts");
 const line = await loadModule("src/lib/utils/line.ts");
 const messaging = await loadModule("src/lib/line/messaging.ts");
 const inventory = await loadModule("src/lib/inventory.ts");
+const customerProfile = await loadModule("src/lib/customer/profile-validation.ts");
 
 test("fixed shipping is included exactly once", () => {
   assert.equal(workflow.orderTotal(350, workflow.SHIPPING_FEE), 430);
@@ -79,4 +80,19 @@ test("inventory operations produce safe signed deltas", () => {
   assert.equal(inventory.inventoryDelta(undefined, undefined, -1), -1);
   assert.equal(inventory.maximumStockDecrease(5, 2), 3);
   assert.equal(inventory.maximumStockDecrease(1, 1), 0);
+});
+
+test("customer profile requires complete contact and Thai address data", () => {
+  const validProfile = {
+    customerName: "สมชาย ใจดี",
+    customerPhone: "081-234-5678",
+    addressDetails: "99 ถนนสุขุมวิท",
+    province: "กรุงเทพมหานคร",
+    district: "วัฒนา",
+    subdistrict: "คลองเตยเหนือ",
+    postalCode: "10110",
+  };
+  assert.equal(customerProfile.validateCustomerProfile(validProfile), null);
+  assert.match(customerProfile.validateCustomerProfile({ ...validProfile, addressDetails: "" }), /รายละเอียดที่อยู่/);
+  assert.match(customerProfile.validateCustomerProfile({ ...validProfile, postalCode: "1011" }), /5 หลัก/);
 });
