@@ -1,0 +1,66 @@
+src/app/api/admin/products/route.ts
+  s_b5475d7424c9ee::t_cf0f2dd0c159c1 66-67
+  s_b5475d7424c9ee::t_a2d711011a5857 20,59
+src/lib/admin/products.ts
+  s_b5475d7424c9ee::t_73881fa6b3c8fe 14-15,18-20,22-23
+src/sections/PetClothing.tsx
+  s_b5475d7424c9ee::t_4cd11a78e34980 4,11,21
+src/sections/PetFoodies.tsx
+  s_b5475d7424c9ee::t_4cd11a78e34980 6,13,54
+src/lib/supabase/queries.ts
+  s_b5475d7424c9ee::t_18c87c8864f394 15-16
+  s_b5475d7424c9ee::t_e780cc04f2c9c9 7-8
+src/app/admin/(dashboard)/page.tsx
+  s_b5475d7424c9ee::t_73881fa6b3c8fe 4-5
+src/lib/i18n.ts
+  s_b5475d7424c9ee::t_4a6673fcdbbe98 129,440
+  s_b5475d7424c9ee::t_36dc4f2aeca04a 142-143,453-454
+src/app/shop/page.tsx
+  s_b5475d7424c9ee::t_4cd11a78e34980 7,202-204
+src/app/shop/[id]/page.tsx
+  s_b5475d7424c9ee::t_36dc4f2aeca04a 3,15-16,30,113-127,143-145,147-148,157,306-336
+  s_b5475d7424c9ee::t_1df0c772af7769 31-42
+  s_b5475d7424c9ee::t_4a6673fcdbbe98 82-83,133-139,250-252,271,273,275,280-282
+src/components/admin/ProductsAdminClient.tsx
+  s_b5475d7424c9ee::t_d5653c0f85b5c4 684
+  s_b5475d7424c9ee::t_32a2d4837acf96 227-230
+  s_b5475d7424c9ee::t_2f1355a1b026c0 767,802
+  s_b5475d7424c9ee::t_a2d711011a5857 10,25,42-43,47-48,92-93,662-663,756
+  s_b5475d7424c9ee::t_bec96f9782cd97 648,823,825-834
+  s_b5475d7424c9ee::t_1b46f094674cd8 661
+  s_b5475d7424c9ee::t_989f993442e220 634,636,638,643
+src/app/cart/page.tsx
+  s_b5475d7424c9ee::t_1deb60594e28e5 66,69
+  s_b5475d7424c9ee::t_6720c95f33c56e 12
+  s_b5475d7424c9ee::t_e9ce1f186eab79 53,77,98,103
+  s_b5475d7424c9ee::t_d70bf398ab17b7 105
+src/components/ProductCardSkeleton.tsx
+  s_b5475d7424c9ee::t_4cd11a78e34980 1-13
+src/components/ProductCard.tsx
+  s_b5475d7424c9ee::t_4a6673fcdbbe98 34-35,38,128-134,165-166,168,170,175-177
+src/app/api/admin/products/[id]/route.ts
+  s_b5475d7424c9ee::t_a2d711011a5857 16
+  s_b5475d7424c9ee::t_cf0f2dd0c159c1 19-20
+src/lib/customer/profile.ts
+  s_b5475d7424c9ee::t_2d1e3cca791f98 51-82
+src/types/index.ts
+  s_b5475d7424c9ee::t_cf0f2dd0c159c1 134
+src/sections/BestSelling.tsx
+  s_b5475d7424c9ee::t_4cd11a78e34980 4,11,23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.3",
+  "base_commit_sha": "af822271a64b94f79a42b410efaae8aa04625f6b",
+  "prompts": {},
+  "sessions": {
+    "s_b5475d7424c9ee": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0edc4-0632-7b41-8d89-b700aabb67ff",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "Pawarisorn <pawarisorn.son@axonstech.com>"
+    }
+  }
+}
