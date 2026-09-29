@@ -1,0 +1,41 @@
+src/app/profile/layout.tsx
+  s_b5475d7424c9ee::t_2514998158138e 1-4
+src/app/blog/[slug]/page.tsx
+  s_b5475d7424c9ee::t_2514998158138e 18,23
+src/components/JsonLd.tsx
+  s_b5475d7424c9ee::t_2514998158138e 113
+src/app/sitemap.ts
+  s_b5475d7424c9ee::t_2514998158138e 2,6-10,58
+src/app/about/layout.tsx
+  s_b5475d7424c9ee::t_2514998158138e 1-9
+src/app/cart/layout.tsx
+  s_b5475d7424c9ee::t_2514998158138e 1-4
+src/app/shop/layout.tsx
+  s_b5475d7424c9ee::t_2514998158138e 1-17
+src/app/checkout/layout.tsx
+  s_b5475d7424c9ee::t_2514998158138e 1-4
+src/app/shop/[id]/layout.tsx
+  s_b5475d7424c9ee::t_2514998158138e 1-38
+src/app/layout.tsx
+  s_b5475d7424c9ee::t_2514998158138e 10,45,56
+src/app/blog/layout.tsx
+  s_b5475d7424c9ee::t_2514998158138e 1-10
+src/app/contact/layout.tsx
+  s_b5475d7424c9ee::t_2514998158138e 1-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.3",
+  "base_commit_sha": "4dee76df590a541bbc83cb0caccaf4b47ccf4ff1",
+  "prompts": {},
+  "sessions": {
+    "s_b5475d7424c9ee": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0edc4-0632-7b41-8d89-b700aabb67ff",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Pawarisorn <pawarisorn.son@axonstech.com>"
+    }
+  }
+}
