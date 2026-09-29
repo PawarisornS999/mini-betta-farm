@@ -9,7 +9,7 @@ import { formatPrice } from "@/lib/utils";
 import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import Modal from "@/components/Modal";
 import { useState } from "react";
 
@@ -50,7 +50,7 @@ export default function CartPage() {
                 {items.map((item, idx) => (
                   <div
                     key={item.product.id}
-                    className={`flex items-center gap-4 p-5 ${
+                    className={`flex flex-col items-center gap-3 p-4 text-center sm:flex-row sm:flex-nowrap sm:items-center sm:gap-4 sm:p-5 sm:text-left ${
                       idx < items.length - 1 ? "border-b" : ""
                     }`}
                   >
@@ -63,21 +63,18 @@ export default function CartPage() {
                         sizes="80px"
                       />
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <div className="min-w-0 flex-1 basis-[calc(100%-5.5rem)] sm:basis-auto">
                       <Link
                         href={`/shop/${item.product.id}`}
-                        className="font-semibold text-foreground hover:text-accent text-sm"
+                        className="block break-words text-sm font-semibold leading-snug text-foreground hover:text-accent"
                       >
                         {item.product.name}
                       </Link>
                       <p className="text-xs text-muted mt-0.5">
                         {item.product.species} · {item.product.color}
                       </p>
-                      <p className="text-accent font-bold mt-1">
-                        {formatPrice(item.product.price)}
-                      </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex shrink-0 items-center gap-2 sm:ml-0">
                       <button
                         onClick={() =>
                           updateQuantity(item.product.id, item.quantity - 1)
@@ -98,14 +95,14 @@ export default function CartPage() {
                         +
                       </button>
                     </div>
-                    <p className="font-bold text-foreground w-24 text-right">
+                    <p className="w-auto shrink-0 text-center font-bold text-foreground sm:w-24 sm:text-right">
                       {formatPrice(item.product.price * item.quantity)}
                     </p>
                     <button
                       onClick={() => removeItem(item.product.id)}
-                      className="p-2 text-gray-400 hover:text-red-500"
+                      className="p-2 text-gray-400 hover:text-red-500 sm:self-auto"
                     >
-                      <FontAwesomeIcon icon={faXmark} className="w-[18px] h-[18px]" />
+                      <FontAwesomeIcon icon={faTrash} className="w-[18px] h-[18px]" />
                     </button>
                   </div>
                 ))}

@@ -131,6 +131,7 @@ export type ProductListItem = Pick<
   | "images"
   | "badge"
   | "difficultyLevel"
+  | "adminStatus"
 >;
 
 // ─── Categories ──────────────────────────

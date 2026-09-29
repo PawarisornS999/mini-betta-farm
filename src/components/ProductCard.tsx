@@ -31,9 +31,11 @@ export default function ProductCard({ product }: ProductCardProps) {
   );
 
   const isOutOfStock = product.stockStatus === "out_of_stock";
+  const isSold = product.adminStatus === "sold";
+  const unavailable = isOutOfStock || isSold;
 
   const handleAddToCart = () => {
-    if (isOutOfStock || alreadyInCart) return;
+    if (unavailable || alreadyInCart) return;
     addItem(product);
 
     const source = buttonRef.current?.getBoundingClientRect();
@@ -123,6 +125,13 @@ export default function ProductCard({ product }: ProductCardProps) {
               {pt.lowStock}
             </span>
           )}
+          {isSold && (
+            <span className="absolute inset-0 z-10 flex items-center justify-center bg-black/35">
+              <span className="rounded-full bg-gray-800 px-4 py-2 text-sm font-bold text-white shadow-lg">
+                {pt.sold}
+              </span>
+            </span>
+          )}
           <Image
             src={product.images[0]}
             alt={product.name}
@@ -153,17 +162,19 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
         <motion.button
           ref={buttonRef}
-          whileHover={{ scale: isOutOfStock || alreadyInCart ? 1 : 1.03 }}
-          whileTap={{ scale: isOutOfStock || alreadyInCart ? 1 : 0.97 }}
+          whileHover={{ scale: unavailable || alreadyInCart ? 1 : 1.03 }}
+          whileTap={{ scale: unavailable || alreadyInCart ? 1 : 0.97 }}
           onClick={handleAddToCart}
-          disabled={isOutOfStock || alreadyInCart}
+          disabled={unavailable || alreadyInCart}
           className={`w-full py-2.5 rounded-xl text-sm font-medium transition-colors duration-200 ${
-            isOutOfStock || alreadyInCart
+            unavailable || alreadyInCart
               ? "bg-gray-300 text-gray-500 cursor-not-allowed"
               : "bg-foreground text-white hover:bg-accent"
           }`}
         >
-          {isOutOfStock
+          {isSold
+            ? pt.sold
+            : isOutOfStock
             ? pt.outOfStock
             : alreadyInCart
               ? pt.alreadyInCart

@@ -48,26 +48,38 @@ export async function saveCustomerProfile(
   pictureUrl: string | undefined,
   input: CustomerProfileInput,
 ) {
-  const rows = await supabaseRest<CustomerProfileRow[]>(
-    `customer_profiles?on_conflict=line_user_id&select=${select}`,
-    {
-      method: "POST",
-      serviceRole: true,
-      headers: { Prefer: "resolution=merge-duplicates,return=representation" },
-      body: JSON.stringify({
-        line_user_id: lineUserId,
-        line_display_name: displayName,
-        line_picture_url: pictureUrl || null,
-        customer_name: input.customerName.trim(),
-        customer_phone: input.customerPhone.trim(),
-        address_details: input.addressDetails.trim(),
-        province: input.province.trim(),
-        district: input.district.trim(),
-        subdistrict: input.subdistrict.trim(),
-        postal_code: input.postalCode.trim(),
-      }),
-    },
-  );
+  const payload = {
+    line_user_id: lineUserId,
+    line_display_name: displayName,
+    line_picture_url: pictureUrl || null,
+    customer_name: input.customerName.trim(),
+    customer_phone: input.customerPhone.trim(),
+    address_details: input.addressDetails.trim(),
+    province: input.province.trim(),
+    district: input.district.trim(),
+    subdistrict: input.subdistrict.trim(),
+    postal_code: input.postalCode.trim(),
+  };
+  const existing = await getCustomerProfile(lineUserId);
+  const rows = existing
+    ? await supabaseRest<CustomerProfileRow[]>(
+        `customer_profiles?line_user_id=eq.${encodeURIComponent(lineUserId)}&select=${select}`,
+        {
+          method: "PATCH",
+          serviceRole: true,
+          headers: { Prefer: "return=representation" },
+          body: JSON.stringify(payload),
+        },
+      )
+    : await supabaseRest<CustomerProfileRow[]>(
+        `customer_profiles?select=${select}`,
+        {
+          method: "POST",
+          serviceRole: true,
+          headers: { Prefer: "return=representation" },
+          body: JSON.stringify(payload),
+        },
+      );
   if (!rows[0]) throw new Error("Customer profile was not saved");
   return mapProfile(rows[0]);
 }

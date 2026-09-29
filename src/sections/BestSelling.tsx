@@ -1,13 +1,14 @@
 "use client";
 
 import ProductCard from "@/components/ProductCard";
+import ProductCardSkeleton from "@/components/ProductCardSkeleton";
 import SectionHeading from "@/components/SectionHeading";
 import { useProducts } from "@/lib/hooks/useCatalog";
 import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
 
 export default function BestSelling() {
-  const { products } = useProducts();
+  const { products, loading } = useProducts();
   const lang = useLangStore((s) => s.lang);
   const t = getT(lang).bestSelling;
   const bestSellers = products
@@ -19,7 +20,7 @@ export default function BestSelling() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading title={t.title} actionLabel={t.viewAll} />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {bestSellers.map((product) => (
+          {loading ? Array.from({ length: 4 }, (_, index) => <ProductCardSkeleton key={index} />) : bestSellers.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>

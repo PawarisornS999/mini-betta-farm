@@ -98,9 +98,9 @@ export default function Modal({
               <FontAwesomeIcon icon={faXmark} className="h-4 w-4" />
             </button>
             <div
-              className={`mx-auto flex h-12 w-12 items-center justify-center rounded-full ${config.color} bg-opacity-10`}
+              className={`mx-auto flex h-[80px] w-[80px] items-center justify-center rounded-full ${config.color} bg-opacity-10`}
             >
-              <FontAwesomeIcon icon={config.icon} className="h-6 w-6" />
+              <FontAwesomeIcon icon={config.icon} className="text-[40px]" />
             </div>
             <h2 id="modal-title" className="text-xl font-bold text-foreground">
               {title}

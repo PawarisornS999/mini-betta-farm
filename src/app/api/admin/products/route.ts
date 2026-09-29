@@ -17,6 +17,7 @@ type ProductInput = {
   gender?: string;
   pattern?: string;
   tailType?: string;
+  difficultyLevel?: "beginner" | "medium" | "advanced";
   ageMonths?: number;
   sizeCm?: number;
   stockQty?: number;
@@ -55,13 +56,15 @@ function toRow(body: ProductInput) {
     gender: body.gender ?? "unsexed",
     pattern: body.pattern?.trim() || null,
     tail_type: body.tailType?.trim() || body.species?.trim(),
+    difficulty_level: body.difficultyLevel ?? "beginner",
     age_months: body.ageMonths || null,
     size_cm: body.sizeCm || null,
     stock_qty: stockQty,
     reserved_qty: status === "reserved" ? Math.min(1, stockQty) : 0,
     stock_status: stockQty === 0 ? "out_of_stock" : stockQty <= 3 ? "low_stock" : "in_stock",
     admin_status: status,
-    published: status === "available" && stockQty > 0,
+    // Sold fish remain visible in the storefront as a catalogue record.
+    published: status !== "hidden" && status !== "draft",
     feeding_notes: "Feed high-quality betta pellets twice daily.",
     images: body.images?.filter(Boolean) ?? [],
     badge: body.badge?.trim() || null,

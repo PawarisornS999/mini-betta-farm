@@ -1,6 +1,8 @@
 import DashboardAdminClient from "@/components/admin/DashboardAdminClient";
 import { getAdminProducts, getAdminRevenue } from "@/lib/admin/products";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminDashboardPage() {
   const [products, revenue] = await Promise.all([
     getAdminProducts(),

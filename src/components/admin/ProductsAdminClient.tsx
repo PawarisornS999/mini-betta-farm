@@ -7,6 +7,7 @@ import { maximumStockDecrease } from "@/lib/inventory";
 import { adminText, useAdminLanguage } from "./LanguageProvider";
 import BaseDropdown from "../BaseDropdown";
 import Modal from "../Modal";
+import { difficultyList, speciesList } from "@/data/products";
 
 type FormState = {
   id?: string;
@@ -21,6 +22,7 @@ type FormState = {
   gender: "male" | "female" | "unsexed";
   pattern: string;
   tailType: string;
+  difficultyLevel: "beginner" | "medium" | "advanced";
   ageMonths: string;
   sizeCm: string;
   stockQty: string;
@@ -37,12 +39,13 @@ const emptyForm: FormState = {
   slug: "",
   price: "",
   cost: "",
-  species: "Halfmoon",
-  category: "betta-fish",
+  species: "",
+  category: "",
   color: "",
   gender: "male",
   pattern: "",
-  tailType: "Halfmoon",
+  tailType: "",
+  difficultyLevel: "beginner",
   ageMonths: "",
   sizeCm: "",
   stockQty: "1",
@@ -86,7 +89,8 @@ function productToForm(product: Product): FormState {
     color: product.color,
     gender: product.gender ?? "unsexed",
     pattern: product.pattern ?? "",
-    tailType: product.tailType ?? product.species,
+    tailType: product.tailType ?? "",
+    difficultyLevel: product.difficultyLevel ?? "beginner",
     ageMonths: product.ageMonths ? String(product.ageMonths) : "",
     sizeCm: product.sizeCm ? String(product.sizeCm) : "",
     stockQty: String(product.stockQty ?? 0),
@@ -220,6 +224,10 @@ export default function ProductsAdminClient({
   async function saveProduct(event: FormEvent) {
     event.preventDefault();
     if (!form) return;
+    if (!form.difficultyLevel) {
+      setError(text("กรุณาเลือกระดับการดูแล", "Please select a care level"));
+      return;
+    }
     setSaving(true);
     setError("");
     const payload = {
@@ -623,23 +631,21 @@ export default function ProductsAdminClient({
                         }
                         className="input-admin font-mono"
                       />
+                      <span className="text-[8px] text-[#8b8174] whitespace-nowrap">{`รหัสตัวอย่าง : [ตัวย่อสายพันธุ์][เพศ][ตัวเลข] เช่น DBM01`}</span>
                     </Field>
-                    <Field label={text("ชื่อ URL", "URL slug")}>
+                    <Field label={text("ชื่อ URL *", "URL slug *")}>
                       <input
+                        required
                         value={form.slug}
                         onChange={(e) => setField("slug", e.target.value)}
                         className="input-admin"
                       />
+                      <span className="text-[8px] text-[#8b8174] whitespace-nowrap">{`ชื่อ URL ต้องเป็นตัวอักษรภาษาอังกฤษและตัวเลขเท่านั้น`}</span>
                     </Field>
                   </div>
                   <div className="flex flex-col gap-4">
                       <Field label={text("สายพันธุ์", "Strain")}>
-                      <input
-                        required
-                        value={form.species}
-                        onChange={(e) => setField("species", e.target.value)}
-                        className="input-admin"
-                      />
+                      <BaseDropdown value={form.species} onChange={(value) => setField("species", value)} options={speciesList.map((value) => ({ value, label: value }))}  />
                       </Field>
                       <Field label={text("หมวดหมู่ *", "Category *")}>
                         <BaseDropdown value={form.category} onChange={(value) => setField("category", value)} options={categories.filter((category) => category.isActive !== false).map((category) => ({ value: category.slug, label: category.name }))} />
@@ -651,6 +657,9 @@ export default function ProductsAdminClient({
                         onChange={(e) => setField("color", e.target.value)}
                         className="input-admin"
                       />
+                    </Field>
+                    <Field label={text("ระดับการดูแล *", "Care level *")}>
+                      <BaseDropdown value={form.difficultyLevel} onChange={(value) => setField("difficultyLevel", value as FormState["difficultyLevel"])} options={difficultyList.map((value) => ({ value: value === "intermediate" ? "medium" : value, label: value === "intermediate" ? text("ปานกลาง", "Intermediate") : value === "beginner" ? text("มือใหม่", "Beginner") : text("ยาก", "Advanced") }))} />
                     </Field>
                     <Field label={text("เพศ", "Gender")}>
                       <BaseDropdown
@@ -672,6 +681,7 @@ export default function ProductsAdminClient({
                       <input
                         value={form.tailType}
                         onChange={(e) => setField("tailType", e.target.value)}
+                        placeholder={text("เช่น หางพระจันทร์ครึ่งดวง", "e.g. Halfmoon")}
                         className="input-admin"
                       />
                     </Field>
@@ -743,6 +753,7 @@ export default function ProductsAdminClient({
                     <Field label={text("ต้นทุน (บาท)", "Cost (THB)")}>
                       <input
                         min="0"
+                        step="0.1"
                         type="number"
                         value={form.cost}
                         onChange={(e) => setField("cost", e.target.value)}
@@ -753,6 +764,7 @@ export default function ProductsAdminClient({
                       <input
                         required
                         min="0"
+                        step="0.1"
                         type="number"
                         value={form.stockQty}
                         onChange={(e) => setField("stockQty", e.target.value)}
@@ -787,6 +799,7 @@ export default function ProductsAdminClient({
                     <Field label={text("อายุ (เดือน)", "Age (months)")}>
                       <input
                         min="0"
+                        step="0.1"
                         type="number"
                         value={form.ageMonths}
                         onChange={(e) => setField("ageMonths", e.target.value)}
@@ -807,11 +820,18 @@ export default function ProductsAdminClient({
                 </FormSection>
                 <FormSection title={text("การนำเสนอสินค้า", "Merchandising")}>
                   <Field label={text("ป้ายสินค้า", "Badge")}>
-                    <input
+                    <BaseDropdown
                       value={form.badge}
-                      onChange={(e) => setField("badge", e.target.value)}
-                      placeholder="Rare, Premium..."
-                      className="input-admin"
+                      onChange={(value) => setField("badge", value)}
+                      placeholder={text("ไม่ติดป้าย", "No badge")}
+                      options={[
+                        { value: "Best Seller", label: text("สินค้าขายดี", "Best Seller") },
+                        { value: "VIP", label: text("พรีเมียม - VIP", "Premium - VIP") },
+                        { value: "VVIP", label: text("พรีเมียม - VVIP", "Premium - VVIP") },
+                        { value: "Rare", label: text("หายาก", "Rare") },
+                        { value: "New", label: text("มาใหม่", "New") },
+                        { value: "For Breed", label: text("พ่อแม่พันธุ์", "For Breed") },
+                      ]}
                     />
                   </Field>
                   <label className="flex cursor-pointer items-center justify-between rounded-xl bg-[#f6f3ed] p-4">

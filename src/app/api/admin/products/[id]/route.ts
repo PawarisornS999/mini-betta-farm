@@ -13,10 +13,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const row = {
     name: body.name?.trim(), sku: body.sku?.trim().toUpperCase(), slug: body.slug?.trim(),
     price: Number(body.price), cost: Number(body.cost ?? 0), description: body.description?.trim() ?? "",
-    species: body.species?.trim(), color: body.color?.trim(), category: body.category?.trim() || "betta-fish", gender: body.gender ?? "unsexed",
+    species: body.species?.trim(), color: body.color?.trim(), category: body.category?.trim() || "betta-fish", gender: body.gender ?? "unsexed", difficulty_level: body.difficultyLevel ?? "beginner",
     pattern: body.pattern?.trim() || null, tail_type: body.tailType?.trim() || body.species?.trim(),
     age_months: body.ageMonths || null, size_cm: body.sizeCm || null,
-    admin_status: status, published: status === "available",
+    // Keep sold fish published so customers can still see them in Products.
+    admin_status: status, published: status !== "hidden" && status !== "draft",
     reserved_qty: status === "reserved" ? 1 : 0,
     images: Array.isArray(body.images) ? body.images.filter(Boolean) : [],
     badge: body.badge?.trim() || null, featured: Boolean(body.featured),

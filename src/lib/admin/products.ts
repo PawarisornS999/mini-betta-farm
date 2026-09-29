@@ -11,13 +11,16 @@ export async function getAdminProducts(): Promise<Product[]> {
 }
 
 export async function getAdminRevenue(): Promise<{ total: number; orders: number }> {
-  const rows = await supabaseRest<Array<{ total_price: number | string }>>(
-    "orders?select=total_price&payment_status=eq.paid",
+  const rows = await supabaseRest<Array<{ total_price: number | string; payment_status?: string; status?: string }>>(
+    "orders?select=total_price,payment_status,status&status=neq.cancelled",
     { serviceRole: true, cache: "no-store" },
   );
+  const paidOrders = rows.filter((order) =>
+    order.payment_status === "paid" || order.status === "completed",
+  );
   return {
-    total: rows.reduce((sum, order) => sum + Number(order.total_price), 0),
-    orders: rows.length,
+    total: paidOrders.reduce((sum, order) => sum + Number(order.total_price || 0), 0),
+    orders: paidOrders.length,
   };
 }
 

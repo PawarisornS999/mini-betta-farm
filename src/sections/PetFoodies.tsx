@@ -3,13 +3,14 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import ProductCard from "@/components/ProductCard";
+import ProductCardSkeleton from "@/components/ProductCardSkeleton";
 import SectionHeading from "@/components/SectionHeading";
 import { useCategories, useProducts } from "@/lib/hooks/useCatalog";
 import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
 
 export default function SpeciesCollection() {
-  const { products } = useProducts();
+  const { products, loading } = useProducts();
   const { categories } = useCategories();
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const lang = useLangStore((s) => s.lang);
@@ -50,7 +51,7 @@ export default function SpeciesCollection() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {filtered.slice(0, 8).map((product) => (
+          {loading ? Array.from({ length: 8 }, (_, index) => <ProductCardSkeleton key={index} />) : filtered.slice(0, 8).map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>

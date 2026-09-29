@@ -4,6 +4,7 @@ import { useEffect, useMemo } from "react";
 import Header from "@/sections/Header";
 import Footer from "@/sections/Footer";
 import ProductCard from "@/components/ProductCard";
+import ProductCardSkeleton from "@/components/ProductCardSkeleton";
 import {
   speciesList,
   colorList,
@@ -198,7 +199,9 @@ export default function ShopPage() {
               </div>
 
               {loading ? (
-                <div className="text-center py-20 text-muted">Loading fish...</div>
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                  {Array.from({ length: 6 }, (_, index) => <ProductCardSkeleton key={index} />)}
+                </div>
               ) : error ? (
                 <div className="text-center py-20 text-red-600">{error}</div>
               ) : filtered.length === 0 ? (

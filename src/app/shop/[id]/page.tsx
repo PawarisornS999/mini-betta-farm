@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "motion/react";
@@ -12,6 +12,8 @@ import { useCartStore } from "@/store/cart";
 import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
 import { formatPrice } from "@/lib/utils";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faGreaterThan } from "@fortawesome/free-solid-svg-icons";
 
 export default function ProductDetailPage({
   params,
@@ -25,6 +27,19 @@ export default function ProductDetailPage({
   const alreadyInCart = useCartStore((s) =>
     s.items.some((item) => item.product.id === id),
   );
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  useEffect(() => {
+    if (!selectedImage) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSelectedImage(null);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", closeOnEscape);
+      document.body.style.overflow = "";
+    };
+  }, [selectedImage]);
   const lang = useLangStore((s) => s.lang);
   const t = getT(lang);
 
@@ -64,6 +79,8 @@ export default function ProductDetailPage({
     .slice(0, 4);
 
   const isOutOfStock = product.stockStatus === "out_of_stock";
+  const isSold = product.adminStatus === "sold";
+  const unavailable = isOutOfStock || isSold;
 
   return (
     <>
@@ -71,15 +88,17 @@ export default function ProductDetailPage({
       <main className="pt-24 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Breadcrumb */}
-          <nav className="text-sm text-muted mb-8">
+          <nav className="text-sm text-muted mb-8 font-medium">
             <Link href="/" className="hover:text-accent">
               {t.nav.home}
             </Link>
-            <span className="mx-2">/</span>
+            <span className="mx-2">
+              <FontAwesomeIcon icon={faGreaterThan} className="w-2 h-2" />
+            </span>
             <Link href="/shop" className="hover:text-accent">
               {t.nav.shop}
             </Link>
-            <span className="mx-2">/</span>
+            <span className="mx-2"> <FontAwesomeIcon icon={faGreaterThan} className="w-2 h-2" /></span>
             <span className="text-foreground">{product.name}</span>
           </nav>
 
@@ -91,25 +110,42 @@ export default function ProductDetailPage({
               transition={{ duration: 0.5 }}
             >
               <div className="relative aspect-square bg-gradient-to-br from-sky-50 to-cyan-50 rounded-3xl overflow-hidden mb-4">
-                <Image
-                  src={product.images[0]}
-                  alt={product.name}
-                  fill
-                  className="object-cover"
-                  priority
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
+                <button
+                  type="button"
+                  onClick={() => setSelectedImage(product.images[0])}
+                  className="absolute inset-0 cursor-zoom-in"
+                  aria-label={`${t.product.viewImage}: ${product.name}`}
+                >
+                  <Image
+                    src={product.images[0]}
+                    alt={product.name}
+                    fill
+                    className="object-cover transition-transform duration-300 hover:scale-105"
+                    priority
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                </button>
                 {product.badge && (
                   <span className="absolute top-4 left-4 bg-accent text-white text-sm font-semibold px-4 py-1.5 rounded-full">
                     {product.badge}
                   </span>
                 )}
+                {isSold && (
+                  <span className="absolute inset-0 flex items-center justify-center bg-black/35">
+                    <span className="rounded-full bg-gray-800 px-5 py-2 text-base font-bold text-white shadow-lg">
+                      {t.product.sold}
+                    </span>
+                  </span>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {product.images.map((img, i) => (
-                  <div
+                  <button
+                    type="button"
+                    onClick={() => setSelectedImage(img)}
                     key={i}
-                    className="relative aspect-square bg-sky-50 rounded-xl overflow-hidden"
+                    className="relative aspect-square overflow-hidden rounded-xl bg-sky-50 cursor-zoom-in"
+                    aria-label={`${t.product.viewImage}: ${product.name} ${i + 1}`}
                   >
                     <Image
                       src={img}
@@ -118,7 +154,7 @@ export default function ProductDetailPage({
                       className="object-cover"
                       sizes="25vw"
                     />
-                  </div>
+                  </button>
                 ))}
               </div>
             </motion.div>
@@ -211,7 +247,9 @@ export default function ProductDetailPage({
                         ? t.product.inStock
                         : product.stockStatus === "low_stock"
                           ? t.product.lowStock
-                          : t.product.outOfStock}
+                          : isSold
+                            ? t.product.sold
+                            : t.product.outOfStock}
                     </span>
                   </div>
                 </div>
@@ -230,16 +268,18 @@ export default function ProductDetailPage({
               {/* Add to Cart */}
               <button
                 onClick={() =>
-                  !isOutOfStock && !alreadyInCart && addItem(product)
+                  !unavailable && !alreadyInCart && addItem(product)
                 }
-                disabled={isOutOfStock || alreadyInCart}
+                disabled={unavailable || alreadyInCart}
                 className={`w-full py-4 rounded-2xl text-lg font-semibold transition-colors ${
-                  isOutOfStock || alreadyInCart
+                  unavailable || alreadyInCart
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                     : "bg-accent text-white hover:bg-accent-dark shadow-lg shadow-accent/25"
                 }`}
               >
-                {isOutOfStock
+                {isSold
+                  ? t.product.sold
+                  : isOutOfStock
                   ? t.product.outOfStock
                   : alreadyInCart
                     ? "Already in cart"
@@ -263,6 +303,37 @@ export default function ProductDetailPage({
           )}
         </div>
       </main>
+      {selectedImage && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 p-4 sm:p-8"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t.product.viewImage}
+          onClick={() => setSelectedImage(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setSelectedImage(null)}
+            className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full bg-white/15 text-2xl text-white hover:bg-white/25"
+            aria-label={t.product.closeImage}
+          >
+            ×
+          </button>
+          <div
+            className="relative h-full w-full max-w-5xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <Image
+              src={selectedImage}
+              alt={product.name}
+              fill
+              className="object-contain"
+              sizes="100vw"
+              priority
+            />
+          </div>
+        </div>
+      )}
       <Footer />
     </>
   );

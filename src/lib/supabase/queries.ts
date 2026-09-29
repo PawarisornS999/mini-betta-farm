@@ -4,14 +4,16 @@ import { supabaseRest } from "./rest";
 
 export async function getProducts(): Promise<Product[]> {
   const rows = await supabaseRest<ProductRow[]>(
-    "products?select=*&admin_status=neq.hidden&order=created_at.desc",
+    "products?select=*&admin_status=in.(available,reserved,sold)&order=created_at.desc",
+    { serviceRole: true },
   );
   return rows.map(mapProduct);
 }
 
 export async function getProduct(id: string): Promise<Product | null> {
   const rows = await supabaseRest<ProductRow[]>(
-    `products?select=*&id=eq.${encodeURIComponent(id)}&admin_status=neq.hidden&limit=1`,
+    `products?select=*&id=eq.${encodeURIComponent(id)}&admin_status=in.(available,reserved,sold)&limit=1`,
+    { serviceRole: true },
   );
   return rows[0] ? mapProduct(rows[0]) : null;
 }

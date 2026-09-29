@@ -126,6 +126,7 @@ const translations = {
       addToCart: "Add to Cart",
       alreadyInCart: "Already in Cart",
       outOfStock: "Out of Stock",
+      sold: "Sold",
       notFound: "Product Not Found",
       notFoundDesc: "The fish you're looking for doesn't exist.",
       backToShop: "← Back to Shop",
@@ -138,6 +139,8 @@ const translations = {
       inStock: "In Stock",
       feedingNotes: "Feeding Notes",
       moreSpecies: "More {species} Fish",
+      viewImage: "View image",
+      closeImage: "Close image",
     },
     footer: {
       desc: "Premium quality betta fish farm. We breed and sell beautiful, healthy betta fish with nationwide delivery and live arrival guarantee.",
@@ -434,6 +437,7 @@ const translations = {
       addToCart: "เพิ่มลงตะกร้า",
       alreadyInCart: "อยู่ในตะกร้าแล้ว",
       outOfStock: "สินค้าหมด",
+      sold: "ขายแล้ว",
       notFound: "ไม่พบสินค้า",
       notFoundDesc: "ไม่พบปลาที่คุณกำลังค้นหา",
       backToShop: "← กลับไปร้านค้า",
@@ -446,6 +450,8 @@ const translations = {
       inStock: "พร้อมจำหน่าย",
       feedingNotes: "คำแนะนำการให้อาหาร",
       moreSpecies: "ปลาสายพันธุ์ {species} เพิ่มเติม",
+      viewImage: "ดูรูปภาพ",
+      closeImage: "ปิดรูปภาพ",
     },
     footer: {
       desc: "ฟาร์มปลากัดพรีเมียมคุณภาพสูง เพาะเลี้ยงและจำหน่ายปลากัดสวยงาม มีสุขภาพดี พร้อมบริการจัดส่งทั่วประเทศ รับประกันปลามีชีวิต",
