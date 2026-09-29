@@ -110,14 +110,13 @@ export function OrganizationJsonLd() {
     "@type": "Organization",
     name: "Aurora Betta Farm",
     url: "https://minibettafarm.com",
-    logo: "https://minibettafarm.com/logo.png",
+    logo: "https://minibettafarm.com/favicon.ico",
     sameAs: [
       "https://www.facebook.com/minibettafarm",
       "https://www.instagram.com/minibettafarm",
     ],
     contactPoint: {
       "@type": "ContactPoint",
-      telephone: "+66-xx-xxx-xxxx",
       contactType: "customer service",
       availableLanguage: ["Thai", "English"],
     },

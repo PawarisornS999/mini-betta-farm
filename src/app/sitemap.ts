@@ -1,10 +1,13 @@
 import type { MetadataRoute } from "next";
-import { blogPosts } from "@/data/blogs";
-import { products } from "@/data/products";
+import { getBlogs, getProducts } from "@/lib/supabase/queries";
 
 const BASE_URL = "https://minibettafarm.com";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const [products, blogPosts] = await Promise.all([
+    getProducts().catch(() => []),
+    getBlogs().catch(() => []),
+  ]);
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [
     {
@@ -52,7 +55,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // Product pages
   const productPages: MetadataRoute.Sitemap = products.map((product) => ({
     url: `${BASE_URL}/shop/${product.id}`,
-    lastModified: new Date(),
+    lastModified: new Date(product.updatedAt ?? product.createdAt ?? Date.now()),
     changeFrequency: "weekly" as const,
     priority: 0.8,
   }));

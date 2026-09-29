@@ -15,10 +15,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: post.seoTitle ?? post.seo?.title ?? post.title,
     description: post.seoDescription ?? post.seo?.description ?? post.excerpt,
+    alternates: { canonical: `/blog/${post.slug}` },
     openGraph: {
       title: post.seoTitle ?? post.seo?.title ?? post.title,
       description: post.seoDescription ?? post.seo?.description ?? post.excerpt,
       type: "article",
+      url: `/blog/${post.slug}`,
       images: [post.coverImage],
     },
   };

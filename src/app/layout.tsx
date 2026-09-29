@@ -7,6 +7,7 @@ const BASE_URL = "https://minibettafarm.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
+  applicationName: "Aurora Betta Farm",
   title: {
     default: "Aurora Betta Farm — ปลากัดพรีเมียม จำหน่ายปลากัดสวยงาม",
     template: "%s | Aurora Betta Farm",
@@ -41,7 +42,7 @@ export const metadata: Metadata = {
     url: BASE_URL,
     images: [
       {
-        url: `${BASE_URL}/og-image.jpg`,
+        url: `${BASE_URL}/assets/bettaHMPKHero.png`,
         width: 1200,
         height: 630,
         alt: "Aurora Betta Farm",
@@ -52,7 +53,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Aurora Betta Farm — ปลากัดพรีเมียม",
     description: "จำหน่ายปลากัดพรีเมียม จัดส่งทั่วประเทศ",
-    images: [`${BASE_URL}/og-image.jpg`],
+    images: [`${BASE_URL}/assets/bettaHMPKHero.png`],
   },
   alternates: {
     canonical: BASE_URL,
