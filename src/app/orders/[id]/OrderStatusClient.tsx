@@ -8,6 +8,7 @@ import Footer from "@/sections/Footer";
 import type { Order } from "@/types";
 import { formatMoney, shortOrderId } from "@/lib/orders/workflow";
 import { getLineOrderUrl } from "@/lib/utils/line";
+import { RuleWarrantyFish } from "@/components/RuleWarrantyFish";
 
 type OrderDetail = {
   order: Order & { hasSlip: boolean };
@@ -155,7 +156,7 @@ export default function OrderStatusClient({ id }: { id: string }) {
             <p className="mt-1 text-sm text-white/90">
               {order?.status === "cancelled"
                 ? "คำสั่งซื้อนี้ถูกยกเลิกแล้ว"
-                : "ขอบคุณที่ไว้วางใจ Mini Betta Farm"}
+                : "ขอบคุณที่ไว้วางใจร้านเรา มีรับประกันปลาและบริการหลังการขาย"}
             </p>
             <p className="mx-auto mt-4 w-fit rounded-full bg-white/20 px-5 py-1.5 text-sm font-bold">
               #{shortOrderId(id)}
@@ -433,6 +434,7 @@ export default function OrderStatusClient({ id }: { id: string }) {
             </div>
           )}
         </div>
+        <RuleWarrantyFish />
       </main>
       <Footer />
     </>

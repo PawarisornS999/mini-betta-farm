@@ -8,6 +8,7 @@ export default function PaymentSettingsClient() {
   const [accountNumber, setAccountNumber] = useState("");
   const [promptpayNumber, setPromptpayNumber] = useState("");
   const [message, setMessage] = useState("");
+  const disabledField = true;
   const [busy, setBusy] = useState(false);
   useEffect(() => {
     void fetch("/api/admin/payment-settings")
@@ -55,8 +56,8 @@ export default function PaymentSettingsClient() {
           <input
             value={accountName}
             onChange={(event) => setAccountName(event.target.value)}
-            className="mt-1 w-full rounded-xl border p-3"
-            
+            className={`mt-1 w-full rounded-xl border p-3 ${disabledField ? "bg-gray-100 text-gray-500" : ""}`}
+            disabled={disabledField}
           />
         </label>
         <label className="block text-sm">
@@ -64,8 +65,8 @@ export default function PaymentSettingsClient() {
           <input
             value={promptpayNumber}
             onChange={(event) => setPromptpayNumber(event.target.value)}
-            className="mt-1 w-full rounded-xl border p-3"
-            disabled={true}
+            className={`mt-1 w-full rounded-xl border p-3 ${disabledField ? "bg-gray-100 text-gray-500" : ""}`}
+            disabled={disabledField}
           />
         </label>
         <label className="block text-sm">
@@ -73,8 +74,8 @@ export default function PaymentSettingsClient() {
           <input
             value={bank}
             onChange={(event) => setBank(event.target.value)}
-            className="mt-1 w-full rounded-xl border p-3"
-             disabled={true}
+            className={`mt-1 w-full rounded-xl border p-3 ${disabledField ? "bg-gray-100 text-gray-500" : ""}`}
+            disabled={disabledField}
           />
         </label>
         <label className="block text-sm">
@@ -82,19 +83,21 @@ export default function PaymentSettingsClient() {
           <input
             value={accountNumber}
             onChange={(event) => setAccountNumber(event.target.value)}
-            className="mt-1 w-full rounded-xl border p-3"
-             disabled={true}
+            className={`mt-1 w-full rounded-xl border p-3 ${disabledField ? "bg-gray-100 text-gray-500" : ""}`}
+            disabled={disabledField}
           />
         </label>
       </div>
-      <button
+      <div className="flex flex-row items-center justify-center">
+        <button
         type="button"
-        disabled={busy}
+        disabled={disabledField || busy}
         onClick={() => void save()}
-        className="mt-6 rounded-xl bg-[#252522] px-6 py-3 font-semibold text-white disabled:opacity-50"
+        className="w-[200px] mt-6 rounded-xl bg-[#252522] px-6 py-3 font-semibold text-white disabled:opacity-50"
       >
         {busy ? "กำลังบันทึก..." : "บันทึก"}
       </button>
+      </div>
       {message && (
         <p role="status" className="mt-4 text-sm">
           {message}

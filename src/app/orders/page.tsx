@@ -1,11 +1,16 @@
 "use client";
+/* eslint-disable @next/next/no-img-element */
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Header from "@/sections/Header";
 import Footer from "@/sections/Footer";
-import type { Order } from "@/types";
+import type { Order, Product } from "@/types";
 import TabsMenu from "@/components/TabsMenu";
+import { formatMoney } from "@/lib/orders/workflow";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBasketShopping, faFish } from "@fortawesome/free-solid-svg-icons";
+import { div } from "motion/react-client";
 
 type Tab = "all" | "payment" | "shipping" | "receiving" | "completed";
 
@@ -35,16 +40,27 @@ export default function OrdersPage() {
   const [tab, setTab] = useState<Tab>("all");
   const [loading, setLoading] = useState(true);
   const [loginRequired, setLoginRequired] = useState(false);
+  const [productImages, setProductImages] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    fetch("/api/customer/orders", { cache: "no-store" })
-      .then(async (response) => {
-        if (response.status === 401) {
+    Promise.all([
+      fetch("/api/customer/orders", { cache: "no-store" }),
+      fetch("/api/products", { cache: "no-store" }),
+    ])
+      .then(async ([ordersResponse, productsResponse]) => {
+        if (ordersResponse.status === 401) {
           setLoginRequired(true);
           return;
         }
-        const body = (await response.json()) as { data?: Order[] };
-        if (!response.ok) throw new Error("โหลดรายการซื้อไม่สำเร็จ");
+        const body = (await ordersResponse.json()) as { data?: Order[] };
+        if (!ordersResponse.ok) throw new Error("โหลดรายการซื้อไม่สำเร็จ");
+        const productBody = (await productsResponse.json()) as { data?: { data?: Product[] } };
+        const images = Object.fromEntries(
+          (productBody.data?.data ?? [])
+            .filter((product) => product.images[0])
+            .map((product) => [product.id, product.images[0]]),
+        );
+        setProductImages(images);
         setOrders(body.data ?? []);
       })
       .catch(() => setOrders([]))
@@ -69,9 +85,10 @@ export default function OrdersPage() {
       <main className="mx-auto min-h-[70vh] max-w-4xl px-4 pb-20 pt-28 text-foreground">
         <h1 className="text-3xl font-bold">การซื้อของฉัน</h1>
         <p className="mt-2 text-muted">ติดตามสถานะคำสั่งซื้อของคุณ</p>
-        <div className="mt-8">
+        <div className="bg-white rounded-md p-2 mt-4 shadow-lg">
+          
           <TabsMenu options={tabOptions} value={tab} onChange={setTab} />
-        </div>
+        
         {loading ? (
           <p className="py-16 text-center text-muted">กำลังโหลดรายการซื้อ...</p>
         ) : loginRequired ? (
@@ -89,9 +106,14 @@ export default function OrdersPage() {
             </button>
           </div>
         ) : !visibleOrders.length ? (
-          <p className="py-16 text-center text-muted">
+         <div className="flex items-center justify-center h-[50vh] opacity-80 text-gray-200">
+          <div className="flex flex-col items-center gap-2">
+            <FontAwesomeIcon icon={faBasketShopping} className="text-[22px]" />
+           <p className="text-center text-muted">
             ยังไม่มีรายการในหมวดนี้
           </p>
+          </div>
+         </div>
         ) : (
           <div className="mt-6 space-y-4">
             {visibleOrders.map((order) => (
@@ -105,15 +127,35 @@ export default function OrdersPage() {
                     <p className="text-sm text-muted">
                       คำสั่งซื้อ #{order.id.slice(0, 8).toUpperCase()}
                     </p>
-                    <p className="mt-1 font-semibold">
-                      {order.items
-                        .map((item) => `${item.productName} × ${item.quantity}`)
-                        .join(", ")}
-                    </p>
                   </div>
                   <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
                     {statusLabel(order)}
                   </span>
+                </div>
+                <div id="order-items" className="mt-4 flex flex-col gap-3">
+                  {order.items.map((item) => {
+                    const image = item.productId ? productImages[item.productId] : undefined;
+                    return (
+                      <div key={item.id} className="flex items-center justify-between gap-3 rounded-2xl border border-black/5 bg-slate-50 p-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          {image ? (
+                          <img src={image} alt={item.productName} className="h-20 w-20 shrink-0 rounded-xl bg-sky-50 object-cover" />
+                        ) : (
+                          <div className="grid h-20 w-20 shrink-0 place-items-center rounded-xl bg-sky-50 text-3xl">
+                            <FontAwesomeIcon icon={faFish} className="h-8 w-8 text-sky-400" />
+                          </div>
+                        )}
+                          <div className="flex flex-col gap-2">
+                            <p className="truncate font-semibold">{item.productName}</p>
+                            <p className="mt-1 text-sm text-muted">จำนวน {item.quantity} ตัว</p>
+                          </div>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="mt-1 text-sm font-semibold text-accent">{formatMoney((item.price || 0) * item.quantity)}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
                 <div className="mt-4 flex justify-between border-t border-black/5 pt-4 text-sm">
                   <span className="text-muted">
@@ -127,6 +169,7 @@ export default function OrdersPage() {
             ))}
           </div>
         )}
+        </div>
       </main>
       <Footer />
     </>

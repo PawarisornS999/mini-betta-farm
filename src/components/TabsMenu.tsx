@@ -15,7 +15,7 @@ export default function TabsMenu<T extends string>({
   onChange: (value: T) => void;
 }) {
   return (
-    <div className="flex gap-2 overflow-x-auto border-b border-black/10">
+    <div className="flex gap-2 overflow-x-auto border-b border-black/10 scrollbar-hide">
       {options.map((option) => (
         <button
           key={option.value}

@@ -68,6 +68,10 @@ export default function OrdersAdminClient() {
       });
       const result = (await response.json()) as { message?: string };
       if (!response.ok) throw new Error(result.message || "อัปเดตไม่สำเร็จ");
+      if (action === "cancel") {
+        await deleteOrder(order);
+        return;
+      }
       await load();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "อัปเดตไม่สำเร็จ");

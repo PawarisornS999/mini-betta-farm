@@ -194,13 +194,6 @@ export default function Header() {
                   {link.label}
                 </Link>
               ))}
-              <Link
-                href="/profile"
-                onClick={() => setMobileOpen(false)}
-                className="block px-4 p-2.5 text-sm font-medium text-foreground/70 hover:text-accent transition-colors"
-              >
-                {t.nav.profile}
-              </Link>
               <button
                 onClick={() => {
                   toggle();

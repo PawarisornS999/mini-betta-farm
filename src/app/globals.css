@@ -82,3 +82,12 @@ body.thai-font {
   border-color: #ef4444;
   box-shadow: 0 0 0 3px rgb(239 68 68 / 0.15);
 }
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
