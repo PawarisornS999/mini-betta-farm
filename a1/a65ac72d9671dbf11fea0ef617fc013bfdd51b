@@ -1,0 +1,92 @@
+package.json
+  s_58faeba5aea1eb::t_e333bd57ea5e9c 19,28
+src/lib/orders/workflow.ts
+  s_58faeba5aea1eb::t_c36382e81669b6 36
+  s_58faeba5aea1eb::t_ec3669f72d1e9f 34
+tests/promptpay.test.mjs
+  s_58faeba5aea1eb::t_21aae185273c30 1-15
+src/app/globals.css
+  s_58faeba5aea1eb::t_f688a6a2273320 74,77-79,82-84
+  s_58faeba5aea1eb::t_82f112f46f43f1 75-76,80-81
+src/app/orders/[id]/page.tsx
+  s_58faeba5aea1eb::t_cc59e0e3e06f5c 2,4-6,9
+  s_58faeba5aea1eb::t_c2c023ceb23dab 10
+src/app/api/orders/checkout/route.ts
+  s_58faeba5aea1eb::t_16b42c30b41678 83
+src/app/api/admin/products/[id]/route.ts
+  s_58faeba5aea1eb::t_b653ad4cf788ca 18
+src/lib/customer/profile-validation.ts
+  s_58faeba5aea1eb::t_82f112f46f43f1 3-14,16-18,21-22,25
+src/app/api/orders/[id]/route.ts
+  s_58faeba5aea1eb::t_c2c023ceb23dab 10
+  s_58faeba5aea1eb::t_cd4749f6970aaf 4,8-9,12-14
+src/app/orders/[id]/OrderStatusClient.tsx
+  s_58faeba5aea1eb::t_62a08fc3a8f823 100-103,105-109
+  s_58faeba5aea1eb::t_af7653903584a4 99
+  s_58faeba5aea1eb::t_b7f9f0e6bb95b1 55
+  s_58faeba5aea1eb::t_dd626c1163d421 113,115,117
+  s_58faeba5aea1eb::t_853a4b4a07fe87 90
+  s_58faeba5aea1eb::t_16b42c30b41678 77,87-88,124
+  s_58faeba5aea1eb::t_2c0f01e47f2564 1,10,12,14-19,22-25,27,29,31,34-44,49-54,56-64,66-75,80-86,89,93-95,97-98,114,116,118-123,125-127
+  s_58faeba5aea1eb::t_93246077124dfe 76
+  s_58faeba5aea1eb::t_58d1ef46d54674 78-79
+  s_58faeba5aea1eb::t_28cd9d7976bb3c 128-130
+src/app/api/line/logout/route.ts
+  s_58faeba5aea1eb::t_c5e3334f272487 1-9
+src/sections/Header.tsx
+  s_58faeba5aea1eb::t_c5e3334f272487 45-50,147
+  s_58faeba5aea1eb::t_e8880a760b35f5 25,52-61,132-133,135-138,142
+  s_58faeba5aea1eb::t_74571976b37a8d 51
+  s_58faeba5aea1eb::t_ec350654fbaa2d 134
+  s_58faeba5aea1eb::t_96949547f9be92 139-141
+  s_58faeba5aea1eb::t_d0c0ba329e1d9b 146
+  s_58faeba5aea1eb::t_b1c18ceb552ae9 168
+src/lib/supabase/mappers.ts
+  s_58faeba5aea1eb::t_b653ad4cf788ca 114
+src/app/api/admin/payment-settings/route.ts
+  s_58faeba5aea1eb::t_cf4869ee2dfa52 21
+src/app/checkout/page.tsx
+  s_58faeba5aea1eb::t_03b3e07063b4ac 97
+  s_58faeba5aea1eb::t_16b42c30b41678 99
+  s_58faeba5aea1eb::t_b57a9835ae28d3 19,402-405,407-408,416
+tests/order-workflow.test.mjs
+  s_58faeba5aea1eb::t_be469873d47b4e 63,69,72
+src/app/profile/page.tsx
+  s_58faeba5aea1eb::t_82f112f46f43f1 10,39,42-43,132,135-136,161,201-202,225,235,248,265,284,303,327,343,348,378,382,387
+  s_58faeba5aea1eb::t_ad33a39adeb044 391
+  s_58faeba5aea1eb::t_f688a6a2273320 227,237,250-251,255,329,384-385,388-390,392
+src/app/api/admin/products/route.ts
+  s_58faeba5aea1eb::t_b653ad4cf788ca 23,62
+src/app/orders/page.tsx
+  s_58faeba5aea1eb::t_c2c023ceb23dab 100
+src/app/api/orders/[id]/slip/route.ts
+  s_58faeba5aea1eb::t_cd4749f6970aaf 5,18-22
+  s_58faeba5aea1eb::t_c2c023ceb23dab 13,16,39
+src/app/api/orders/[id]/payment-qr/route.ts
+  s_58faeba5aea1eb::t_b56dea90a3c10a 1-2,4-18,22-27,29-36,38-46
+  s_58faeba5aea1eb::t_cf4869ee2dfa52 28
+  s_58faeba5aea1eb::t_e3d8c7298ae828 3,37
+  s_58faeba5aea1eb::t_73c25562a7d470 19-21
+src/lib/orders/promptpay.ts
+  s_58faeba5aea1eb::t_e3d8c7298ae828 1-36
+src/app/api/admin/orders/[id]/route.ts
+  s_58faeba5aea1eb::t_ec3669f72d1e9f 36
+package-lock.json
+  s_58faeba5aea1eb::t_f4f0e159ed18f4 17,20,26,48-76,130-156,173-184,201-275,285-297,328-395,423-1522,1524-1525,1528-1532,1536-1538,1541-1544,1547,2618-2655,3043-3052,3759-3776,3792-3804,4034-4072,4091-4113,4136-4141,4175-4185,4245-4256,4277-4285,4302-4337,4344-4368,4385-4399,4408-4412,4419-4448,4548-4556,4609-4623,4679-4686,5165-5173,5227-5235,5405-5418,5435-5443,5506-5531,5594-5602,5673-5693,5847-5855,5907-5923,5993-6004,6149-6157,6242-6262,6362-6373,6433-6441,6464,6565-6573,6895-6900,6907-6922,6955-6976,7015-7026,7028-7179,7182,7185-7188,7190-7200,7399-7407,7531-7539,7606-7620,7642-7650,7666-7690,7709-7808,7878-7894,7916-7938,7967-7978,8002-8025,8047-8096,8125-8143,8147-8203,8205,8208-8215,8217-8220,8267-8291,8342-8356,8406-8417,8573-8590,8600-8609,8631-8661,8776-8787,8878-8902,9155-9160,9168-9207,9367-9372,9404-9470,9477-9608
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.3",
+  "base_commit_sha": "a1a65ac72d9671dbf11fea0ef617fc013bfdd51b",
+  "prompts": {},
+  "sessions": {
+    "s_58faeba5aea1eb": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0f2ce-101d-7730-aefc-ce27b57d2b98",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "Pawarisorn <pawarisorn.son@axonstech.com>"
+    }
+  }
+}
