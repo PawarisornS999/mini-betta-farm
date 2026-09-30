@@ -45,3 +45,11 @@ export async function listOrders() {
   const rows = await supabaseRest<OrderRow[]>(`orders?select=${select}&order=created_at.desc&limit=100`, { serviceRole: true, cache: "no-store" });
   return rows.map(mapOrder);
 }
+
+export async function listCustomerOrders(lineUserId: string) {
+  const rows = await supabaseRest<OrderRow[]>(
+    `orders?select=${select}&line_user_id=eq.${encodeURIComponent(lineUserId)}&order=created_at.desc&limit=100`,
+    { serviceRole: true, cache: "no-store" },
+  );
+  return rows.map(mapOrder);
+}

@@ -5,14 +5,8 @@ import Header from "@/sections/Header";
 import Footer from "@/sections/Footer";
 import ProductCard from "@/components/ProductCard";
 import ProductCardSkeleton from "@/components/ProductCardSkeleton";
-import {
-  speciesList,
-  colorList,
-  difficultyList,
-} from "@/data/products";
 import { useCategories, useProducts } from "@/lib/hooks/useCatalog";
 import { useFilterStore } from "@/store/filter";
-import { Species, Difficulty } from "@/types";
 import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
 import BaseDropdown from "@/components/BaseDropdown";
@@ -114,62 +108,6 @@ export default function ShopPage() {
                   onChange={setCategory}
                   options={categories.map((item) => ({ value: item.slug, label: item.name }))}
                 />
-
-                {/* Species */}
-                <BaseDropdown
-                  id="species"
-                  label={t.species}
-                  value={species}
-                  placeholder={t.allSpecies}
-                  onChange={(value) => setSpecies(value as Species | "")}
-                  options={speciesList.map((s) => ({ value: s, label: s }))}
-                />
-
-                {/* Difficulty */}
-                <BaseDropdown
-                  id="difficulty"
-                  label={t.difficulty}
-                  value={difficulty}
-                  placeholder={t.allDifficulty}
-                  onChange={(value) => setDifficulty(value as Difficulty | "")}
-                  options={difficultyList.map((d) => ({
-                    value: d,
-                    label: d.charAt(0).toUpperCase() + d.slice(1),
-                  }))}
-                />
-
-                {/* Color */}
-                <div>
-                  <label className="text-sm font-medium text-foreground block mb-2">
-                    {t.color}
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      onClick={() => setColor("")}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                        !color
-                          ? "bg-accent text-white"
-                          : "bg-gray-100 text-foreground/60 hover:bg-accent/10"
-                      }`}
-                    >
-                      {t.allColors}
-                    </button>
-                    {colorList.map((c) => (
-                      <button
-                        key={c}
-                        onClick={() => setColor(c === color ? "" : c)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                          color === c
-                            ? "bg-accent text-white"
-                            : "bg-gray-100 text-foreground/60 hover:bg-accent/10"
-                        }`}
-                      >
-                        {c}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
                 {/* Price Range */}
                 <div>
                   <label className="text-sm font-medium text-foreground block mb-2">

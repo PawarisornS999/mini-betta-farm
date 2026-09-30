@@ -229,27 +229,3 @@ export const products: Product[] = [
     badge: "Sold Out",
   },
 ];
-
-export const speciesList: string[] = [
-  "Halfmoon",
-  "Crowntail",
-  "Plakat",
-  "Giant Betta",
-  "Double Tail",
-  "Dumbo Ear",
-];
-
-export const colorList: string[] = [
-  "Blue",
-  "Red",
-  "Galaxy",
-  "Koi",
-  "Marble",
-  "Copper",
-];
-
-export const difficultyList: string[] = [
-  "beginner",
-  "intermediate",
-  "advanced",
-];

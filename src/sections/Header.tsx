@@ -21,6 +21,7 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [cartBump, setCartBump] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const cartItems = useCartStore((s) => s.items);
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const { lang, toggle } = useLangStore();
@@ -103,14 +104,20 @@ export default function Header() {
                 <span>{lang === "en" ? "TH" : "EN"}</span>
               </motion.button>
 
-              <Link
-                href="/profile"
-                aria-label={t.nav.profile}
-                title={t.nav.profile}
-                className="p-2 rounded-xl hover:bg-foreground/5 hover:text-accent transition-colors"
-              >
-                <FontAwesomeIcon icon={faUser} className="w-5 h-5" />
-              </Link>
+              <div className="relative">
+                <button
+                  onClick={() => setUserMenuOpen((open) => !open)}
+                  aria-label={t.nav.profile}
+                  title={t.nav.profile}
+                  className="p-2 rounded-xl hover:bg-foreground/5 hover:text-accent transition-colors"
+                >
+                  <FontAwesomeIcon icon={faUser} className="w-5 h-5" />
+                </button>
+                {userMenuOpen && <div className="absolute right-0 top-12 z-50 w-48 rounded-2xl bg-white p-2 shadow-xl ring-1 ring-black/5">
+                  <Link href="/orders" onClick={() => setUserMenuOpen(false)} className="block rounded-xl px-4 py-3 text-sm font-semibold hover:bg-accent/10 hover:text-accent">การซื้อของฉัน</Link>
+                  <Link href="/profile" onClick={() => setUserMenuOpen(false)} className="block rounded-xl px-4 py-3 text-sm font-semibold hover:bg-accent/10 hover:text-accent">{t.nav.profile}</Link>
+                </div>}
+              </div>
 
               <button
                 onClick={() => setCartOpen(true)}

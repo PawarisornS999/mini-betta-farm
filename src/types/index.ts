@@ -112,7 +112,7 @@ export interface Product {
   pattern?: string;
   tailType?: string;
   ageMonths?: number;
-  sizeCm?: number;
+  sizeInches?: number;
   cost?: number;
   reservedQty?: number;
   adminStatus?: "draft" | "available" | "reserved" | "sold" | "hidden";

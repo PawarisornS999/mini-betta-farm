@@ -187,82 +187,31 @@ export default function ProductDetailPage({
                 {product.description}
               </p>
 
-              {/* Fish Details */}
-              <div className="bg-sky-50 rounded-2xl p-5 mb-6 space-y-3">
-                <h3 className="font-bold text-foreground">
-                  {t.product.details}
-                </h3>
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <span className="text-muted">{t.product.species}:</span>
-                    <span className="ml-2 font-medium text-foreground">
-                      {product.species}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-muted">{t.product.color}:</span>
-                    <span className="ml-2 font-medium text-foreground">
-                      {product.color}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-muted">{t.product.difficulty}:</span>
-                    <span
-                      className={`ml-2 font-medium capitalize ${
-                        product.difficultyLevel === "beginner"
-                          ? "text-green-600"
-                          : product.difficultyLevel === "medium"
-                            ? "text-amber-600"
-                            : "text-red-600"
-                      }`}
-                    >
-                      {lang === "en"
-                        ? product.difficultyLevel
-                        : product.difficultyLevel === "beginner"
-                          ? t.admin.beginner
-                          : product.difficultyLevel === "medium"
-                            ? t.admin.intermediate
-                            : t.admin.advanced}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-muted">{t.product.waterTemp}:</span>
-                    <span className="ml-2 font-medium text-foreground">
-                      {product.waterTemp ??
-                        `${product.waterTempMin ?? 24}–${product.waterTempMax ?? 28}°C`}
-                    </span>
-                  </div>
-                  <div className="col-span-2">
-                    <span className="text-muted">{t.product.stock}:</span>
-                    <span
-                      className={`ml-2 font-medium ${
-                        product.stockStatus === "in_stock"
-                          ? "text-green-600"
-                          : product.stockStatus === "low_stock"
-                            ? "text-amber-600"
-                            : "text-red-600"
-                      }`}
-                    >
-                      {product.stockStatus === "in_stock"
-                        ? t.product.inStock
-                        : product.stockStatus === "low_stock"
-                          ? t.product.lowStock
-                          : isSold
-                            ? t.product.sold
-                            : t.product.outOfStock}
-                    </span>
-                  </div>
+              <div className="mb-8 rounded-2xl bg-sky-50 p-5">
+                <h3 className="mb-4 font-bold text-foreground">รายละเอียดสินค้า</h3>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+                  <Detail label="รหัสสินค้า" value={product.sku ?? "-"} />
+                  <Detail
+                    label="เพศ"
+                    value={
+                      product.gender === "male"
+                        ? "เพศผู้"
+                        : product.gender === "female"
+                          ? "เพศเมีย"
+                          : "ไม่ระบุเพศ"
+                    }
+                  />
+                  <Detail
+                    label="ขนาด"
+                    value={product.sizeInches != null ? `${product.sizeInches} นิ้ว` : "-"}
+                  />
+                  <Detail
+                    label="อายุปลา"
+                    value={product.ageMonths != null ? `${product.ageMonths} เดือน` : "-"}
+                  />
+                  <Detail label="หมวดหมู่" value={product.category ?? "-"} />
+                  <Detail label="ประเภทเพศ" value={product.tailType ?? "-"} />
                 </div>
-              </div>
-
-              {/* Care Guide */}
-              <div className="bg-emerald-50 rounded-2xl p-5 mb-8">
-                <h3 className="font-bold text-foreground mb-2">
-                  🐟 {t.product.feedingNotes}
-                </h3>
-                <p className="text-sm text-muted leading-relaxed">
-                  {product.feedingNotes}
-                </p>
               </div>
 
               {/* Add to Cart */}
@@ -336,5 +285,14 @@ export default function ProductDetailPage({
       )}
       <Footer />
     </>
+  );
+}
+
+function Detail({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <span className="text-muted">{label}:</span>
+      <span className="ml-2 font-medium text-foreground">{value}</span>
+    </div>
   );
 }

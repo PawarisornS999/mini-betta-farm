@@ -41,3 +41,28 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ message: error instanceof Error ? error.message : "อัปเดตออเดอร์ไม่สำเร็จ" }, { status: 400 });
   }
 }
+
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  const { id } = await params;
+  try {
+    const order = await getOrder(id);
+    if (!order) return NextResponse.json({ message: "Order not found" }, { status: 404 });
+
+    await supabaseRest(`orders?id=eq.${encodeURIComponent(id)}`, {
+      method: "DELETE",
+      serviceRole: true,
+      headers: { Prefer: "return=minimal" },
+    });
+    try {
+      await supabaseRest("activity_logs", {
+        method: "POST", serviceRole: true, headers: { Prefer: "return=minimal" },
+        body: JSON.stringify({ admin_name: session.username, action: "order.delete", resource_type: "order", resource_id: id, details: { customerName: order.customerName } }),
+      });
+    } catch (logError) { console.error("Order deletion activity log failed", logError); }
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ message: error instanceof Error ? error.message : "ลบออเดอร์ไม่สำเร็จ" }, { status: 400 });
+  }
+}

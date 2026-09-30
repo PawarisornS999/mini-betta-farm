@@ -7,7 +7,6 @@ import { maximumStockDecrease } from "@/lib/inventory";
 import { adminText, useAdminLanguage } from "./LanguageProvider";
 import BaseDropdown from "../BaseDropdown";
 import Modal from "../Modal";
-import { difficultyList, speciesList } from "@/data/products";
 
 type FormState = {
   id?: string;
@@ -16,15 +15,11 @@ type FormState = {
   slug: string;
   price: string;
   cost: string;
-  species: string;
   category: string;
-  color: string;
   gender: "male" | "female" | "unsexed";
-  pattern: string;
   tailType: string;
-  difficultyLevel: "beginner" | "medium" | "advanced";
   ageMonths: string;
-  sizeCm: string;
+  sizeInches: string;
   stockQty: string;
   adminStatus: "draft" | "available" | "reserved" | "sold" | "hidden";
   description: string;
@@ -39,15 +34,11 @@ const emptyForm: FormState = {
   slug: "",
   price: "",
   cost: "",
-  species: "",
   category: "",
-  color: "",
   gender: "male",
-  pattern: "",
   tailType: "",
-  difficultyLevel: "beginner",
   ageMonths: "",
-  sizeCm: "",
+  sizeInches: "",
   stockQty: "1",
   adminStatus: "available",
   description: "",
@@ -84,15 +75,11 @@ function productToForm(product: Product): FormState {
     slug: product.slug ?? "",
     price: String(product.price),
     cost: String(product.cost ?? 0),
-    species: product.species,
     category: product.category ?? "betta-fish",
-    color: product.color,
     gender: product.gender ?? "unsexed",
-    pattern: product.pattern ?? "",
     tailType: product.tailType ?? "",
-    difficultyLevel: product.difficultyLevel ?? "beginner",
     ageMonths: product.ageMonths ? String(product.ageMonths) : "",
-    sizeCm: product.sizeCm ? String(product.sizeCm) : "",
+    sizeInches: product.sizeInches ? String(product.sizeInches) : "",
     stockQty: String(product.stockQty ?? 0),
     adminStatus: product.adminStatus ?? "available",
     description: product.description,
@@ -224,10 +211,6 @@ export default function ProductsAdminClient({
   async function saveProduct(event: FormEvent) {
     event.preventDefault();
     if (!form) return;
-    if (!form.difficultyLevel) {
-      setError(text("กรุณาเลือกระดับการดูแล", "Please select a care level"));
-      return;
-    }
     setSaving(true);
     setError("");
     const payload = {
@@ -235,7 +218,7 @@ export default function ProductsAdminClient({
       price: Number(form.price),
       cost: Number(form.cost || 0),
       ageMonths: form.ageMonths ? Number(form.ageMonths) : undefined,
-      sizeCm: form.sizeCm ? Number(form.sizeCm) : undefined,
+      sizeInches: form.sizeInches ? Number(form.sizeInches) : undefined,
       stockQty: Number(form.stockQty),
       images: form.images
         .split("\n")
@@ -644,23 +627,9 @@ export default function ProductsAdminClient({
                     </Field>
                   </div>
                   <div className="flex flex-col gap-4">
-                      <Field label={text("สายพันธุ์", "Strain")}>
-                      <BaseDropdown value={form.species} onChange={(value) => setField("species", value)} options={speciesList.map((value) => ({ value, label: value }))}  />
-                      </Field>
                       <Field label={text("หมวดหมู่ *", "Category *")}>
                         <BaseDropdown value={form.category} onChange={(value) => setField("category", value)} options={categories.filter((category) => category.isActive !== false).map((category) => ({ value: category.slug, label: category.name }))} />
                       </Field>
-                    <Field label={text("สี *", "Color *")}>
-                      <input
-                        required
-                        value={form.color}
-                        onChange={(e) => setField("color", e.target.value)}
-                        className="input-admin"
-                      />
-                    </Field>
-                    <Field label={text("ระดับการดูแล *", "Care level *")}>
-                      <BaseDropdown value={form.difficultyLevel} onChange={(value) => setField("difficultyLevel", value as FormState["difficultyLevel"])} options={difficultyList.map((value) => ({ value: value === "intermediate" ? "medium" : value, label: value === "intermediate" ? text("ปานกลาง", "Intermediate") : value === "beginner" ? text("มือใหม่", "Beginner") : text("ยาก", "Advanced") }))} />
-                    </Field>
                     <Field label={text("เพศ", "Gender")}>
                       <BaseDropdown
                         value={form.gender}
@@ -670,13 +639,6 @@ export default function ProductsAdminClient({
                     </Field>
                   </div>
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Field label={text("ลวดลาย", "Pattern")}>
-                      <input
-                        value={form.pattern}
-                        onChange={(e) => setField("pattern", e.target.value)}
-                        className="input-admin"
-                      />
-                    </Field>
                     <Field label={text("ประเภทหาง", "Tail type")}>
                       <input
                         value={form.tailType}
@@ -764,7 +726,7 @@ export default function ProductsAdminClient({
                       <input
                         required
                         min="0"
-                        step="0.1"
+                        step="1"
                         type="number"
                         value={form.stockQty}
                         onChange={(e) => setField("stockQty", e.target.value)}
@@ -799,20 +761,20 @@ export default function ProductsAdminClient({
                     <Field label={text("อายุ (เดือน)", "Age (months)")}>
                       <input
                         min="0"
-                        step="0.1"
+                        step="any"
                         type="number"
                         value={form.ageMonths}
                         onChange={(e) => setField("ageMonths", e.target.value)}
                         className="input-admin"
                       />
                     </Field>
-                    <Field label={text("ขนาด (ซม.)", "Size (cm)")}>
+                    <Field label={text("ขนาด (นิ้ว.)", "Size (inches)")}>
                       <input
                         min="0"
-                        step="0.1"
+                        step="any"
                         type="number"
-                        value={form.sizeCm}
-                        onChange={(e) => setField("sizeCm", e.target.value)}
+                        value={form.sizeInches}
+                        onChange={(e) => setField("sizeInches", e.target.value)}
                         className="input-admin"
                       />
                     </Field>
@@ -849,11 +811,6 @@ export default function ProductsAdminClient({
                     />
                   </label>
                 </FormSection>
-                {error && (
-                  <p className="rounded-xl bg-red-50 p-4 text-sm text-red-600">
-                    {error}
-                  </p>
-                )}
               </div>
             </div>
             <div className="sticky bottom-0 flex justify-end gap-3 border-t border-black/6 bg-white/95 px-6 py-4 backdrop-blur">
@@ -951,11 +908,6 @@ export default function ProductsAdminClient({
                   options={[{ value: "new_stock", label: text("รับสินค้าเข้า", "New stock") }, { value: "manual_adjustment", label: text("ปรับยอดด้วยตนเอง", "Manual adjustment") }, { value: "damaged", label: text("ปลาเสียหาย/ตาย", "Damaged fish") }, { value: "reservation_release", label: text("คืนจากการจอง", "Reservation release") }]}
                 />
               </Field>
-              {error && (
-                <p className="rounded-xl bg-red-50 p-3 text-sm text-red-600">
-                  {error}
-                </p>
-              )}
             </div>
             <div className="mt-7 flex justify-end gap-3">
               <button
@@ -975,6 +927,15 @@ export default function ProductsAdminClient({
           </form>
         </div>
       )}
+      <Modal
+        isOpen={Boolean(error)}
+        onClose={() => setError("")}
+        title={text("เกิดข้อผิดพลาด", "Something went wrong")}
+        description={error || undefined}
+        variant="error"
+        confirmText={text("ปิด", "Close")}
+        cancelText={text("ปิด", "Close")}
+      />
       <Modal
         isOpen={Boolean(deleteProductTarget)}
         onClose={() => setDeleteProductTarget(null)}
