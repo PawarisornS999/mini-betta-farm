@@ -16,7 +16,7 @@ import { orderTotal, SHIPPING_FEE } from "@/lib/orders/workflow";
 import BaseDropdown from "@/components/BaseDropdown";
 import { searchAddressByProvince } from "thai-address-database";
 import type { CheckoutPayload, CustomerProfile } from "@/types";
-import { faBoxOpen } from "@fortawesome/free-solid-svg-icons";
+import { faBoxOpen, faArrowLeft, faCartShopping } from "@fortawesome/free-solid-svg-icons";
 
 const thaiAddresses = searchAddressByProvince(".", 10000);
 const CHECKOUT_DRAFT_KEY = "mini-betta-line-checkout-draft";
@@ -234,17 +234,22 @@ export default function CheckoutPage() {
     return (
       <>
         <Header />
-        <main className="pt-32 pb-16 text-center">
-          <p className="text-5xl mb-4">🛒</p>
-          <h1 className="text-2xl font-bold text-foreground mb-2">
+        <main className="flex min-h-[70vh] items-center justify-center bg-slate-50 px-4 pb-16 pt-28">
+          <section className="w-full max-w-md rounded-3xl bg-white px-6 py-12 text-center shadow-sm ring-1 ring-black/5 sm:px-10">
+            <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-accent/10 text-accent">
+              <FontAwesomeIcon icon={faCartShopping} className="h-9 w-9" />
+            </div>
+            <h1 className="mt-6 text-2xl font-bold text-foreground">
             {lang === "en" ? "No items to checkout" : "ไม่มีสินค้าในตะกร้า"}
-          </h1>
-          <Link
-            href="/shop"
-            className="text-accent font-medium hover:text-accent-dark"
-          >
-            {lang === "en" ? "Browse Fish " : "เลือกดูปลา "}
-          </Link>
+            </h1>
+            <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-muted">
+              {lang === "en" ? "Choose your favorite betta fish and add it to your cart to continue." : "เลือกปลากัดที่ชอบแล้วเพิ่มลงตะกร้า เพื่อดำเนินการสั่งซื้อต่อ"}
+            </p>
+            <Link href="/shop" className="mt-7 inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-accent-dark">
+              <FontAwesomeIcon icon={faArrowLeft} className="h-3.5 w-3.5" />
+              {lang === "en" ? "Browse betta fish" : "เลือกดูปลากัด"}
+            </Link>
+          </section>
         </main>
         <Footer />
       </>
