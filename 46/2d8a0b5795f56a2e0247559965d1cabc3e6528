@@ -1,0 +1,29 @@
+src/components/admin/OrdersAdminClient.tsx
+  s_58faeba5aea1eb::t_731de6a04558ac 71-74
+src/app/orders/page.tsx
+  s_58faeba5aea1eb::t_4c4c46ec8bb42d 10
+  s_58faeba5aea1eb::t_b32c84073ead91 135-137,140-157
+  s_58faeba5aea1eb::t_5029dfdd8e76cc 2,8,46-51,55-62
+  s_58faeba5aea1eb::t_7b4b337c5308fb 11-13
+  s_58faeba5aea1eb::t_3dfae322f1e73e 63
+  s_58faeba5aea1eb::t_d9146c575a8b1a 138-139
+  s_58faeba5aea1eb::t_bf9bf7368eda4d 158-159
+src/app/globals.css
+  s_58faeba5aea1eb::t_c398b9adef6a7b 85-93
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.3",
+  "base_commit_sha": "462d8a0b5795f56a2e0247559965d1cabc3e6528",
+  "prompts": {},
+  "sessions": {
+    "s_58faeba5aea1eb": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0f2ce-101d-7730-aefc-ce27b57d2b98",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "Pawarisorn <pawarisorn.son@axonstech.com>"
+    }
+  }
+}
