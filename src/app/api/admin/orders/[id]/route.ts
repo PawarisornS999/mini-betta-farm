@@ -33,7 +33,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       });
     } catch (logError) { console.error("Order activity log failed", logError); }
     if (before.lineUserId && process.env.LINE_CHANNEL_ACCESS_TOKEN) {
-      try { await pushLineMessage(before.lineUserId, `🐟 ออเดอร์ ${id.slice(0, 8).toUpperCase()}: ${labels[body.action]}${body.action === "tracking" ? ` ${body.value}` : ""}\nดูรายละเอียด: ${orderCustomerUrl(id, before.customerToken || "")}`); }
+      try { await pushLineMessage(before.lineUserId, `🐟 ออเดอร์ ${id.slice(0, 8).toUpperCase()}: ${labels[body.action]}${body.action === "tracking" ? ` ${body.value}` : ""}\nดูรายละเอียด: ${orderCustomerUrl(id)}`); }
       catch (error) { console.error("Customer LINE update failed", error); }
     }
     return NextResponse.json({ success: true, data: order });

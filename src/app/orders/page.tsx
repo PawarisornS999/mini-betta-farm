@@ -97,7 +97,7 @@ export default function OrdersPage() {
             {visibleOrders.map((order) => (
               <Link
                 key={order.id}
-                href={`/orders/${order.id}?token=${order.customerToken ?? ""}`}
+                href={`/orders/${order.id}`}
                 className="block rounded-2xl bg-white p-5 shadow-sm transition hover:shadow-md"
               >
                 <div className="flex items-start justify-between gap-4">

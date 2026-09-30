@@ -18,7 +18,7 @@ export async function PATCH(request: Request) {
   const accountName = body.accountName?.trim() || "";
   const accountNumber = body.accountNumber?.trim() || "";
   const promptpayNumber = body.promptpayNumber?.trim() || "";
-  if (!accountName || !(accountNumber || promptpayNumber) || (accountNumber && (!bank || !/^[0-9-]{8,20}$/.test(accountNumber))) || (promptpayNumber && !/^[0-9]{10,13}$/.test(promptpayNumber))) {
+  if (!accountName || !(accountNumber || promptpayNumber) || (accountNumber && (!bank || !/^[0-9-]{8,20}$/.test(accountNumber))) || (promptpayNumber && !/^(?:[0-9]{10}|[0-9]{13})$/.test(promptpayNumber))) {
     return NextResponse.json({ message: "กรุณากรอกชื่อผู้รับและเลขบัญชีหรือ PromptPay ให้ถูกต้อง" }, { status: 400 });
   }
   await supabaseRest("store_settings?id=eq.default", {

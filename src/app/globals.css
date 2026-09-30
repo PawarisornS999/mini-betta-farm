@@ -71,3 +71,14 @@ body.thai-font {
   background: #efefeb;
   color: #92928a;
 }
+
+.profile-invalid-field .input-admin,
+.profile-invalid-field button[aria-haspopup="listbox"] {
+  border-color: #f87171;
+}
+
+.profile-invalid-field .input-admin:focus,
+.profile-invalid-field button[aria-haspopup="listbox"]:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgb(239 68 68 / 0.15);
+}

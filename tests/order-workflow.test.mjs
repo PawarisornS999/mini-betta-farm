@@ -60,16 +60,16 @@ test("order command requires both order ID and private token", () => {
   assert.equal(messaging.parseOrderCommand(`ORDER ${id}`), null);
 });
 
-test("customer LINE order message links to the private payment page", () => {
+test("customer LINE order message links to the order page without a URL token", () => {
   const message = messaging.customerOrderFlexMessage({
     id: "11111111-1111-4111-8111-111111111111",
     shippingFee: 80,
     totalPrice: 430,
     items: [{ productName: "Galaxy Betta", product: { name: "Galaxy Betta" }, quantity: 1, price: 350 }],
-  }, "https://example.com/orders/111?token=private-token");
+  }, "https://example.com/orders/111");
   assert.equal(message.type, "flex");
   assert.match(message.altText, /11111111/);
-  assert.equal(message.contents.footer.contents[0].action.uri, "https://example.com/orders/111?token=private-token");
+  assert.equal(message.contents.footer.contents[0].action.uri, "https://example.com/orders/111");
 });
 
 test("inventory operations produce safe signed deltas", () => {

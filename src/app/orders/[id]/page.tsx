@@ -1,9 +1,11 @@
 import OrderStatusClient from "./OrderStatusClient";
+import type { Metadata } from "next";
 
-export default async function OrderStatusPage({ params, searchParams }: {
+export const metadata: Metadata = { title: "คำสั่งซื้อของฉัน", robots: { index: false, follow: false } };
+
+export default async function OrderStatusPage({ params }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ token?: string }>;
 }) {
-  const [{ id }, { token }] = await Promise.all([params, searchParams]);
-  return <OrderStatusClient id={id} token={token || ""} />;
+  const { id } = await params;
+  return <OrderStatusClient id={id} />;
 }

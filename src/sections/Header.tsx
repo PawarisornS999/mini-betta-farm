@@ -22,6 +22,7 @@ export default function Header() {
   const [cartOpen, setCartOpen] = useState(false);
   const [cartBump, setCartBump] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [lineProfile, setLineProfile] = useState<{ displayName?: string; pictureUrl?: string } | null>(null);
   const cartItems = useCartStore((s) => s.items);
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const { lang, toggle } = useLangStore();
@@ -39,6 +40,23 @@ export default function Header() {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  async function logout() {
+    await fetch("/api/line/logout", { method: "POST" });
+    setLineProfile(null);
+    setUserMenuOpen(false);
+  }
+
+  useEffect(() => {
+    fetch("/api/line/session", { cache: "no-store" })
+      .then((response) => response.json() as Promise<{ data?: { authenticated?: boolean; displayName?: string; pictureUrl?: string } }>)
+      .then((result) => {
+        if (result.data?.authenticated) {
+          setLineProfile({ displayName: result.data.displayName, pictureUrl: result.data.pictureUrl });
+        }
+      })
+      .catch(() => setLineProfile(null));
   }, []);
 
   useEffect(() => {
@@ -111,11 +129,22 @@ export default function Header() {
                   title={t.nav.profile}
                   className="p-2 rounded-xl hover:bg-foreground/5 hover:text-accent transition-colors"
                 >
-                  <FontAwesomeIcon icon={faUser} className="w-5 h-5" />
+                  {lineProfile?.pictureUrl ? (
+                    <span
+                      className="block h-7 w-7 rounded-full bg-cover bg-center "
+                      style={{ backgroundImage: `url(${lineProfile.pictureUrl})` }}
+                      aria-label={lineProfile.displayName || "LINE profile"}
+                    />
+                  ) : (
+                  <div className="text-center bg-gray-300 p-1 w-7 h-7 rounded-full">
+                      <FontAwesomeIcon icon={faUser} className="w-6 h-6" />
+                  </div>
+                  )}
                 </button>
                 {userMenuOpen && <div className="absolute right-0 top-12 z-50 w-48 rounded-2xl bg-white p-2 shadow-xl ring-1 ring-black/5">
-                  <Link href="/orders" onClick={() => setUserMenuOpen(false)} className="block rounded-xl px-4 py-3 text-sm font-semibold hover:bg-accent/10 hover:text-accent">การซื้อของฉัน</Link>
                   <Link href="/profile" onClick={() => setUserMenuOpen(false)} className="block rounded-xl px-4 py-3 text-sm font-semibold hover:bg-accent/10 hover:text-accent">{t.nav.profile}</Link>
+                  <Link href="/orders" onClick={() => setUserMenuOpen(false)} className="block rounded-xl px-4 py-3 text-sm font-semibold hover:bg-accent/10 hover:text-accent">การซื้อของฉัน</Link>
+                  <button type="button" onClick={() => void logout()} className="block w-full rounded-xl px-4 py-3 text-left text-sm font-semibold text-red-600 hover:bg-red-50">ออกจากระบบ</button>
                 </div>}
               </div>
 
@@ -136,7 +165,7 @@ export default function Header() {
               </button>
 
               <button
-                className="md:hidden p-2 rounded-xl hover:bg-foreground/5 transition-colors"
+                className="md:hidden pt-2 pb-1 rounded-xl hover:bg-foreground/5 transition-colors"
                 onClick={() => setMobileOpen(!mobileOpen)}
                 aria-label="Menu"
               >

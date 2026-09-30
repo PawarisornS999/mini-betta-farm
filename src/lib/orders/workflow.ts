@@ -31,7 +31,7 @@ export function formatMoney(amount: number) {
   return `฿${amount.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-export function orderCustomerUrl(id: string, token: string) {
+export function orderCustomerUrl(id: string) {
   const site = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "http://localhost:3000";
-  return `${site}/orders/${encodeURIComponent(id)}?token=${encodeURIComponent(token)}`;
+  return `${site}/orders/${encodeURIComponent(id)}`;
 }

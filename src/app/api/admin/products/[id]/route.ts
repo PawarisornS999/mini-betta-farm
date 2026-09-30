@@ -15,7 +15,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     price: Number(body.price), cost: Number(body.cost ?? 0), description: body.description?.trim() ?? "",
     species: body.species?.trim(), color: body.color?.trim(), category: body.category?.trim() || "betta-fish", gender: body.gender ?? "unsexed", difficulty_level: body.difficultyLevel ?? "beginner",
     pattern: body.pattern?.trim() || null, tail_type: body.tailType?.trim() || body.species?.trim(),
-    age_months: body.ageMonths || null, size_cm: body.sizeCm || null,
+    age_months: body.ageMonths ?? null, size_cm: body.sizeInches == null ? body.sizeCm ?? null : Math.round(body.sizeInches * 2.54 * 100) / 100,
     // Keep sold fish published so customers can still see them in Products.
     admin_status: status, published: status !== "hidden" && status !== "draft",
     reserved_qty: status === "reserved" ? 1 : 0,

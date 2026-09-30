@@ -80,7 +80,7 @@ export async function POST(request: Request) {
           lineSession.userId,
           customerOrderFlexMessage(
             order,
-            orderCustomerUrl(order.id, order.customerToken),
+            orderCustomerUrl(order.id),
           ),
         );
       } catch (lineError) {

@@ -173,6 +173,10 @@ const translations = {
       lineNote:
         "Your order details will be sent to our LINE OA for processing.",
       itemsSuffix: "items",
+      liveArrivalGuarantee: "Live Arrival Guarantee",
+      descriptionLiveArrivalGuarantee:
+        "All fish are carefully packed with oxygen bags and insulated packaging. We guarantee live arrival or your money back.",
+      
     },
     contact: {
       title: "Contact Us",
@@ -483,6 +487,8 @@ const translations = {
       orderViaLine: "สั่งซื้อผ่าน LINE OA ",
       lineNote: "รายละเอียดคำสั่งซื้อจะถูกส่งไปยัง LINE OA ของเรา",
       itemsSuffix: "ตัว",
+      liveArrivalGuarantee: "รับประกันปลาถึงมือคุณ",
+      descriptionLiveArrivalGuarantee:"ปลาทุกตัวจะถูกบรรจุอย่างระมัดระวังด้วยถุงออกซิเจนและบรรจุภัณฑ์ฉนวน\nเราประกันการส่งถึงมือคุณหรือเงินคืน"
     },
     contact: {
       title: "ติดต่อเรา",

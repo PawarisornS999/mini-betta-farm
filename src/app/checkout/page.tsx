@@ -16,6 +16,7 @@ import { orderTotal, SHIPPING_FEE } from "@/lib/orders/workflow";
 import BaseDropdown from "@/components/BaseDropdown";
 import { searchAddressByProvince } from "thai-address-database";
 import type { CheckoutPayload, CustomerProfile } from "@/types";
+import { faBoxOpen } from "@fortawesome/free-solid-svg-icons";
 
 const thaiAddresses = searchAddressByProvince(".", 10000);
 const CHECKOUT_DRAFT_KEY = "mini-betta-line-checkout-draft";
@@ -93,9 +94,9 @@ export default function CheckoutPage() {
 
       const order = response.data;
 
-      if (!order.customerToken) throw new Error("ไม่พบรหัสออเดอร์ กรุณาติดต่อร้าน");
+      if (!order.id) throw new Error("ไม่พบรหัสออเดอร์ กรุณาติดต่อร้าน");
       clearCart();
-      window.location.assign(`/orders/${order.id}?token=${order.customerToken}`);
+      window.location.assign(`/orders/${order.id}`);
     } catch (error) {
       const message =
         typeof error === "object" && error && "message" in error
@@ -398,13 +399,13 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              <div className="bg-emerald-50 rounded-2xl p-5">
-                <h3 className="font-bold text-foreground mb-2">
-                  🐟 Live Arrival Guarantee
+              <div className="bg-blue-100 rounded-2xl p-5">
+                <h3 className="flex items-center font-bold text-foreground mb-2">
+                  <FontAwesomeIcon icon={faBoxOpen} className="mr-2" />
+                  {t.liveArrivalGuarantee}
                 </h3>
-                <p className="text-sm text-muted">
-                  All fish are carefully packed with oxygen bags and insulated
-                  packaging. We guarantee live arrival or your money back.
+                <p className="text-sm text-muted whitespace-pre-line">
+                  {t.descriptionLiveArrivalGuarantee}
                 </p>
               </div>
 
@@ -412,7 +413,7 @@ export default function CheckoutPage() {
                 <div className="flex items-start gap-3">
                   <FontAwesomeIcon icon={faLine} className="mt-0.5 h-6 w-6 text-green-600" />
                   <div>
-                    <h3 className="font-bold text-foreground">LINE Login และเพิ่มเพื่อน OA</h3>
+                    <h3 className="font-bold text-foreground">กรุณาเข้าสู่ระบบ LINE ก่อนสั่งซื้อ</h3>
                     {lineState.status === "loading" && <p className="mt-1 text-sm text-muted">กำลังตรวจสอบการเชื่อมต่อ LINE...</p>}
                     {lineState.status === "required" && <>
                       <p className="mt-1 text-sm text-muted">เข้าสู่ระบบ LINE และเพิ่มร้านเป็นเพื่อนก่อนสร้างออเดอร์</p>

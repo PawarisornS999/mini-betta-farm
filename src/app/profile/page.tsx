@@ -7,6 +7,7 @@ import Footer from "@/sections/Footer";
 import BaseDropdown from "@/components/BaseDropdown";
 import { useLangStore } from "@/store/lang";
 import type { CustomerProfile, CustomerProfileInput } from "@/types";
+import { customerProfileFieldErrors, validateCustomerProfile } from "@/lib/customer/profile-validation";
 import { searchAddressByProvince } from "thai-address-database";
 
 const thaiAddresses = searchAddressByProvince(".", 10000);
@@ -35,8 +36,11 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [loginRequired, setLoginRequired] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [attemptedSave, setAttemptedSave] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const invalidFields = attemptedSave ? customerProfileFieldErrors(profile) : null;
+  const validationError = attemptedSave ? validateCustomerProfile(profile) : null;
   const provinces = useMemo(
     () => uniqueValues(thaiAddresses.map((item) => item.province)),
     [],
@@ -125,9 +129,11 @@ export default function ProfilePage() {
   }
 
   async function save() {
-    setSaving(true);
+    setAttemptedSave(true);
     setError("");
     setMessage("");
+    if (validateCustomerProfile(profile)) return;
+    setSaving(true);
     const input: CustomerProfileInput = {
       customerName: profile.customerName,
       customerPhone: profile.customerPhone,
@@ -152,6 +158,7 @@ export default function ProfilePage() {
           body.message || text("บันทึกไม่สำเร็จ", "Unable to save profile"),
         );
       setProfile(body.data);
+      setAttemptedSave(false);
       setMessage(
         text("บันทึกข้อมูลเรียบร้อยแล้ว", "Profile saved successfully"),
       );
@@ -191,8 +198,8 @@ export default function ProfilePage() {
               </h1>
               <p className="mt-1 text-sm text-muted">
                 {text(
-                  "ข้อมูลนี้จะถูกใช้เติมในหน้า Checkout อัตโนมัติ",
-                  "This information will automatically fill your checkout form",
+                  "ข้อมูลที่อยู่จะถูกกรอกอัตโนมัติในแบบฟอร์มชำระเงิน",
+                  "The address information will be automatically filled in the checkout form",
                 )}
               </p>
             </div>
@@ -215,8 +222,9 @@ export default function ProfilePage() {
           ) : (
             <div className="mt-6 space-y-5">
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label={text("ชื่อผู้รับ *", "Recipient name *")}>
+                <Field label={text("ชื่อผู้รับ *", "Recipient name *")} invalid={invalidFields?.customerName}>
                   <input
+                    required
                     value={profile.customerName}
                     onChange={(event) =>
                       update("customerName", event.target.value)
@@ -224,8 +232,9 @@ export default function ProfilePage() {
                     className="input-admin"
                   />
                 </Field>
-                <Field label={text("เบอร์โทรศัพท์ *", "Phone number *")}>
+                <Field label={text("เบอร์โทรศัพท์ *", "Phone number *")} invalid={invalidFields?.customerPhone}>
                   <input
+                    required
                     type="tel"
                     value={profile.customerPhone}
                     onChange={(event) =>
@@ -236,12 +245,14 @@ export default function ProfilePage() {
                 </Field>
               </div>
               <Field
+                invalid={invalidFields?.addressDetails}
                 label={text(
-                  "บ้านเลขที่ ถนน ซอย",
-                  "House number, road, building",
+                  "บ้านเลขที่ ถนน ซอย *",
+                  "House number, road, building *",
                 )}
               >
                 <textarea
+                  required
                   rows={3}
                   value={profile.addressDetails}
                   onChange={(event) =>
@@ -251,7 +262,7 @@ export default function ProfilePage() {
                 />
               </Field>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label={text("จังหวัด *", "Province *")}>
+                <Field label={text("จังหวัด *", "Province *")} invalid={invalidFields?.province}>
                   <BaseDropdown
                     value={profile.province}
                     onChange={(value) =>
@@ -270,7 +281,7 @@ export default function ProfilePage() {
                     }))}
                   />
                 </Field>
-                <Field label={text("อำเภอ/เขต *", "District *")}>
+                <Field label={text("อำเภอ/เขต *", "District *")} invalid={invalidFields?.district}>
                   <BaseDropdown
                     value={profile.district}
                     disabled={!profile.province}
@@ -289,7 +300,7 @@ export default function ProfilePage() {
                     }))}
                   />
                 </Field>
-                <Field label={text("ตำบล/แขวง *", "Subdistrict *")}>
+                <Field label={text("ตำบล/แขวง *", "Subdistrict *")} invalid={invalidFields?.subdistrict}>
                   <BaseDropdown
                     value={profile.subdistrict}
                     disabled={!profile.district}
@@ -313,8 +324,9 @@ export default function ProfilePage() {
                     }))}
                   />
                 </Field>
-                <Field label={text("รหัสไปรษณีย์ *", "Postal code *")}>
+                <Field label={text("รหัสไปรษณีย์ *", "Postal code *")} invalid={invalidFields?.postalCode}>
                   <input
+                    required
                     inputMode="numeric"
                     maxLength={5}
                     value={profile.postalCode}
@@ -328,12 +340,12 @@ export default function ProfilePage() {
                   />
                 </Field>
               </div>
-              {error && (
+              {(error || validationError) && (
                 <p
                   role="alert"
                   className="rounded-xl bg-red-50 p-4 text-sm text-red-700"
                 >
-                  {error}
+                  {error || validationError}
                 </p>
               )}
               {message && (
@@ -363,13 +375,21 @@ export default function ProfilePage() {
 function Field({
   label,
   children,
+  invalid = false,
 }: {
   label: string;
   children: React.ReactNode;
+  invalid?: boolean;
 }) {
+  const isRequired = label.trim().endsWith("*");
+  const labelText = isRequired ? label.trim().slice(0, -1).trim() : label;
   return (
-    <label className="block">
-      <span className="mb-1.5 block text-sm font-medium">{label}</span>
+    <label className={`block ${invalid ? "profile-invalid-field" : ""}`}>
+      <span className="mb-1.5 block text-sm font-medium">
+        {labelText}
+        {isRequired && <span className="ml-1 text-red-500" aria-hidden="true">*</span>}
+        {isRequired && <span className="sr-only"> (จำเป็น / required)</span>}
+      </span>
       {children}
     </label>
   );

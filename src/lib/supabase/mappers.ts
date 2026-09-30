@@ -111,7 +111,7 @@ export function mapProduct(row: ProductRow): Product {
     pattern: row.pattern ?? undefined,
     tailType: row.tail_type ?? undefined,
     ageMonths: row.age_months ?? undefined,
-    sizeCm: row.size_cm == null ? undefined : Number(row.size_cm),
+    sizeInches: row.size_cm == null ? undefined : Math.round(Number(row.size_cm) / 2.54 * 100) / 100,
     cost: row.cost == null ? undefined : Number(row.cost),
     reservedQty: row.reserved_qty ?? 0,
     adminStatus: row.admin_status,

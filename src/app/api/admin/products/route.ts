@@ -20,6 +20,7 @@ type ProductInput = {
   difficultyLevel?: "beginner" | "medium" | "advanced";
   ageMonths?: number;
   sizeCm?: number;
+  sizeInches?: number;
   stockQty?: number;
   adminStatus?: string;
   images?: string[];
@@ -58,7 +59,7 @@ function toRow(body: ProductInput) {
     tail_type: body.tailType?.trim() || body.species?.trim(),
     difficulty_level: body.difficultyLevel ?? "beginner",
     age_months: body.ageMonths || null,
-    size_cm: body.sizeCm || null,
+    size_cm: body.sizeInches == null ? body.sizeCm ?? null : Math.round(body.sizeInches * 2.54 * 100) / 100,
     stock_qty: stockQty,
     reserved_qty: status === "reserved" ? Math.min(1, stockQty) : 0,
     stock_status: stockQty === 0 ? "out_of_stock" : stockQty <= 3 ? "low_stock" : "in_stock",

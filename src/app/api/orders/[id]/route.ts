@@ -1,13 +1,17 @@
 import { NextResponse } from "next/server";
 import { getOrder } from "@/lib/orders/data";
 import { supabaseRest } from "@/lib/supabase/rest";
+import { getLineSession } from "@/lib/line/login";
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const token = new URL(request.url).searchParams.get("token") || "";
-  if (!token) return NextResponse.json({ message: "Order token required" }, { status: 401 });
-  const order = await getOrder(id, token);
+  const session = await getLineSession();
+  if (!session) return NextResponse.json({ message: "LINE login required" }, { status: 401 });
+  const order = await getOrder(id);
   if (!order) return NextResponse.json({ message: "Order not found" }, { status: 404 });
+  if (!order.lineUserId || order.lineUserId !== session.userId) {
+    return NextResponse.json({ message: "คุณไม่มีสิทธิ์ดูคำสั่งซื้อนี้" }, { status: 403 });
+  }
   const settings = await supabaseRest<Array<{
     payment_bank: string | null; payment_account_name: string | null; payment_account_number: string | null; payment_promptpay_number: string | null;
   }>>("store_settings?id=eq.default&select=payment_bank,payment_account_name,payment_account_number,payment_promptpay_number", { serviceRole: true });

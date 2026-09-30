@@ -2,19 +2,24 @@ import { NextResponse } from "next/server";
 import { getOrder } from "@/lib/orders/data";
 import { supabaseRest } from "@/lib/supabase/rest";
 import { pushLineMessage } from "@/lib/line/messaging";
+import { getLineSession } from "@/lib/line/login";
 
 const types: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const form = await request.formData();
-  const token = form.get("token");
   const file = form.get("file");
-  if (typeof token !== "string" || !(file instanceof File) || !types[file.type] || file.size < 1 || file.size > 5 * 1024 * 1024) {
+  if (!(file instanceof File) || !types[file.type] || file.size < 1 || file.size > 5 * 1024 * 1024) {
     return NextResponse.json({ message: "กรุณาเลือกรูปสลิป JPG, PNG หรือ WebP ขนาดไม่เกิน 5 MB" }, { status: 400 });
   }
-  const order = await getOrder(id, token);
+  const order = await getOrder(id);
   if (!order) return NextResponse.json({ message: "ไม่พบคำสั่งซื้อ" }, { status: 404 });
+  const session = await getLineSession();
+  if (!session) return NextResponse.json({ message: "กรุณาเข้าสู่ระบบ LINE" }, { status: 401 });
+  if (!order.lineUserId || order.lineUserId !== session.userId) {
+    return NextResponse.json({ message: "คุณไม่มีสิทธิ์ดำเนินการกับคำสั่งซื้อนี้" }, { status: 403 });
+  }
   if (order.status === "cancelled" || order.paymentStatus === "paid") {
     return NextResponse.json({ message: "ออเดอร์นี้ไม่สามารถส่งสลิปได้" }, { status: 409 });
   }
@@ -31,7 +36,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   });
   if (!upload.ok) return NextResponse.json({ message: "อัปโหลดสลิปไม่สำเร็จ" }, { status: 502 });
   try {
-    const rows = await supabaseRest<Array<{ id: string }>>(`orders?id=eq.${encodeURIComponent(id)}&customer_token=eq.${encodeURIComponent(token)}&status=neq.cancelled&payment_status=neq.paid&select=id`, {
+    const rows = await supabaseRest<Array<{ id: string }>>(`orders?id=eq.${encodeURIComponent(id)}&status=neq.cancelled&payment_status=neq.paid&select=id`, {
       serviceRole: true, method: "PATCH", headers: { Prefer: "return=representation" },
       body: JSON.stringify({ slip_path: path, slip_submitted_at: new Date().toISOString(), payment_status: "slip_submitted" }),
     });
