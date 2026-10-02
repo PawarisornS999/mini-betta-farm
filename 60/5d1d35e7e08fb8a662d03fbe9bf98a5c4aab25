@@ -1,0 +1,43 @@
+src/app/shop/page.tsx
+  s_abd4a5f5fb572f::t_557246266c1262 13-14,107,109,149
+src/sections/Testimonial.tsx
+  s_abd4a5f5fb572f::t_1d93854925be83 26-31,42
+  s_abd4a5f5fb572f::t_866a4d21e7ec67 12,34-41,43,64,66
+  s_abd4a5f5fb572f::t_7ef46bf35cd86f 15
+src/sections/ClearanceBanner.tsx
+  s_abd4a5f5fb572f::t_557246266c1262 8-9,29
+src/app/blog/page.tsx
+  s_abd4a5f5fb572f::t_65863cef0be44d 5
+  s_abd4a5f5fb572f::t_0cc1833a5709ca 10,30-34
+src/app/cart/page.tsx
+  s_abd4a5f5fb572f::t_557246266c1262 12,35
+src/lib/i18n.ts
+  s_abd4a5f5fb572f::t_cd99262d07e02e 238,243,248,253,567,572,577,582
+src/app/orders/[id]/OrderStatusClient.tsx
+  s_abd4a5f5fb572f::t_060c651b3ae34e 5-6,36-50,397-437
+src/sections/Newsletter.tsx
+  s_abd4a5f5fb572f::t_557246266c1262 6-7,27
+src/components/admin/AdminShell.tsx
+  s_abd4a5f5fb572f::t_dcee2c7aa11716 9
+  s_abd4a5f5fb572f::t_111a068fcfd4f6 8,12-17,61,99,109,127,139
+src/app/contact/page.tsx
+  s_abd4a5f5fb572f::t_111a068fcfd4f6 7-8,79,88,97,106,114
+src/sections/Footer.tsx
+  s_abd4a5f5fb572f::t_557246266c1262 8,119,123,127,131
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.3",
+  "base_commit_sha": "605d1d35e7e08fb8a662d03fbe9bf98a5c4aab25",
+  "prompts": {},
+  "sessions": {
+    "s_abd4a5f5fb572f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0fd52-56cc-7ad1-8d57-0c82307ac68f",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "Pawarisorn <pawarisorn.son@axonstech.com>"
+    }
+  }
+}
