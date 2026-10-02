@@ -7,6 +7,7 @@ export function LanguageFont() {
   const lang = useLangStore((state) => state.lang);
 
   useEffect(() => {
+    void useLangStore.persist.rehydrate();
     document.documentElement.lang = lang === "th" ? "th" : "en";
     document.body.classList.toggle("thai-font", lang === "th");
 

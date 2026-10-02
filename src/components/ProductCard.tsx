@@ -16,6 +16,7 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  console.log("ProductCard render", product);
   const addItem = useCartStore((s) => s.addItem);
   const lang = useLangStore((s) => s.lang);
   const pt = getT(lang).product;
@@ -144,10 +145,10 @@ export default function ProductCard({ product }: ProductCardProps) {
       <div className="p-4">
         <Link href={`/shop/${product.id}`}>
           <p className="text-xs text-accent font-medium mb-1">
-            {product.species}
+            <span className="text-gray-500">{pt.SKU}</span> {product.sku}
           </p>
           <h3 className="font-semibold text-foreground text-sm mb-2 line-clamp-2 hover:text-accent transition-colors">
-            {product.name}
+            {product.name} ( {product.gender === "male" ? pt.gender.male : product.gender === "female" ? pt.gender.female : "Unsexed"} )
           </h3>
         </Link>
         <div className="flex items-center gap-2 mb-3">

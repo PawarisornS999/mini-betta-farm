@@ -10,14 +10,15 @@ import TabsMenu from "@/components/TabsMenu";
 import { formatMoney } from "@/lib/orders/workflow";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBasketShopping, faFish } from "@fortawesome/free-solid-svg-icons";
-import { div } from "motion/react-client";
 
-type Tab = "all" | "payment" | "shipping" | "receiving" | "completed";
+type Tab = "all" | "payment" | "shipping" | "receiving" | "completed" | "cancelled";
 
 function tabMatches(order: Order, tab: Tab) {
   if (tab === "all") return true;
+  if (tab === "cancelled") return order.status === "cancelled";
+  if (order.status === "cancelled") return false;
   if (tab === "payment")
-    return order.paymentStatus !== "paid" && order.status !== "cancelled";
+    return order.paymentStatus !== "paid";
   if (tab === "shipping")
     return (
       order.paymentStatus === "paid" && order.shippingStatus !== "delivered"
@@ -71,23 +72,42 @@ export default function OrdersPage() {
     () => orders.filter((order) => tabMatches(order, tab)),
     [orders, tab],
   );
+  const tabCounts = useMemo(
+    () => ({
+      all: orders.length,
+      payment: orders.filter((order) => tabMatches(order, "payment")).length,
+      shipping: orders.filter((order) => tabMatches(order, "shipping")).length,
+      receiving: orders.filter((order) => tabMatches(order, "receiving")).length,
+      completed: orders.filter((order) => tabMatches(order, "completed")).length,
+      cancelled: orders.filter((order) => tabMatches(order, "cancelled")).length,
+    }),
+    [orders],
+  );
   const tabOptions = [
-    { value: "all" as const, label: "ทั้งหมด" },
-    { value: "payment" as const, label: "ที่ต้องชำระ" },
-    { value: "shipping" as const, label: "ที่ต้องจัดส่ง" },
-    { value: "receiving" as const, label: "ที่ต้องได้รับ" },
-    { value: "completed" as const, label: "สำเร็จแล้ว" },
+    { value: "all" as const, label: "ทั้งหมด", count: tabCounts.all },
+    { value: "payment" as const, label: "ที่ต้องชำระ", count: tabCounts.payment },
+    { value: "shipping" as const, label: "ที่ต้องจัดส่ง", count: tabCounts.shipping },
+    { value: "receiving" as const, label: "ที่ต้องได้รับ", count: tabCounts.receiving },
+    { value: "completed" as const, label: "สำเร็จแล้ว", count: tabCounts.completed },
+    { value: "cancelled" as const, label: "ยกเลิกแล้ว", count: tabCounts.cancelled },
   ];
 
   return (
     <>
       <Header />
       <main className="mx-auto min-h-[70vh] max-w-4xl px-4 pb-20 pt-28 text-foreground">
-        <h1 className="text-3xl font-bold">การซื้อของฉัน</h1>
-        <p className="mt-2 text-muted">ติดตามสถานะคำสั่งซื้อของคุณ</p>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold">การซื้อของฉัน</h1>
+            <p className="mt-2 text-muted">ติดตามสถานะคำสั่งซื้อของคุณ</p>
+          </div>
+          <Link href="/tracking" className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-red-700">
+            ติดตามพัสดุ
+          </Link>
+        </div>
         <div className="bg-white rounded-md p-2 mt-4 shadow-lg">
           
-          <TabsMenu options={tabOptions} value={tab} onChange={setTab} />
+          <TabsMenu options={tabOptions} value={tab} onChange={setTab} showCount={true} />
         
         {loading ? (
           <p className="py-16 text-center text-muted">กำลังโหลดรายการซื้อ...</p>
@@ -117,11 +137,8 @@ export default function OrdersPage() {
         ) : (
           <div className="mt-6 space-y-4">
             {visibleOrders.map((order) => (
-              <Link
-                key={order.id}
-                href={`/orders/${order.id}`}
-                className="block rounded-2xl bg-white p-5 shadow-sm transition hover:shadow-md"
-              >
+              <article key={order.id} className="overflow-hidden rounded-2xl bg-white shadow-sm transition hover:shadow-md">
+                <Link href={`/orders/${order.id}`} className="block p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-sm text-muted">
@@ -165,7 +182,18 @@ export default function OrdersPage() {
                     ฿{Number(order.totalPrice ?? 0).toLocaleString("th-TH")}
                   </strong>
                 </div>
-              </Link>
+                </Link>
+                {order.trackingNumber && (
+                  <div className="border-t border-black/5 px-5 py-3">
+                    <Link
+                      href={`/tracking?number=${encodeURIComponent(order.trackingNumber)}`}
+                      className="block rounded-xl bg-red-50 px-4 py-2.5 text-center text-sm font-bold text-red-700 hover:bg-red-100"
+                    >
+                      ติดตามพัสดุ {order.trackingNumber}
+                    </Link>
+                  </div>
+                )}
+              </article>
             ))}
           </div>
         )}

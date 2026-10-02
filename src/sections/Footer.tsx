@@ -11,6 +11,10 @@ export default function Footer() {
   const lang = useLangStore((s) => s.lang);
   const ft = getT(lang).footer;
   const nav = getT(lang).nav;
+  const lineId = process.env.NEXT_PUBLIC_LINE_OA_ID || "-";
+  const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "-";
+  const contactAddress = process.env.NEXT_PUBLIC_CONTACT_ADDRESS || "-";
+  const notConfigured = "-";
 
   const footerLinks = {
     quickLinks: [
@@ -117,15 +121,15 @@ export default function Footer() {
             <ul className="space-y-3 text-sm text-sky-300">
               <li className="flex items-start gap-2">
                 <FontAwesomeIcon icon={faLocationDot} className="mt-0.5 w-4" />
-                <span>Aurora Betta Farm, Bangkok, Thailand</span>
+                <span>{contactAddress}</span>
               </li>
               <li className="flex items-start gap-2">
                 <FontAwesomeIcon icon={faMobileScreenButton} className="mt-0.5 w-4" />
-                <span>LINE: @AuroraBettaFarm</span>
+                <span>LINE: {lineId || notConfigured}</span>
               </li>
               <li className="flex items-start gap-2">
                 <FontAwesomeIcon icon={faEnvelope} className="mt-0.5 w-4" />
-                <span>contact@aurorabettafarm.com</span>
+                <span>{contactEmail || notConfigured}</span>
               </li>
               <li className="flex items-start gap-2">
                 <FontAwesomeIcon icon={faClock} className="mt-0.5 w-4" />

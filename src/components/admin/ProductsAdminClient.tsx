@@ -104,6 +104,8 @@ export default function ProductsAdminClient({
   const [form, setForm] = useState<FormState | null>(null);
   const [stockProduct, setStockProduct] = useState<Product | null>(null);
   const [deleteProductTarget, setDeleteProductTarget] = useState<Product | null>(null);
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const [delta, setDelta] = useState("1");
   const [stockOperation, setStockOperation] = useState<"increase" | "decrease">("increase");
   const [reason, setReason] = useState("manual_adjustment");
@@ -258,8 +260,30 @@ export default function ProductsAdminClient({
       setError(body?.message ?? text("ซ่อนสินค้าไม่สำเร็จ", "Unable to hide product"));
       return;
     }
-    setProducts((current) => current.map((item) => item.id === product.id ? { ...item, adminStatus: "hidden", published: false } : item));
+    setProducts((current) => current.filter((item) => item.id !== product.id));
     setDeleteProductTarget(null);
+    setSelectedProductIds((current) => current.filter((id) => id !== product.id));
+  }
+
+  async function hideSelectedProducts() {
+    if (!selectedProductIds.length || saving) return;
+    setSaving(true);
+    setError("");
+    try {
+      const responses = await Promise.all(
+        selectedProductIds.map((productId) => fetch(`/api/admin/products/${productId}`, { method: "DELETE" })),
+      );
+      const failed = responses.find((response) => !response.ok);
+      if (failed) throw new Error(text("ซ่อนสินค้าบางรายการไม่สำเร็จ", "Some products could not be hidden"));
+      setProducts((current) => current.filter((item) => !selectedProductIds.includes(item.id)));
+      setSelectedProductIds([]);
+      setConfirmBulkDelete(false);
+      showToast(text("ซ่อนสินค้าเรียบร้อยแล้ว", "Selected products hidden"));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : text("ซ่อนสินค้าไม่สำเร็จ", "Unable to hide products"));
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function adjustStock(event: FormEvent) {
@@ -379,12 +403,23 @@ export default function ProductsAdminClient({
               options={statuses.map((item) => ({ value: item, label: ({ all: text("ทั้งหมด", "All"), available: text("พร้อมขาย", "Available"), reserved: text("จองแล้ว", "Reserved"), sold: text("ขายแล้ว", "Sold"), draft: text("ฉบับร่าง", "Draft"), hidden: text("ซ่อนแล้ว", "Hidden") } as Record<string, string>)[item] }))}
               className="min-w-36"
             />
+            {selectedProductIds.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setConfirmBulkDelete(true)}
+                disabled={saving}
+                className="rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-50"
+              >
+                {saving ? text("กำลังลบ...", "Deleting...") : text(`ลบที่เลือก (${selectedProductIds.length})`, `Delete selected (${selectedProductIds.length})`)}
+              </button>
+            )}
           </div>
         </div>
         <div className="hidden overflow-x-auto md:block">
           <table className="w-full min-w-[1050px] text-left">
             <thead>
               <tr className="border-b border-black/6 bg-[#fafaf8] text-[11px] uppercase tracking-[.12em] text-[#8a8a82]">
+                <th className="w-12 px-5 py-4"><input type="checkbox" aria-label={text("เลือกสินค้าทั้งหมด", "Select all products")} checked={filtered.length > 0 && filtered.every((item) => selectedProductIds.includes(item.id))} onChange={(event) => setSelectedProductIds(event.target.checked ? filtered.map((item) => item.id) : [])} /></th>
                 <th className="px-5 py-4">{text("สินค้า", "Product")}</th>
                 <th className="px-5 py-4">{text("SKU / สายพันธุ์", "SKU / Strain")}</th>
                 <th className="px-5 py-4">{text("เพศ", "Gender")}</th>
@@ -397,6 +432,7 @@ export default function ProductsAdminClient({
             <tbody className="divide-y divide-black/5">
               {filtered.map((product) => (
                 <tr key={product.id} className="group hover:bg-[#fcfbf8]">
+                  <td className="px-5 py-4"><input type="checkbox" aria-label={`${text("เลือก", "Select")} ${product.name}`} checked={selectedProductIds.includes(product.id)} onChange={(event) => setSelectedProductIds((current) => event.target.checked ? [...current, product.id] : current.filter((id) => id !== product.id))} /></td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
                       <div className="h-14 w-14 overflow-hidden rounded-xl bg-[#eee9df]">
@@ -479,7 +515,7 @@ export default function ProductsAdminClient({
                         onClick={() => setDeleteProductTarget(product)}
                         className="rounded-lg border border-black/8 px-3 py-2 text-xs font-semibold text-red-600 hover:border-red-200 hover:bg-red-50"
                       >
-                        {text("ซ่อน", "Hide")}
+                        {text("ลบ", "Delete")}
                       </button>
                     </div>
                   </td>
@@ -491,6 +527,7 @@ export default function ProductsAdminClient({
         <div className="divide-y divide-black/6 md:hidden">
           {filtered.map((product) => (
             <div key={product.id} className="p-4">
+              <label className="mb-3 flex items-center gap-2 text-xs font-semibold text-[#77776f]"><input type="checkbox" checked={selectedProductIds.includes(product.id)} onChange={(event) => setSelectedProductIds((current) => event.target.checked ? [...current, product.id] : current.filter((id) => id !== product.id))} />{text("เลือกสินค้า", "Select product")}</label>
               <div className="flex gap-3">
                 <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-[#eee9df]">
                   {product.images[0] ? (
@@ -547,7 +584,7 @@ export default function ProductsAdminClient({
                   onClick={() => setDeleteProductTarget(product)}
                   className="flex-1 rounded-lg border border-red-200 py-2 text-xs font-semibold text-red-600"
                 >
-                  {text("ซ่อน", "Hide")}
+                  {text("ลบ", "Delete")}
                 </button>
               </div>
             </div>
@@ -940,10 +977,20 @@ export default function ProductsAdminClient({
         isOpen={Boolean(deleteProductTarget)}
         onClose={() => setDeleteProductTarget(null)}
         onConfirm={() => deleteProductTarget && void hideProduct(deleteProductTarget)}
-        title={text("ซ่อนสินค้าใช่ไหม?", "Hide this product?")}
-        description={deleteProductTarget ? text(`สินค้า “${deleteProductTarget.name}” จะถูกซ่อนจากหน้าร้าน แต่ข้อมูลและประวัติออเดอร์จะยังคงอยู่`, `“${deleteProductTarget.name}” will be hidden from the storefront, while its data and order history remain available.`) : undefined}
+        title={text("ลบสินค้าใช่ไหม?", "Delete this product?")}
+        description={deleteProductTarget ? text("ข้อมูลจะถูกลบถาวรและกู้คืนไม่ได้", "This data will be permanently deleted and cannot be recovered.") : undefined}
         variant="warning"
-        confirmText={text("ซ่อนสินค้า", "Hide product")}
+        confirmText={text("ลบสินค้า", "Delete product")}
+        cancelText={text("ยกเลิก", "Cancel")}
+      />
+      <Modal
+        isOpen={confirmBulkDelete}
+        onClose={() => !saving && setConfirmBulkDelete(false)}
+        onConfirm={() => void hideSelectedProducts()}
+        title={text(`ลบสินค้า ${selectedProductIds.length} รายการ?`, `Delete ${selectedProductIds.length} products?`)}
+        description={text("ข้อมูลจะถูกลบถาวรและกู้คืนไม่ได้", "These products will be permanently deleted and cannot be recovered.")}
+        variant="warning"
+        confirmText={saving ? text("กำลังลบ...", "Deleting...") : text("ลบสินค้า", "Delete products")}
         cancelText={text("ยกเลิก", "Cancel")}
       />
     </div>

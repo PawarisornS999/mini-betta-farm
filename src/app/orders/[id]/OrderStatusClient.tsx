@@ -269,9 +269,15 @@ export default function OrderStatusClient({ id }: { id: string }) {
                     </p>
                   )}
                   {order?.trackingNumber && (
-                    <p className="rounded-xl bg-sky-50 p-3 font-semibold text-sky-800">
-                      เลขพัสดุ: {order.trackingNumber}
-                    </p>
+                    <div className="rounded-xl bg-sky-50 p-3 font-semibold text-sky-800">
+                      <p>เลขพัสดุ: {order.trackingNumber}</p>
+                      <Link
+                        href={`/tracking?number=${encodeURIComponent(order.trackingNumber)}`}
+                        className="mt-3 block rounded-lg bg-red-600 px-4 py-2.5 text-center text-sm font-bold text-white hover:bg-red-700"
+                      >
+                        ติดตามพัสดุกับไปรษณีย์ไทย
+                      </Link>
+                    </div>
                   )}
                 </div>
               </section>

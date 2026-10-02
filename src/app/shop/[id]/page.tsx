@@ -14,6 +14,7 @@ import { getT } from "@/lib/i18n";
 import { formatPrice } from "@/lib/utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGreaterThan } from "@fortawesome/free-solid-svg-icons";
+import type { StockStatus } from "@/types";
 
 export default function ProductDetailPage({
   params,
@@ -211,6 +212,11 @@ export default function ProductDetailPage({
                   />
                   <Detail label="หมวดหมู่" value={product.category ?? "-"} />
                   <Detail label="ประเภทเพศ" value={product.tailType ?? "-"} />
+                  <Detail
+                    label="สถานะสินค้า"
+                    value={product.stockStatus === "in_stock" ? "มีสินค้า" : product.stockStatus === "low_stock" ? "สินค้าใกล้หมด" : "หมดสินค้า"}
+                    badgeStatus={product.stockStatus}
+                  />
                 </div>
               </div>
 
@@ -288,11 +294,21 @@ export default function ProductDetailPage({
   );
 }
 
-function Detail({ label, value }: { label: string; value: string }) {
+const stockBadgeClasses: Record<StockStatus, string> = {
+  in_stock: "bg-emerald-100 text-emerald-700 ring-emerald-600/20",
+  low_stock: "bg-amber-100 text-amber-700 ring-amber-600/20",
+  out_of_stock: "bg-red-100 text-red-700 ring-red-600/20",
+};
+
+function Detail({ label, value, badgeStatus }: { label: string; value: string; badgeStatus?: StockStatus }) {
   return (
     <div>
       <span className="text-muted">{label}:</span>
-      <span className="ml-2 font-medium text-foreground">{value}</span>
+      <span
+        className={`ml-2 font-medium ${badgeStatus ? `inline-flex rounded-full px-2.5 py-1 text-xs ring-1 ring-inset ${stockBadgeClasses[badgeStatus]}` : "text-foreground"}`}
+      >
+        {value}
+      </span>
     </div>
   );
 }

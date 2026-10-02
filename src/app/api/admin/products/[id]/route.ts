@@ -45,18 +45,17 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     const rows = await supabaseRest<ProductRow[]>(
       `products?id=eq.${encodeURIComponent(id)}&select=id`,
       {
-        method: "PATCH",
+        method: "DELETE",
         serviceRole: true,
         headers: { Prefer: "return=representation" },
-        body: JSON.stringify({ admin_status: "hidden", published: false }),
       },
     );
     if (!rows[0]) return NextResponse.json({ message: "Product not found" }, { status: 404 });
-    await logAdminActivity(session.username, "product.hide", id);
-    return NextResponse.json({ success: true, data: { hidden: true } });
+    await logAdminActivity(session.username, "product.delete", id);
+    return NextResponse.json({ success: true, data: { deleted: true } });
   } catch (error) {
     return NextResponse.json(
-      { success: false, message: error instanceof Error ? error.message : "Hide failed" },
+      { success: false, message: error instanceof Error ? error.message : "Delete failed" },
       { status: 400 },
     );
   }

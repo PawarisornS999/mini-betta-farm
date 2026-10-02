@@ -37,7 +37,6 @@ function validate(body: ProductInput) {
   if (!body.sku?.trim()) return "กรุณากรอก SKU";
   if (body.price == null || body.price < 0) return "ราคาสินค้าไม่ถูกต้อง";
   if (body.stockQty == null || !Number.isInteger(body.stockQty) || body.stockQty < 0) return "สต็อกต้องเป็นจำนวนเต็มตั้งแต่ 0 ขึ้นไป";
-  if (!body.species?.trim() || !body.color?.trim()) return "กรุณากรอกสายพันธุ์และสี";
   return null;
 }
 
@@ -51,8 +50,10 @@ function toRow(body: ProductInput) {
     price: Number(body.price),
     cost: Number(body.cost ?? 0),
     description: body.description?.trim() ?? "",
-    species: body.species?.trim(),
-    color: body.color?.trim(),
+    // These fields are optional in the form; keep empty strings because the
+    // current database columns are NOT NULL.
+    species: body.species?.trim() ?? "",
+    color: body.color?.trim() ?? "",
     category: body.category?.trim() || "betta-fish",
     gender: body.gender ?? "unsexed",
     pattern: body.pattern?.trim() || null,

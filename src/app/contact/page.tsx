@@ -10,7 +10,9 @@ import { faMobileScreenButton, faEnvelope, faLocationDot, faClock } from "@forta
 export default function ContactPage() {
   const lang = useLangStore((s) => s.lang);
   const t = getT(lang).contact;
-  const lineId = process.env.NEXT_PUBLIC_LINE_OA_ID || "@097zxssv";
+  const lineId = process.env.NEXT_PUBLIC_LINE_OA_ID;
+  const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL;
+  const contactAddress = process.env.NEXT_PUBLIC_CONTACT_ADDRESS || "เชียงราย ประเทศไทย";
   return (
     <>
       <Header />
@@ -87,7 +89,7 @@ export default function ContactPage() {
                     {
                       icon: faEnvelope,
                       label: t.emailLabel,
-                      value: t.emailValue,
+                      value: contactEmail || (lang === "en" ? "Not configured" : "ยังไม่ได้ตั้งค่า"),
                       desc:
                         lang === "en"
                           ? "We reply within 24 hours"
@@ -96,7 +98,7 @@ export default function ContactPage() {
                     {
                       icon: faLocationDot,
                       label: t.addressLabel,
-                      value: t.addressValue,
+                      value: contactAddress,
                       desc:
                         lang === "en"
                           ? "Farm visits by appointment"
@@ -106,8 +108,7 @@ export default function ContactPage() {
                       icon: faClock,
                       label: t.hoursLabel,
                       value: t.hoursValue,
-                      desc:
-                        lang === "en" ? "Sunday: Closed" : "วันอาทิตย์: ปิด",
+                      desc:"",
                     },
                   ].map((item) => (
                     <div key={item.label} className="flex items-start gap-3">

@@ -16,6 +16,6 @@ export const useLangStore = create<LangStore>()(
       setLang: (lang) => set({ lang }),
       toggle: () => set({ lang: get().lang === "en" ? "th" : "en" }),
     }),
-    { name: "minibetta-lang" },
+    { name: "minibetta-lang", skipHydration: true },
   ),
 );

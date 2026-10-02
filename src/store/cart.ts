@@ -104,6 +104,7 @@ export const useCartStore = create<CartStore>()(
       version: 1,
       storage: createJSONStorage(() => resilientStorage),
       partialize: (state) => ({ items: state.items }),
+      skipHydration: true,
       migrate: (persistedState) => {
         const persisted = persistedState as { items?: CartItem[] } | undefined;
         const items = Array.isArray(persisted?.items)
