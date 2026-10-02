@@ -11,6 +11,43 @@ interface BlogCardProps {
   post: BlogPost;
 }
 
+export function BlogCardSkeleton() {
+  return (
+    <div className="group bg-card-bg rounded-2xl overflow-hidden shadow-sm">
+  {/* Cover Image Skeleton */}
+  <div className="relative overflow-hidden aspect-[16/10] bg-muted/20">
+    <div className="absolute inset-0 animate-pulse bg-muted/40" />
+
+    {/* Category */}
+    <div className="absolute top-3 left-3 w-20 h-7 rounded-full bg-muted/60 animate-pulse" />
+
+    {/* Read time */}
+    <div className="absolute top-3 right-3 w-16 h-7 rounded-full bg-muted/60 animate-pulse" />
+  </div>
+
+  {/* Content */}
+  <div className="p-5">
+    {/* Date */}
+    <div className="w-24 h-3 rounded bg-muted/50 animate-pulse mb-3" />
+
+    {/* Title */}
+    <div className="space-y-2 mb-3">
+      <div className="w-full h-5 rounded bg-muted/50 animate-pulse" />
+      <div className="w-3/4 h-5 rounded bg-muted/50 animate-pulse" />
+    </div>
+
+    {/* Excerpt */}
+    <div className="space-y-2 mb-5">
+      <div className="w-full h-3.5 rounded bg-muted/40 animate-pulse" />
+      <div className="w-5/6 h-3.5 rounded bg-muted/40 animate-pulse" />
+    </div>
+
+    {/* Read More */}
+    <div className="w-24 h-4 rounded bg-muted/50 animate-pulse" />
+  </div>
+</div>
+  );
+}
 export default function BlogCard({ post }: BlogCardProps) {
   return (
     <motion.article

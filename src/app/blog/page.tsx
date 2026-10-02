@@ -2,10 +2,11 @@
 
 import Header from "@/sections/Header";
 import Footer from "@/sections/Footer";
-import BlogCard from "@/components/BlogCard";
+import BlogCard, { BlogCardSkeleton } from "@/components/BlogCard";
 import { useBlogs } from "@/lib/hooks/useCatalog";
 import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
+
 
 export default function BlogPage() {
   const { blogs: blogPosts, loading, error } = useBlogs();
@@ -25,9 +26,12 @@ export default function BlogPage() {
               {t.pageSubtitle}
             </p>
           </div>
-
           {loading ? (
-            <div className="text-center py-16 text-muted">Loading articles...</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <BlogCardSkeleton key={index} />
+              ))}
+            </div>
           ) : error ? (
             <div className="text-center py-16 text-red-600">{error}</div>
           ) : (

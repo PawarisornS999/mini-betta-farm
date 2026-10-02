@@ -2,6 +2,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCloudArrowUp, faFileImage, faXmark } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import Header from "@/sections/Header";
 import Footer from "@/sections/Footer";
@@ -30,6 +32,21 @@ export default function OrderStatusClient({ id }: { id: string }) {
   const [uploading, setUploading] = useState(false);
   const [now, setNow] = useState(0);
   const [paymentLink, setPaymentLink] = useState("");
+
+  function selectSlip(candidate: File | undefined) {
+    if (!candidate) return;
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(candidate.type)) {
+      setError("กรุณาเลือกไฟล์ JPG, PNG หรือ WebP เท่านั้น");
+      return;
+    }
+    if (candidate.size > 5 * 1024 * 1024) {
+      setError("ขนาดไฟล์ต้องไม่เกิน 5 MB");
+      return;
+    }
+    setError("");
+    setFile(candidate);
+  }
 
   useEffect(() => {
     const timer = window.setTimeout(() => setNow(Date.now()), 0);
@@ -377,15 +394,47 @@ export default function OrderStatusClient({ id }: { id: string }) {
                     >
                       แนบสลิป (JPG, PNG, WebP ไม่เกิน 5 MB)
                     </label>
-                    <input
-                      id="payment-slip"
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      onChange={(event) =>
-                        setFile(event.target.files?.[0] ?? null)
-                      }
-                      className="mt-2 block w-full rounded-xl border border-slate-200 p-3 text-sm"
-                    />
+                    <label
+                      htmlFor="payment-slip"
+                      className="mt-2 flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-white px-5 py-8 text-center transition hover:border-green-500 hover:bg-green-50/50"
+                      onDragOver={(event) => event.preventDefault()}
+                      onDrop={(event) => {
+                        event.preventDefault();
+                        selectSlip(event.dataTransfer.files?.[0]);
+                      }}
+                    >
+                      <span className="grid h-14 w-14 place-items-center rounded-full bg-green-100 text-green-600">
+                        <FontAwesomeIcon icon={faCloudArrowUp} className="text-2xl" />
+                      </span>
+                      <span className="mt-3 font-bold text-slate-700">
+                        คลิกเพื่อเลือกไฟล์ หรือลากไฟล์มาวางที่นี่
+                      </span>
+                      <span className="mt-1 text-xs text-slate-500">
+                        JPG, PNG หรือ WebP · ขนาดไม่เกิน 5 MB
+                      </span>
+                      <input
+                        id="payment-slip"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        onChange={(event) => selectSlip(event.target.files?.[0])}
+                        className="sr-only"
+                      />
+                    </label>
+                    {file && (
+                      <div className="mt-3 flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 p-3 text-sm text-green-800">
+                        <FontAwesomeIcon icon={faFileImage} className="text-lg" />
+                        <span className="min-w-0 flex-1 truncate font-semibold">{file.name}</span>
+                        <span className="shrink-0 text-xs">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                        <button
+                          type="button"
+                          aria-label="ลบไฟล์ที่เลือก"
+                          onClick={() => setFile(null)}
+                          className="rounded-lg p-1.5 hover:bg-green-200"
+                        >
+                          <FontAwesomeIcon icon={faXmark} />
+                        </button>
+                      </div>
+                    )}
                     <button
                       type="button"
                       onClick={() => void submitSlip()}

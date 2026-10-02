@@ -3,6 +3,8 @@
 import { motion } from "motion/react";
 import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFishFins } from "@fortawesome/free-solid-svg-icons";
 
 export default function Newsletter() {
   const lang = useLangStore((s) => s.lang);
@@ -22,7 +24,7 @@ export default function Newsletter() {
                   transform: `rotate(${i * 30}deg)`,
                 }}
               >
-                🐟
+                <FontAwesomeIcon icon={faFishFins} />
               </span>
             ))}
           </div>

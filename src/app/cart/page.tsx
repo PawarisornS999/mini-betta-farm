@@ -9,7 +9,7 @@ import { formatPrice } from "@/lib/utils";
 import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faCartShopping } from "@fortawesome/free-solid-svg-icons";
 import Modal from "@/components/Modal";
 import { useState } from "react";
 
@@ -32,7 +32,7 @@ export default function CartPage() {
 
           {items.length === 0 ? (
             <div className="text-center py-20 bg-white rounded-2xl shadow-sm">
-              <p className="text-5xl mb-4">🛒</p>
+              <FontAwesomeIcon icon={faCartShopping} className="mb-4 text-5xl text-muted/50" />
               <h2 className="text-xl font-bold text-foreground mb-2">
                 {t.empty}
               </h2>

@@ -6,7 +6,6 @@ import SpeciesCollection from "@/sections/PetFoodies";
 import ClearanceBanner from "@/sections/ClearanceBanner";
 import Testimonial from "@/sections/Testimonial";
 import BestSelling from "@/sections/BestSelling";
-import Newsletter from "@/sections/Newsletter";
 import Blog from "@/sections/Blog";
 import Footer from "@/sections/Footer";
 
@@ -22,7 +21,6 @@ export default function Home() {
         <ClearanceBanner />
         <Testimonial />
         <BestSelling />
-        <Newsletter />
         <Blog />
       </main>
       <Footer />

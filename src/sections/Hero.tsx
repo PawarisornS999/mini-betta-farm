@@ -6,7 +6,7 @@ import { motion } from "motion/react";
 import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBasketShopping, faCircleCheck, faStar } from "@fortawesome/free-solid-svg-icons";
+import { faBasketShopping, faBook, faCircleCheck, faStar } from "@fortawesome/free-solid-svg-icons";
 
 export default function Hero() {
   const lang = useLangStore((s) => s.lang);
@@ -150,6 +150,7 @@ export default function Hero() {
                   className="border-2 border-foreground/15 text-foreground font-semibold px-8 py-3.5 rounded-2xl hover:border-accent hover:text-accent transition-colors duration-200 text-sm"
                 >
                   {t.careGuides}
+                  <FontAwesomeIcon icon={faBook} className="ml-2 w-4 h-4" />
                 </motion.button>
               </Link>
             </motion.div>

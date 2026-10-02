@@ -5,6 +5,7 @@ import Header from "@/sections/Header";
 import Footer from "@/sections/Footer";
 import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default function AboutPage() {
   const lang = useLangStore((s) => s.lang);
@@ -29,7 +30,7 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-2 gap-12 items-center mb-20">
             <div className="relative aspect-[4/3] rounded-3xl overflow-hidden">
               <Image
-                src="https://placehold.co/800x600/0284c7/ffffff?text=Our+Farm"
+                src="/assets/dbHMPK.jpg"
                 alt="Aurora Betta Farm"
                 fill
                 className="object-cover"
@@ -60,7 +61,9 @@ export default function AboutPage() {
                   key={v.title}
                   className="bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-shadow"
                 >
-                  <span className="text-4xl block mb-3">{v.icon}</span>
+                  <div className="w-12 h-12 mx-auto mb-4">
+                    <FontAwesomeIcon icon={v.icon} className="w-full h-full text-accent" />
+                  </div>
                   <h3 className="font-bold text-foreground mb-2">{v.title}</h3>
                   <p className="text-sm text-muted">{v.desc}</p>
                 </div>

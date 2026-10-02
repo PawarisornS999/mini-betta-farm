@@ -5,7 +5,7 @@ import { motion } from "motion/react";
 import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFishFins } from "@fortawesome/free-solid-svg-icons";
+import { faFishFins, faLocationDot, faMobileScreenButton, faEnvelope, faClock } from "@fortawesome/free-solid-svg-icons";
 
 export default function Footer() {
   const lang = useLangStore((s) => s.lang);
@@ -116,19 +116,19 @@ export default function Footer() {
             <h4 className="font-bold mb-4">{ft.contactUs}</h4>
             <ul className="space-y-3 text-sm text-sky-300">
               <li className="flex items-start gap-2">
-                <span>📍</span>
+                <FontAwesomeIcon icon={faLocationDot} className="mt-0.5 w-4" />
                 <span>Aurora Betta Farm, Bangkok, Thailand</span>
               </li>
               <li className="flex items-start gap-2">
-                <span>📱</span>
+                <FontAwesomeIcon icon={faMobileScreenButton} className="mt-0.5 w-4" />
                 <span>LINE: @AuroraBettaFarm</span>
               </li>
               <li className="flex items-start gap-2">
-                <span>📧</span>
+                <FontAwesomeIcon icon={faEnvelope} className="mt-0.5 w-4" />
                 <span>contact@aurorabettafarm.com</span>
               </li>
               <li className="flex items-start gap-2">
-                <span>🕐</span>
+                <FontAwesomeIcon icon={faClock} className="mt-0.5 w-4" />
                 <span>{ft.hours}</span>
               </li>
             </ul>

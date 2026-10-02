@@ -4,6 +4,8 @@ import Header from "@/sections/Header";
 import Footer from "@/sections/Footer";
 import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMobileScreenButton, faEnvelope, faLocationDot, faClock } from "@fortawesome/free-solid-svg-icons";
 
 export default function ContactPage() {
   const lang = useLangStore((s) => s.lang);
@@ -74,7 +76,7 @@ export default function ContactPage() {
                 <div className="space-y-4">
                   {[
                     {
-                      icon: "📱",
+                      icon: faMobileScreenButton,
                       label: t.lineLabel,
                       value: lineId || "รอตั้งค่า LINE OA",
                       desc:
@@ -83,7 +85,7 @@ export default function ContactPage() {
                           : "วิธีที่เร็วที่สุด",
                     },
                     {
-                      icon: "📧",
+                      icon: faEnvelope,
                       label: t.emailLabel,
                       value: t.emailValue,
                       desc:
@@ -92,7 +94,7 @@ export default function ContactPage() {
                           : "ตอบกลับภายใน 24 ชั่วโมง",
                     },
                     {
-                      icon: "📍",
+                      icon: faLocationDot,
                       label: t.addressLabel,
                       value: t.addressValue,
                       desc:
@@ -101,7 +103,7 @@ export default function ContactPage() {
                           : "นัดหมายล่วงหน้า",
                     },
                     {
-                      icon: "🕐",
+                      icon: faClock,
                       label: t.hoursLabel,
                       value: t.hoursValue,
                       desc:
@@ -109,7 +111,7 @@ export default function ContactPage() {
                     },
                   ].map((item) => (
                     <div key={item.label} className="flex items-start gap-3">
-                      <span className="text-2xl">{item.icon}</span>
+                      <FontAwesomeIcon icon={item.icon} className="mt-1 w-6 text-2xl text-accent" />
                       <div>
                         <p className="font-semibold text-foreground text-sm">
                           {item.label}

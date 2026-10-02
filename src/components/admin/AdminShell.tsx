@@ -5,15 +5,16 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { adminText, useAdminLanguage } from "./LanguageProvider";
 import Modal from "../Modal";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faGaugeHigh, faFish, faClipboardList, faBahtSign, faTags, faPenToSquare, faArrowUpRightFromSquare, faRightFromBracket, faBars, faFishFins } from "@fortawesome/free-solid-svg-icons";
 
 const navigation = [
-  { href: "/admin", label: "Dashboard", icon: "◫" },
-  { href: "/admin/products", label: "Products", icon: "◆" },
-  { href: "/admin/orders", label: "Orders", icon: "▤" },
-  { href: "/admin/payment-settings", label: "Payment", icon: "฿" },
-  { href: "/admin/categories", label: "Categories", icon: "◇" },
-  { href: "/admin/inventory", label: "Inventory", icon: "▦" },
-  { href: "/admin/blogs", label: "Blogs", icon: "✎" },
+  { href: "/admin", label: "Dashboard", icon: faGaugeHigh },
+  { href: "/admin/products", label: "Products", icon: faFish },
+  { href: "/admin/orders", label: "Orders", icon: faClipboardList },
+  { href: "/admin/payment-settings", label: "Payment", icon: faBahtSign },
+  { href: "/admin/categories", label: "Categories", icon: faTags },
+  { href: "/admin/blogs", label: "Blogs", icon: faPenToSquare },
 ];
 
 export default function AdminShell({
@@ -57,7 +58,7 @@ export default function AdminShell({
       >
         <div className="flex h-20 items-center gap-3 border-b border-white/10 px-6">
           <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-[#e5a63b] to-[#bd6f21] text-xl shadow-lg shadow-orange-950/30">
-            🐟
+            <FontAwesomeIcon icon={faFishFins} />
           </div>
           <div>
             <p className="text-[11px] uppercase tracking-[.24em] text-[#dca24a]">
@@ -95,7 +96,7 @@ export default function AdminShell({
                 onClick={() => setOpen(false)}
                 className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition ${active ? "bg-[#d89232] text-white shadow-lg shadow-orange-950/20" : "text-white/65 hover:bg-white/7 hover:text-white"}`}
               >
-                <span className="w-5 text-center text-base">{item.icon}</span>
+                <FontAwesomeIcon icon={item.icon} className="w-5 text-center text-base" />
                 {label}
               </Link>
             );
@@ -105,7 +106,7 @@ export default function AdminShell({
             href="/"
             className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-white/55 hover:bg-white/7 hover:text-white"
           >
-            <span className="w-5 text-center">↗</span>
+            <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-5 text-center" />
             {text("ดูหน้าร้าน", "View storefront")}
           </Link>
         </nav>
@@ -123,7 +124,7 @@ export default function AdminShell({
               title={text("ออกจากระบบ", "Logout")}
               className="rounded-lg p-2 text-white/45 hover:bg-white/10 hover:text-white"
             >
-              ↪
+              <FontAwesomeIcon icon={faRightFromBracket} />
             </button>
           </div>
         </div>
@@ -135,7 +136,7 @@ export default function AdminShell({
               onClick={() => setOpen(true)}
               className="grid h-10 w-10 place-items-center rounded-xl border border-black/10 bg-white lg:hidden"
             >
-              ☰
+              <FontAwesomeIcon icon={faBars} />
             </button>
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[.2em] text-[#a16522]">

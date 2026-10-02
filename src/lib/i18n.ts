@@ -1,4 +1,6 @@
 import type { Lang } from "@/store/lang";
+import { faBook, faBox, faHeart } from "@fortawesome/free-solid-svg-icons";
+import { faFish } from "@fortawesome/free-solid-svg-icons/faFish";
 
 const translations = {
   en: {
@@ -58,23 +60,41 @@ const translations = {
       sub: "Trusted by betta fish lovers nationwide",
       items: [
         {
-          text: "I ordered a Halfmoon Galaxy from Aurora Betta Farm and it arrived in perfect condition. The colors are even more stunning in person! Absolutely the best betta farm I've bought from.",
-          name: "Somchai P.",
-          role: "Betta Collector",
+          text: "Ordered a Halfmoon Gold and it arrived beautifully! Absolutely love it ❤️",
+          name: "Nathapong S.",
+          role: "Betta Fish Breeder",
+          initials: "NS",
+        },
+        {
+          text: "The wild-type betta fish I ordered is stunning! Great packaging and fast delivery. All fish arrived healthy.",
+          name: "Suwimon P.",
+          role: "Betta Fish Breeder",
           initials: "SP",
         },
         {
-          text: "The care guides on their blog helped me set up my first betta tank properly. My Crowntail has been healthy and vibrant for 8 months now. Highly recommended!",
-          name: "Nattaya K.",
-          role: "First-time Owner",
-          initials: "NK",
+          text: "The betta fish is very healthy and the colors are amazing. Highly recommend!",
+          name: "Oraphan T.",
+          role: "Betta Fish Breeder",
+          initials: "OT",
         },
         {
-          text: "Aurora Betta Farm's Giant Bettas are incredible quality. Professional packaging, fast shipping, and the fish arrived healthy. Already planning my next order!",
-          name: "Wichai T.",
-          role: "Aquarium Enthusiast",
-          initials: "WT",
+          text: "The fish arrived in excellent condition and is very healthy 👍",
+          name: "Chaiwat K.",
+          role: "Betta Fish Breeder",
+          initials: "CK",
         },
+        {
+          text: "Well-packaged and fast delivery. The fish is beautiful 😄",
+          name: "Pimchanok W.",
+          role: "Betta Fish Breeder",
+          initials: "PW",
+        },
+        {
+          text: "The betta fish is gorgeous! I love it so much.",
+          name: "Somsak L.",
+          role: "Betta Fish Breeder",
+          initials: "SL",
+        }
       ],
     },
     newsletter: {
@@ -206,39 +226,39 @@ const translations = {
     about: {
       title: "About Aurora Betta Farm",
       subtitle:
-        "We're passionate betta fish breeders dedicated to raising healthy, beautiful fish and sharing our knowledge with the community.",
+        "We are passionate betta fish breeders dedicated to producing healthy, beautiful fish and sharing our knowledge with fellow enthusiasts.",
       ourStory: "Our Story",
       storyText1:
         "Aurora Betta Farm was founded in 2019 by a team of passionate betta fish enthusiasts in Bangkok, Thailand. What started as a hobby quickly grew into a mission: to provide aquarium hobbyists with the highest quality betta fish available.",
       storyText2:
-        "We specialize in rare and exotic varieties including Halfmoon, Crowntail, Plakat, Giant Betta, Double Tail, and Dumbo Ear. Each fish is hand-raised with premium food, optimal water conditions, and individual attention.",
+        "Our commitment to excellence has made us a trusted name in the betta fish community. We take pride in our breeding practices and the care we provide to each fish in our collection.",
       ourValues: "Our Values",
       values: [
         {
-          icon: "🐟",
+          icon: faFish,
           title: "Quality First",
           desc: "Every fish we sell meets our strict health and beauty standards.",
         },
         {
-          icon: "💙",
+          icon: faHeart,
           title: "Fish Welfare",
           desc: "Ethical breeding practices and optimal living conditions always.",
         },
         {
-          icon: "📦",
+          icon: faBox,
           title: "Safe Delivery",
           desc: "Professional packaging with live arrival guarantee nationwide.",
         },
         {
-          icon: "📚",
+          icon: faBook,
           title: "Education",
           desc: "Free care guides and expert advice for every customer.",
         },
       ],
       stats: [
-        { value: "500+", label: "Fish Sold" },
+        { value: "1000+", label: "Fish Sold" },
         { value: "6", label: "Species" },
-        { value: "5", label: "Years Experience" },
+        { value: "10", label: "Years Experience" },
         { value: "4.9", label: "Customer Rating" },
       ],
     },
@@ -339,7 +359,7 @@ const translations = {
       guaranteed: "ปลามีชีวิต",
       stats: [
         { value: "1000+", label: "ตัวที่ขายไปแล้ว" },
-        { value: "6", label: "สายพันธุ์" },
+        { value: "10", label: "สายพันธุ์" },
         { value: "4.9", label: "คะแนนรีวิว" },
       ],
     },
@@ -373,23 +393,41 @@ const translations = {
       sub: "ได้รับความไว้วางใจจากนักเลี้ยงปลากัดทั่วประเทศ",
       items: [
         {
-          text: "สั่งฮาฟมูนกาแล็กซี่มา ปลามาสวยมากครับ สีสันสดใสกว่าในรูปเสียอีก ฟาร์มที่ดีที่สุดที่เคยซื้อมาเลย",
-          name: "สมชาย พ.",
-          role: "นักสะสมปลากัด",
-          initials: "สช",
+          text: "สั่งฮาฟมูนสีทองมาสวยมาก ถูกใจสุดๆ ❤️",
+          name: "Nathapong S.",
+          role: "ผู้เพาะปลากัด",
+          initials: "NS",
         },
         {
-          text: "คู่มือดูแลปลาในบล็อกช่วยได้มากค่ะ ตั้งตู้ได้ถูกวิธีตั้งแต่ครั้งแรก ปลาคราวน์เทลเลี้ยงมา 8 เดือนแล้ว ยังสวยงามอยู่เลย",
-          name: "ณัฐยา ก.",
-          role: "ผู้เลี้ยงปลาหน้าใหม่",
-          initials: "ณย",
+          text: "ปลากัดป่าครีบสวยมากค่ะ แพ็คอย่างดี จัดส่งเร็ว ปลามาถึงมือสุขภาพดีทุกตัว",
+          name: "Suwimon P.",
+          role: "มือใหม่หัดเลี้ยงปลากัด",
+          initials: "SP",
         },
         {
-          text: "ปลาเบต้ายักษ์คุณภาพดีมากครับ แพ็คอย่างดี จัดส่งเร็ว ปลามาถึงมือสุขภาพดีทุกตัว วางแผนจะสั่งอีกรอบแล้ว",
-          name: "วิชัย ท.",
-          role: "นักเลี้ยงปลาตู้",
-          initials: "วช",
+          text: "ปลากัดแข็งแรงดีมากค่ะ สีสวยมาก แนะนำเลยค่ะ",
+          name: "Oraphan T.",
+          role: "มือใหม่หัดเลี้ยงปลากัด",
+          initials: "OT",
         },
+        {
+          text: "ปลาสมบูรณ์แข็งแรงดีมากครับ 👍",
+          name: "Chaiwat K.",
+          role: "นักเลี้ยงปลากัด",
+          initials: "CK",
+        },
+        {
+          text: "แพ็คอย่างดี จัดส่งเร็ว สวยมาก😄",
+          name: "Pimchanok W.",
+          role: "นักเลี้ยงปลากัด",
+          initials: "PW",
+        },
+        {
+          text: "ปลากัดสวยมาก ชอบมากๆคับ",
+          name: "Somsak L.",
+          role: "นักเลี้ยงปลากัด",
+          initials: "SL",
+        }
       ],
     },
     newsletter: {
@@ -517,39 +555,39 @@ const translations = {
     about: {
       title: "เกี่ยวกับ Aurora Betta Farm",
       subtitle:
-        "เราคือผู้เพาะเลี้ยงปลากัดที่มีความหลงใหล มุ่งมั่นที่จะผลิตปลาที่มีสุขภาพดีและสวยงาม พร้อมแบ่งปันความรู้แก่ชุมชน",
+        "เราคือผู้เพาะเลี้ยงปลากัดที่มีความหลงใหล มุ่งมั่นที่จะผลิตปลาที่มีสุขภาพดีและสวยงาม พร้อมแบ่งปันความรู้แก่เพื่อนๆทุกคน",
       ourStory: "เรื่องราวของเรา",
       storyText1:
-        "Aurora Betta Farm ก่อตั้งขึ้นในปี 2562 โดยกลุ่มผู้ที่หลงใหลในปลากัดในกรุงเทพมหานคร ประเทศไทย สิ่งที่เริ่มต้นเป็นงานอดิเรกได้กลายมาเป็นพันธกิจ: มอบปลากัดคุณภาพสูงสุดให้แก่ผู้ชื่นชอบตู้ปลา",
+        "Aurora Betta Farm ก่อตั้งขึ้นในปี 2562 โดยเพาะเลี้ยงตั้งแต่เริ่มต้นลงมือทำเองทุกอย่าง ดูแลเอาใจใส่อย่างดีจากภาคเหนือ ของประเทศไทย สิ่งที่เริ่มต้นเป็นงานอดิเรกได้กลายมาเป็นธุรกิจ: มอบปลากัดคุณภาพสูงสุดให้แก่ผู้ชื่นชอบปลากัดสวยงาม",
       storyText2:
-        "เราเชี่ยวชาญในสายพันธุ์หายากและพิเศษ ได้แก่ ฮาฟมูน คราวน์เทล พลากาต ยักษ์ ดับเบิ้ลเทล และดัมโบอีร์ ปลาแต่ละตัวได้รับการเลี้ยงดูด้วยอาหารพรีเมียม คุณภาพน้ำที่เหมาะสม และดูแลเป็นรายตัว",
+        "เราเชี่ยวชาญในสายพันธุ์สีทองและหายากพิเศษ ได้แก่ ฮาฟมูนหูช้างสีทอง ปลากัดหูช้างสีทอง ปลากัดสีทองหางโพธิ์ ปลาแต่ละตัวได้รับการเลี้ยงดูอย่างดี คุณภาพน้ำที่เหมาะสม และเน้นคุณภาพของปลาเป็นหลัก",
       ourValues: "ค่านิยมของเรา",
       values: [
         {
-          icon: "🐟",
+          icon: faFish,
           title: "คุณภาพมาก่อน",
           desc: "ปลาทุกตัวที่เราขายผ่านมาตรฐานด้านสุขภาพและความสวยงามของเรา",
         },
         {
-          icon: "💙",
+          icon: faHeart,
           title: "สวัสดิภาพปลา",
           desc: "การเพาะเลี้ยงอย่างมีจริยธรรมและสภาพแวดล้อมที่เหมาะสมเสมอ",
         },
         {
-          icon: "📦",
+          icon: faBox,
           title: "จัดส่งปลอดภัย",
           desc: "บรรจุภัณฑ์มืออาชีพพร้อมรับประกันปลามีชีวิตทั่วประเทศ",
         },
         {
-          icon: "📚",
+          icon: faBook,
           title: "การศึกษา",
           desc: "คู่มือดูแลฟรีและคำแนะนำจากผู้เชี่ยวชาญสำหรับลูกค้าทุกราย",
         },
       ],
       stats: [
-        { value: "500+", label: "ตัวที่ขายไปแล้ว" },
+        { value: "1000+", label: "ตัวที่ขายไปแล้ว" },
         { value: "6", label: "สายพันธุ์" },
-        { value: "5", label: "ปีประสบการณ์" },
+        { value: "10", label: "ปีประสบการณ์" },
         { value: "4.9", label: "คะแนนจากลูกค้า" },
       ],
     },

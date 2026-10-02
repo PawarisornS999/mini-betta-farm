@@ -10,6 +10,8 @@ import { useFilterStore } from "@/store/filter";
 import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
 import BaseDropdown from "@/components/BaseDropdown";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFishFins } from "@fortawesome/free-solid-svg-icons";
 
 export default function ShopPage() {
   const { products, loading, error } = useProducts();
@@ -102,9 +104,9 @@ export default function ShopPage() {
                 {/* Species */}
                 <BaseDropdown
                   id="category"
-                  label="Category"
+                  label={t.species}
                   value={category}
-                  placeholder="All categories"
+                  placeholder={t.allSpecies}
                   onChange={setCategory}
                   options={categories.map((item) => ({ value: item.slug, label: item.name }))}
                 />
@@ -144,7 +146,7 @@ export default function ShopPage() {
                 <div className="text-center py-20 text-red-600">{error}</div>
               ) : filtered.length === 0 ? (
                 <div className="text-center py-20">
-                  <p className="text-4xl mb-4">🐟</p>
+                  <FontAwesomeIcon icon={faFishFins} className="mb-4 text-4xl text-muted/50" />
                   <p className="text-foreground font-medium">{t.noResults}</p>
                   <p className="text-muted text-sm mt-1">{t.noResultsDesc}</p>
                   <button

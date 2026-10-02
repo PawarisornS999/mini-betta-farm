@@ -5,6 +5,8 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFishFins } from "@fortawesome/free-solid-svg-icons";
 
 export default function ClearanceBanner() {
   const lang = useLangStore((s) => s.lang);
@@ -24,7 +26,7 @@ export default function ClearanceBanner() {
                   transform: `rotate(${i * 45}deg)`,
                 }}
               >
-                🐟
+                <FontAwesomeIcon icon={faFishFins} />
               </span>
             ))}
           </div>

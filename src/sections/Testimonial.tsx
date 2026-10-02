@@ -9,9 +9,10 @@ import { faStar } from "@fortawesome/free-solid-svg-icons";
 export default function Testimonial() {
   const lang = useLangStore((s) => s.lang);
   const t = getT(lang).testimonial;
+  const reviews = t.items;
   return (
     <section className="py-16 md:py-24 bg-gradient-to-b from-transparent via-sky-50/50 to-transparent">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scrollbar-hide">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -22,17 +23,24 @@ export default function Testimonial() {
             {t.heading}
           </h2>
           <p className="text-muted text-sm">{t.sub}</p>
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-semibold text-slate-600 shadow-sm">
+            <span className="text-yellow-400">★★★★★</span>
+            <span>4.9/5</span>
+            <span className="text-slate-400">·</span>
+            <span>{lang === "th" ? "จาก 128 รีวิว" : "from 128 reviews"}</span>
+          </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {t.items.map((item, i) => (
-            <motion.div
-              key={item.name}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.15, duration: 0.5 }}
-              className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow"
+        <div className="-mx-4 overflow-hidden px-4 pb-4 sm:mx-0 sm:px-0">
+          <motion.div
+            className="flex w-max flex-row gap-4"
+            animate={{ x: ["0%", "-50%"] }}
+            transition={{ duration: 45, ease: "linear", repeat: Infinity }}
+          >
+          {[...reviews, ...reviews].map((item, i) => (
+            <div
+              key={`${item.name}-${i}`}
+              className="w-[min(84vw,360px)] shrink-0 rounded-2xl bg-white p-6 shadow-sm transition-shadow hover:shadow-md sm:w-[340px]"
             >
               <div className="flex items-center gap-1 mb-4">
                 {[...Array(5)].map((_, j) => (
@@ -53,8 +61,9 @@ export default function Testimonial() {
                   <p className="text-xs text-muted">{item.role}</p>
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
+          </motion.div>
         </div>
       </div>
     </section>
