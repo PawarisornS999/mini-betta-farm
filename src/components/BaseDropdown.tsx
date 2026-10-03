@@ -26,6 +26,7 @@ interface BaseDropdownProps<T extends string = string> {
   name?: string;
   disabled?: boolean;
   className?: string;
+  ariaLabel?: string;
 }
 
 export default function BaseDropdown<T extends string = string>({
@@ -38,6 +39,7 @@ export default function BaseDropdown<T extends string = string>({
   name,
   disabled = false,
   className = "",
+  ariaLabel,
 }: BaseDropdownProps<T>) {
   const generatedId = useId();
   const dropdownId = id ?? generatedId;
@@ -85,6 +87,7 @@ export default function BaseDropdown<T extends string = string>({
         name={name}
         type="button"
         aria-haspopup="listbox"
+        aria-label={ariaLabel}
         aria-expanded={open}
         disabled={disabled}
         onClick={() => setOpen((isOpen) => !isOpen)}

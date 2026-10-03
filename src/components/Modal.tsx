@@ -22,6 +22,8 @@ interface ModalProps {
   variant?: ModalVariant;
   confirmText?: string;
   cancelText?: string;
+  children?: React.ReactNode;
+  confirmDisabled?: boolean;
 }
 
 const variantConfig = {
@@ -56,6 +58,8 @@ export default function Modal({
   variant = "warning",
   confirmText = "Confirm",
   cancelText = "Cancel",
+  children,
+  confirmDisabled = false,
 }: ModalProps) {
   const config = variantConfig[variant];
 
@@ -108,6 +112,7 @@ export default function Modal({
             {description && (
               <p className="mt-2 text-sm text-muted">{description}</p>
             )}
+            {children && <div className="mt-5 text-left">{children}</div>}
             <div className="mt-6 flex justify-center gap-3">
               <button
                 onClick={onClose}
@@ -118,7 +123,8 @@ export default function Modal({
               {onConfirm && (
                 <button
                   onClick={onConfirm}
-                  className={`rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition-colors ${config.button}`}
+                  disabled={confirmDisabled}
+                  className={`rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${config.button}`}
                 >
                   {confirmText}
                 </button>

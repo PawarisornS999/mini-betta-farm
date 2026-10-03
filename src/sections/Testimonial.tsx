@@ -27,7 +27,7 @@ export default function Testimonial() {
             <span className="text-yellow-400">★★★★★</span>
             <span>4.9/5</span>
             <span className="text-slate-400">·</span>
-            <span>{lang === "th" ? "จาก 128 รีวิว" : "from 128 reviews"}</span>
+            <span>{lang === "th" ? "จาก 997 รีวิว" : "from 997 reviews"}</span>
           </div>
         </motion.div>
 

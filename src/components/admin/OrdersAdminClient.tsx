@@ -9,6 +9,20 @@ import {
   shortOrderId,
   type OrderAction,
 } from "@/lib/orders/workflow";
+import { faBasketShopping } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import BaseDropdown from "@/components/BaseDropdown";
+
+type OrderStatusFilter =
+  | "all"
+  | "awaiting_payment"
+  | "slip_submitted"
+  | "rejected"
+  | "preparing"
+  | "ready_to_ship"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
 
 const actionLabels: Array<[OrderAction, string]> = [
   ["paid", "ยืนยันชำระเงิน"],
@@ -19,12 +33,46 @@ const actionLabels: Array<[OrderAction, string]> = [
   ["cancel", "ยกเลิกและคืน stock"],
 ];
 
+function orderStageLabel(order: Order) {
+  if (order.status === "cancelled") return "ยกเลิกแล้ว";
+  if (order.shippingStatus === "delivered" || order.status === "completed") return "ส่งสำเร็จ";
+  if (order.shippingStatus === "shipped") return "กำลังจัดส่ง";
+  if (order.shippingStatus === "ready_to_ship") return "พร้อมจัดส่ง";
+  if (order.paymentStatus === "paid") return "กำลังเตรียมสินค้า";
+  if (order.paymentStatus === "slip_submitted") return "รอตรวจสลิป";
+  if (order.paymentStatus === "rejected") return "สลิปไม่ผ่าน";
+  return "รอชำระเงิน";
+}
+
+function orderStageKey(order: Order): Exclude<OrderStatusFilter, "all"> {
+  if (order.status === "cancelled") return "cancelled";
+  if (order.shippingStatus === "delivered" || order.status === "completed") return "delivered";
+  if (order.shippingStatus === "shipped") return "shipped";
+  if (order.shippingStatus === "ready_to_ship") return "ready_to_ship";
+  if (order.paymentStatus === "paid") return "preparing";
+  if (order.paymentStatus === "slip_submitted") return "slip_submitted";
+  if (order.paymentStatus === "rejected") return "rejected";
+  return "awaiting_payment";
+}
+
+function stageBadgeClass(order: Order) {
+  if (order.status === "cancelled") return "bg-red-50 text-red-700 ring-red-600/15";
+  if (order.shippingStatus === "delivered" || order.status === "completed") return "bg-emerald-50 text-emerald-700 ring-emerald-600/15";
+  if (order.paymentStatus === "slip_submitted") return "bg-blue-50 text-blue-700 ring-blue-600/15";
+  if (order.paymentStatus === "rejected") return "bg-red-50 text-red-700 ring-red-600/15";
+  return "bg-amber-50 text-amber-700 ring-amber-600/15";
+}
+
 export default function OrdersAdminClient() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<OrderStatusFilter>("all");
   const [confirmTarget, setConfirmTarget] = useState<{ order: Order; action: "cancel" | "delete" } | null>(null);
+  const [trackingTarget, setTrackingTarget] = useState<Order | null>(null);
+  const [trackingValue, setTrackingValue] = useState("");
+  const [trackingError, setTrackingError] = useState("");
 
   async function load() {
     try {
@@ -68,11 +116,8 @@ export default function OrdersAdminClient() {
       });
       const result = (await response.json()) as { message?: string };
       if (!response.ok) throw new Error(result.message || "อัปเดตไม่สำเร็จ");
-      if (action === "cancel") {
-        await deleteOrder(order);
-        return;
-      }
       await load();
+      if (action === "cancel") setConfirmTarget(null);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "อัปเดตไม่สำเร็จ");
     } finally {
@@ -80,15 +125,24 @@ export default function OrdersAdminClient() {
     }
   }
 
-  async function addTracking(order: Order) {
-    const value = window
-      .prompt("กรอกเลขพัสดุ", order.trackingNumber || "")
-      ?.trim();
-    if (!value) return;
-    setBusy(order.id);
+  function openTrackingModal(order: Order) {
+    setTrackingTarget(order);
+    setTrackingValue(order.trackingNumber || "");
+    setTrackingError("");
+  }
+
+  async function addTracking() {
+    if (!trackingTarget) return;
+    const value = trackingValue.trim().toUpperCase();
+    if (!/^[A-Z0-9]{13}$/.test(value)) {
+      setTrackingError("กรุณากรอกเลขพัสดุไปรษณีย์ไทย 13 หลัก");
+      return;
+    }
+    setBusy(trackingTarget.id);
     setError("");
+    setTrackingError("");
     try {
-      const response = await fetch(`/api/admin/orders/${order.id}`, {
+      const response = await fetch(`/api/admin/orders/${trackingTarget.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "tracking", value }),
@@ -97,6 +151,8 @@ export default function OrdersAdminClient() {
       if (!response.ok)
         throw new Error(result.message || "บันทึกเลขพัสดุไม่สำเร็จ");
       await load();
+      setTrackingTarget(null);
+      setTrackingValue("");
     } catch (cause) {
       setError(
         cause instanceof Error ? cause.message : "บันทึกเลขพัสดุไม่สำเร็จ",
@@ -140,11 +196,24 @@ export default function OrdersAdminClient() {
     }
   }
 
-  const filtered = orders.filter((order) =>
-    `${order.id} ${order.customerName} ${order.customerPhone}`
+  const filtered = orders.filter((order) => {
+    const matchesSearch = `${order.id} ${order.customerName} ${order.customerPhone} ${order.trackingNumber ?? ""}`
       .toLowerCase()
-      .includes(search.toLowerCase()),
-  );
+      .includes(search.toLowerCase());
+    const matchesStatus = statusFilter === "all" || orderStageKey(order) === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+  const statusOptions: Array<{ value: OrderStatusFilter; label: string }> = [
+    { value: "all", label: "ทุกสถานะ" },
+    { value: "awaiting_payment", label: "รอชำระเงิน" },
+    { value: "slip_submitted", label: "รอตรวจสลิป" },
+    { value: "rejected", label: "สลิปไม่ผ่าน" },
+    { value: "preparing", label: "กำลังเตรียมสินค้า" },
+    { value: "ready_to_ship", label: "พร้อมจัดส่ง" },
+    { value: "shipped", label: "กำลังจัดส่ง" },
+    { value: "delivered", label: "ส่งสำเร็จ" },
+    { value: "cancelled", label: "ยกเลิกแล้ว" },
+  ];
   return (
     <div className="mx-auto max-w-6xl">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -154,13 +223,22 @@ export default function OrdersAdminClient() {
             ตรวจสลิป ยืนยันเงิน และจัดส่ง
           </p>
         </div>
-        <input
-          aria-label="ค้นหาออเดอร์"
-          placeholder="ค้นหาเลขออเดอร์ ชื่อ หรือเบอร์โทร"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          className="w-full rounded-xl border border-gray-200 p-3 text-sm sm:w-80"
-        />
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+          <BaseDropdown
+            value={statusFilter}
+            onChange={setStatusFilter}
+            options={statusOptions}
+            ariaLabel="กรองตามสถานะสินค้า"
+            className="w-full sm:w-52"
+          />
+          <input
+            aria-label="ค้นหาออเดอร์"
+            placeholder="ค้นหาเลขออเดอร์ ชื่อ เบอร์โทร หรือเลขพัสดุ"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            className="w-full rounded-xl border border-gray-200 p-3 text-sm sm:w-80"
+          />
+        </div>
       </div>
       {error && (
         <p role="alert" className="mt-5 rounded-xl bg-red-50 p-4 text-red-700">
@@ -187,18 +265,25 @@ export default function OrdersAdminClient() {
                 <p className="text-xl font-bold">
                   {formatMoney(order.totalPrice || 0)}
                 </p>
-                <p className="text-sm text-gray-500">
-                  {order.status} / {order.paymentStatus} /{" "}
-                  {order.shippingStatus}
-                </p>
+                <span className={`mt-1 inline-flex rounded-full px-3 py-1 text-xs font-bold ring-1 ring-inset ${stageBadgeClass(order)}`}>
+                  {orderStageLabel(order)}
+                </span>
               </div>
             </div>
-            <div className="mt-4 border-t border-gray-100 pt-4 text-sm">
+            <div className="mt-5 grid gap-6 border-t border-gray-100 pt-5 lg:grid-cols-[minmax(0,1fr)_280px]">
+              <div className="text-sm">
               {order.items.map((item) => (
-                <p key={item.id}>
-                  {item.productName} × {item.quantity} —{" "}
-                  {formatMoney((item.price || 0) * item.quantity)}
-                </p>
+                <div key={item.id} className="mb-2 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-gray-50 px-3 py-2.5">
+                  <p className="font-medium">
+                    {item.productName} × {item.quantity}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <span className={`rounded-full px-2 py-1 text-[10px] font-bold ring-1 ring-inset ${stageBadgeClass(order)}`}>
+                      {orderStageLabel(order)}
+                    </span>
+                    <strong>{formatMoney((item.price || 0) * item.quantity)}</strong>
+                  </div>
+                </div>
               ))}
               <p className="mt-2">
                 ค่าส่ง {formatMoney(order.shippingFee || 0)}
@@ -207,10 +292,14 @@ export default function OrdersAdminClient() {
                 ที่อยู่: {order.customerAddress || "ไม่ระบุ"}
               </p>
               {order.notes && <p>หมายเหตุ: {order.notes}</p>}
+              {order.trackingNumber && (
+                <p className="mt-3 rounded-xl bg-blue-50 px-3 py-2 font-mono text-sm font-semibold text-blue-800">
+                  เลขพัสดุ: {order.trackingNumber}
+                </p>
+              )}
+              </div>
+              <OrderStepper order={order} />
             </div>
-            {order.trackingNumber && (
-              <p className="mt-2 text-sm">เลขพัสดุ: {order.trackingNumber}</p>
-            )}
             <div className="mt-4 flex flex-wrap gap-2 border-t border-gray-100 pt-4">
               {order.slipPath && (
                 <button
@@ -224,15 +313,14 @@ export default function OrdersAdminClient() {
               {order.paymentStatus === "paid" && (
                 <button
                   type="button"
-                  onClick={() => void addTracking(order)}
+                  onClick={() => openTrackingModal(order)}
                   className="rounded-lg bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700"
                 >
                   เลขพัสดุ
                 </button>
               )}
-              {actionLabels.map(([action, label]) => {
-                const disabled =
-                  busy === order.id || !canUpdateOrder(order, action);
+              {actionLabels.filter(([action]) => canUpdateOrder(order, action)).map(([action, label]) => {
+                const disabled = busy === order.id;
                 return (
                   <button
                     key={action}
@@ -256,12 +344,53 @@ export default function OrdersAdminClient() {
             </div>
           </article>
         ))}
-        {!filtered.length && (
-          <p className="rounded-2xl bg-white p-8 text-center text-gray-500">
-            ไม่มีออเดอร์
-          </p>
+        {filtered.length === 0 && (
+          <div className="bg-white rounded-lg shadow-md p-4 flex items-center justify-center h-[50vh] text-gray-200">
+            <div className="flex flex-col items-center gap-2">
+              <FontAwesomeIcon icon={faBasketShopping} className="text-[22px]" />
+              <p className="text-center text-muted">
+                ไม่พบออเดอร์ที่ค้นหา
+              </p>
+            </div>
+          </div>
         )}
       </div>
+      <Modal
+        isOpen={Boolean(trackingTarget)}
+        onClose={() => {
+          if (!busy) {
+            setTrackingTarget(null);
+            setTrackingError("");
+          }
+        }}
+        onConfirm={() => void addTracking()}
+        title="กรอกเลขพัสดุ"
+        description={trackingTarget ? `ออเดอร์ #${shortOrderId(trackingTarget.id)}` : undefined}
+        variant="warning"
+        confirmText={busy ? "กำลังบันทึก..." : "บันทึกเลขพัสดุ"}
+        cancelText="ยกเลิก"
+        confirmDisabled={Boolean(busy) || !trackingValue.trim()}
+      >
+        <label htmlFor="tracking-number" className="mb-2 block text-sm font-semibold text-gray-700">
+          เลขพัสดุไปรษณีย์ไทย 13 หลัก
+        </label>
+        <input
+          id="tracking-number"
+          autoFocus
+          value={trackingValue}
+          maxLength={13}
+          onChange={(event) => {
+            setTrackingValue(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""));
+            setTrackingError("");
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") void addTracking();
+          }}
+          placeholder="เช่น EF582568151TH"
+          className="w-full rounded-xl border border-gray-200 px-4 py-3 font-mono text-sm uppercase outline-none focus:border-amber-500"
+        />
+        {trackingError && <p className="mt-2 text-xs text-red-600">{trackingError}</p>}
+      </Modal>
       <Modal
         isOpen={Boolean(confirmTarget)}
         onClose={() => { if (!busy) setConfirmTarget(null); }}
@@ -277,5 +406,62 @@ export default function OrdersAdminClient() {
         cancelText="ยกเลิก"
       />
     </div>
+  );
+}
+
+function OrderStepper({ order }: { order: Order }) {
+  if (order.status === "cancelled") {
+    return (
+      <aside className="rounded-2xl border border-red-100 bg-red-50 p-4">
+        <p className="text-xs font-bold uppercase tracking-wider text-red-500">สถานะออเดอร์</p>
+        <p className="mt-2 font-bold text-red-700">ยกเลิกแล้ว</p>
+        <p className="mt-1 text-xs leading-5 text-red-600">คืนจำนวนสินค้าเข้าสต็อกเรียบร้อยแล้ว</p>
+      </aside>
+    );
+  }
+
+  const completedSteps = order.shippingStatus === "delivered" || order.status === "completed"
+    ? 4
+    : order.shippingStatus === "shipped"
+      ? 3
+      : order.shippingStatus === "ready_to_ship"
+        ? 2
+        : order.paymentStatus === "paid"
+          ? 1
+          : 0;
+  const steps = [
+    {
+      title: "ชำระเงิน",
+      description: order.paymentStatus === "slip_submitted" ? "ลูกค้าส่งสลิปแล้ว รอตรวจสอบ" : order.paymentStatus === "rejected" ? "สลิปไม่ผ่าน รอลูกค้าส่งใหม่" : order.paymentStatus === "paid" ? "ยืนยันการชำระเงินแล้ว" : "รอลูกค้าชำระเงิน",
+    },
+    { title: "เตรียมสินค้า", description: "ตรวจสินค้าและเตรียมบรรจุ" },
+    { title: "จัดส่ง", description: order.trackingNumber ? `เลขพัสดุ ${order.trackingNumber}` : "ต้องเพิ่มเลขพัสดุก่อนจัดส่ง" },
+    { title: "ส่งถึงลูกค้า", description: "ปิดออเดอร์เมื่อจัดส่งสำเร็จ" },
+  ];
+
+  return (
+    <aside className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
+      <p className="mb-4 text-xs font-bold uppercase tracking-wider text-gray-500">ขั้นตอนดำเนินการ</p>
+      <ol>
+        {steps.map((step, index) => {
+          const complete = index < completedSteps;
+          const current = index === completedSteps;
+          return (
+            <li key={step.title} className="relative flex gap-3 pb-6 last:pb-0">
+              {index < steps.length - 1 && (
+                <span className={`absolute left-[13px] top-7 h-[calc(100%-0.25rem)] w-0.5 ${complete ? "bg-emerald-400" : "bg-gray-200"}`} />
+              )}
+              <span className={`relative z-10 grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-bold ${complete ? "bg-emerald-500 text-white" : current ? "bg-amber-500 text-white ring-4 ring-amber-100" : "bg-gray-200 text-gray-500"}`}>
+                {complete ? "✓" : index + 1}
+              </span>
+              <div>
+                <p className={`text-sm font-bold ${complete ? "text-emerald-700" : current ? "text-amber-700" : "text-gray-500"}`}>{step.title}</p>
+                <p className="mt-0.5 text-xs leading-5 text-gray-500">{step.description}</p>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+    </aside>
   );
 }

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Category } from "@/types";
 import { adminText, useAdminLanguage } from "./LanguageProvider";
+import Modal from "@/components/Modal";
 
 type Draft = {
   id?: string;
@@ -35,6 +36,7 @@ export default function CategoriesAdminClient({ initialCategories }: { initialCa
   const [draft, setDraft] = useState<Draft | null>(null);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [deactivateTarget, setDeactivateTarget] = useState<Category | null>(null);
 
   function field<K extends keyof Draft>(key: K, value: Draft[K]) {
     setDraft((current) => current ? { ...current, [key]: value } : current);
@@ -70,18 +72,23 @@ export default function CategoriesAdminClient({ initialCategories }: { initialCa
   }
 
   async function deactivate(category: Category) {
-    if (!window.confirm(text(
-      `ซ่อนหมวดหมู่ “${category.name}” จากหน้าร้านหรือไม่?`,
-      `Hide “${category.name}” from the storefront?`,
-    ))) return;
-    const response = await fetch(`/api/admin/categories/${category.id}`, { method: "DELETE" });
-    if (!response.ok) {
-      setError(text("ซ่อนหมวดหมู่ไม่สำเร็จ", "Unable to hide category"));
-      return;
+    setSaving(true);
+    setError("");
+    try {
+      const response = await fetch(`/api/admin/categories/${category.id}`, { method: "DELETE" });
+      if (!response.ok) {
+        const body = await response.json().catch(() => null);
+        throw new Error(body?.message ?? text("ซ่อนหมวดหมู่ไม่สำเร็จ", "Unable to hide category"));
+      }
+      setCategories((current) => current.map((item) =>
+        item.id === category.id ? { ...item, isActive: false } : item,
+      ));
+      setDeactivateTarget(null);
+    } catch (deactivateError) {
+      setError(deactivateError instanceof Error ? deactivateError.message : text("ซ่อนหมวดหมู่ไม่สำเร็จ", "Unable to hide category"));
+    } finally {
+      setSaving(false);
     }
-    setCategories((current) => current.map((item) =>
-      item.id === category.id ? { ...item, isActive: false } : item,
-    ));
   }
 
   return (
@@ -110,7 +117,7 @@ export default function CategoriesAdminClient({ initialCategories }: { initialCa
               <span className={`text-xs font-bold ${category.isActive ? "text-emerald-600" : "text-slate-400"}`}>{category.isActive ? text("ใช้งาน", "Active") : text("ซ่อนแล้ว", "Hidden")}</span>
               <div className="flex justify-end gap-2">
                 <button onClick={() => { setError(""); setDraft(toDraft(category)); }} className="rounded-lg border border-black/10 px-3 py-2 text-xs font-semibold">{text("แก้ไข", "Edit")}</button>
-                {category.isActive && <button onClick={() => void deactivate(category)} className="rounded-lg border border-black/10 px-3 py-2 text-xs text-red-600">{text("ซ่อน", "Hide")}</button>}
+                {category.isActive && <button onClick={() => setDeactivateTarget(category)} className="rounded-lg border border-black/10 px-3 py-2 text-xs text-red-600">{text("ซ่อน", "Hide")}</button>}
               </div>
             </div>
           ))}
@@ -142,6 +149,20 @@ export default function CategoriesAdminClient({ initialCategories }: { initialCa
           </div>
         </div>
       )}
+      <Modal
+        isOpen={Boolean(deactivateTarget)}
+        onClose={() => !saving && setDeactivateTarget(null)}
+        onConfirm={() => deactivateTarget && void deactivate(deactivateTarget)}
+        title={text("ซ่อนหมวดหมู่นี้หรือไม่?", "Hide this category?")}
+        description={deactivateTarget ? text(
+          `หมวดหมู่ “${deactivateTarget.name}” จะไม่แสดงในหน้าร้าน แต่ข้อมูลสินค้าเดิมจะไม่ถูกลบ`,
+          `“${deactivateTarget.name}” will disappear from the storefront, but existing product data will remain.`,
+        ) : undefined}
+        variant="warning"
+        confirmText={saving ? text("กำลังซ่อน...", "Hiding...") : text("ซ่อนหมวดหมู่", "Hide category")}
+        cancelText={text("ยกเลิก", "Cancel")}
+        confirmDisabled={saving}
+      />
     </div>
   );
 }

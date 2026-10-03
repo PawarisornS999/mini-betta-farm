@@ -13,7 +13,7 @@ import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
 import { formatPrice } from "@/lib/utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGreaterThan } from "@fortawesome/free-solid-svg-icons";
+import { faAngleRight, faGreaterThan } from "@fortawesome/free-solid-svg-icons";
 import type { StockStatus } from "@/types";
 
 export default function ProductDetailPage({
@@ -48,7 +48,33 @@ export default function ProductDetailPage({
     return (
       <>
         <Header />
-        <main className="pt-32 pb-16 text-center text-muted">Loading fish...</main>
+        <main className="pt-32 pb-16 text-center text-muted">
+          {/* loading skeleton product card */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid md:grid-cols-2 gap-10">
+              <div className="space-y-4">
+                <div className="relative aspect-square bg-gradient-to-br from-sky-50 to-cyan-50 rounded-3xl overflow-hidden mb-4 animate-pulse" />
+                <div className="grid grid-cols-2 gap-3">
+                  {[...Array(4)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="relative aspect-square overflow-hidden rounded-xl bg-sky-50 animate-pulse"
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="h-6 w-1/3 bg-gray-200 rounded-md animate-pulse" />
+                <div className="h-8 w-full bg-gray-200 rounded-md animate-pulse" />
+                <div className="h-6 w-1/4 bg-gray-200 rounded-md animate-pulse" />
+                <div className="h-4 w-full bg-gray-200 rounded-md animate-pulse" />
+                <div className="h-4 w-full bg-gray-200 rounded-md animate-pulse" />
+                <div className="h-4 w-full bg-gray-200 rounded-md animate-pulse" />
+                <div className="h-12 w-full bg-gray-200 rounded-xl animate-pulse" />
+              </div>
+            </div>
+          </div>
+        </main>
         <Footer />
       </>
     );
@@ -94,12 +120,12 @@ export default function ProductDetailPage({
               {t.nav.home}
             </Link>
             <span className="mx-2">
-              <FontAwesomeIcon icon={faGreaterThan} className="w-2 h-2" />
+              <FontAwesomeIcon icon={faAngleRight} className="w-2 h-2" />
             </span>
             <Link href="/shop" className="hover:text-accent">
               {t.nav.shop}
             </Link>
-            <span className="mx-2"> <FontAwesomeIcon icon={faGreaterThan} className="w-2 h-2" /></span>
+            <span className="mx-2"> <FontAwesomeIcon icon={faAngleRight} className="w-2 h-2" /></span>
             <span className="text-foreground">{product.name}</span>
           </nav>
 
@@ -190,7 +216,7 @@ export default function ProductDetailPage({
 
               <div className="mb-8 rounded-2xl bg-sky-50 p-5">
                 <h3 className="mb-4 font-bold text-foreground">รายละเอียดสินค้า</h3>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+                <div id="product-details" className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3 text-sm">
                   <Detail label="รหัสสินค้า" value={product.sku ?? "-"} />
                   <Detail
                     label="เพศ"
@@ -211,7 +237,7 @@ export default function ProductDetailPage({
                     value={product.ageMonths != null ? `${product.ageMonths} เดือน` : "-"}
                   />
                   <Detail label="หมวดหมู่" value={product.category ?? "-"} />
-                  <Detail label="ประเภทเพศ" value={product.tailType ?? "-"} />
+                  <Detail label="ประเภทหาง" value={product.tailType ?? "-"} />
                   <Detail
                     label="สถานะสินค้า"
                     value={product.stockStatus === "in_stock" ? "มีสินค้า" : product.stockStatus === "low_stock" ? "สินค้าใกล้หมด" : "หมดสินค้า"}
@@ -302,7 +328,7 @@ const stockBadgeClasses: Record<StockStatus, string> = {
 
 function Detail({ label, value, badgeStatus }: { label: string; value: string; badgeStatus?: StockStatus }) {
   return (
-    <div>
+    <div className="flex items-center gap-2 whitespace-nowrap"  >
       <span className="text-muted">{label}:</span>
       <span
         className={`ml-2 font-medium ${badgeStatus ? `inline-flex rounded-full px-2.5 py-1 text-xs ring-1 ring-inset ${stockBadgeClasses[badgeStatus]}` : "text-foreground"}`}

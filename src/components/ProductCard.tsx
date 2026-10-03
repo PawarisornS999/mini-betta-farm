@@ -16,7 +16,6 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  console.log("ProductCard render", product);
   const addItem = useCartStore((s) => s.addItem);
   const lang = useLangStore((s) => s.lang);
   const pt = getT(lang).product;
