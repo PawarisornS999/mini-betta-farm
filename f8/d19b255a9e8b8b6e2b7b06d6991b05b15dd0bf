@@ -1,0 +1,34 @@
+src/components/BaseDropdown.tsx
+  s_abd4a5f5fb572f::t_9cfc0b1f7a85bb 29,42,90
+src/components/admin/OrdersAdminClient.tsx
+  s_abd4a5f5fb572f::t_0e57d9e6245615 36-44,56-65,268-270,273-274,276-286,295-301,322-323
+  s_abd4a5f5fb572f::t_40f6579bfa1568 73-75,128-141,143,145,154-155,316,358-393
+  s_abd4a5f5fb572f::t_f27ac586bd6c90 120
+  s_abd4a5f5fb572f::t_1a25b38d26c7e1 14-25,45-55,71,199-200,202-216,226-230,232-240
+  s_abd4a5f5fb572f::t_9cfc0b1f7a85bb 231
+  s_abd4a5f5fb572f::t_fe644ce73c5b6e 411-467
+  s_abd4a5f5fb572f::t_b0fe09bad9cab8 12-13
+  s_abd4a5f5fb572f::t_f56a749c789abf 241
+src/lib/orders/workflow.ts
+  s_abd4a5f5fb572f::t_f27ac586bd6c90 13,19-20
+src/components/admin/CategoriesAdminClient.tsx
+  s_abd4a5f5fb572f::t_d9f222887f42e9 6,39,75-90,120,152-165
+src/components/Modal.tsx
+  s_abd4a5f5fb572f::t_40f6579bfa1568 25-26,61-62,115,126-127
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.3",
+  "base_commit_sha": "f8d19b255a9e8b8b6e2b7b06d6991b05b15dd0bf",
+  "prompts": {},
+  "sessions": {
+    "s_abd4a5f5fb572f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0fd52-56cc-7ad1-8d57-0c82307ac68f",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Pawarisorn <pawarisorn.son@axonstech.com>"
+    }
+  }
+}
