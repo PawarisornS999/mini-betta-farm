@@ -9,12 +9,12 @@ import type { Order, Product } from "@/types";
 import TabsMenu from "@/components/TabsMenu";
 import { formatMoney } from "@/lib/orders/workflow";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBasketShopping, faFish } from "@fortawesome/free-solid-svg-icons";
+import { faBasketShopping, faFish, faCreditCard } from "@fortawesome/free-solid-svg-icons";
+import { useLangStore } from "@/store/lang";
 
-type Tab = "all" | "payment" | "shipping" | "receiving" | "completed" | "cancelled";
+type Tab = "payment" | "shipping" | "receiving" | "completed" | "cancelled";
 
 function tabMatches(order: Order, tab: Tab) {
-  if (tab === "all") return true;
   if (tab === "cancelled") return order.status === "cancelled";
   if (order.status === "cancelled") return false;
   if (tab === "payment")
@@ -37,8 +37,9 @@ function statusLabel(order: Order) {
 }
 
 export default function OrdersPage() {
+  const lang = useLangStore((state) => state.lang);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [tab, setTab] = useState<Tab>("all");
+  const [tab, setTab] = useState<Tab>("payment");
   const [loading, setLoading] = useState(true);
   const [loginRequired, setLoginRequired] = useState(false);
   const [productImages, setProductImages] = useState<Record<string, string>>({});
@@ -74,7 +75,6 @@ export default function OrdersPage() {
   );
   const tabCounts = useMemo(
     () => ({
-      all: orders.length,
       payment: orders.filter((order) => tabMatches(order, "payment")).length,
       shipping: orders.filter((order) => tabMatches(order, "shipping")).length,
       receiving: orders.filter((order) => tabMatches(order, "receiving")).length,
@@ -84,7 +84,6 @@ export default function OrdersPage() {
     [orders],
   );
   const tabOptions = [
-    { value: "all" as const, label: "ทั้งหมด", count: tabCounts.all },
     { value: "payment" as const, label: "ที่ต้องชำระ", count: tabCounts.payment },
     { value: "shipping" as const, label: "ที่ต้องจัดส่ง", count: tabCounts.shipping },
     { value: "receiving" as const, label: "ที่ต้องได้รับ", count: tabCounts.receiving },
@@ -174,16 +173,39 @@ export default function OrdersPage() {
                     );
                   })}
                 </div>
-                <div className="mt-4 flex justify-between border-t border-black/5 pt-4 text-sm">
+                <div className="mt-4 flex justify-between  pt-4 text-sm">
                   <span className="text-muted">
-                    {new Date(order.createdAt).toLocaleDateString("th-TH")}
+                    <span className="mr-1">วันที่สั่งซื้อ:</span>
+                    {new Date(order.createdAt).toLocaleString(lang === "th" ? "th-TH" : "en-GB", {
+                      timeZone: "Asia/Bangkok",
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hourCycle: "h23",
+                    })}
+                    {lang === "th" ? " น." : ""}
                   </span>
                   <strong>
                     ฿{Number(order.totalPrice ?? 0).toLocaleString("th-TH")}
                   </strong>
                 </div>
                 </Link>
-                {order.trackingNumber && (
+                {order.status !== "cancelled" && order.paymentStatus !== "paid" && order.paymentStatus !== "slip_submitted" && (
+                  <div className="border-t border-black/5 px-5 py-3">
+                    <Link
+                      href={`/orders/${order.id}`}
+                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-accent-dark"
+                    >
+                      <FontAwesomeIcon icon={faCreditCard} />
+                      ชำระเงิน
+                    </Link>
+                  </div>
+                )}
+                {order.trackingNumber &&
+                  order.status !== "completed" &&
+                  order.shippingStatus !== "delivered" && (
                   <div className="border-t border-black/5 px-5 py-3">
                     <Link
                       href={`/tracking?number=${encodeURIComponent(order.trackingNumber)}`}

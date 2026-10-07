@@ -10,6 +10,20 @@ export async function getProducts(): Promise<Product[]> {
   return rows.map(mapProduct);
 }
 
+export async function getProductsPage(page: number, pageSize: number) {
+  const filter = "admin_status=in.(available,reserved,sold)";
+  const [rows, ids] = await Promise.all([
+    supabaseRest<ProductRow[]>(
+      `products?select=*&${filter}&order=created_at.desc&limit=${pageSize}&offset=${(page - 1) * pageSize}`,
+      { serviceRole: true },
+    ),
+    supabaseRest<Array<{ id: string }>>(`products?select=id&${filter}`, {
+      serviceRole: true,
+    }),
+  ]);
+  return { products: rows.map(mapProduct), total: ids.length };
+}
+
 export async function getProduct(id: string): Promise<Product | null> {
   const rows = await supabaseRest<ProductRow[]>(
     `products?select=*&id=eq.${encodeURIComponent(id)}&admin_status=in.(available,reserved,sold)&limit=1`,

@@ -19,6 +19,7 @@
     "qrcode": "^1.5.4",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "recharts": "^3.10.1",
     "thai-address-database": "^0.0.33",
     "zustand": "^5.0.14"
   },

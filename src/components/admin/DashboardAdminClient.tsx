@@ -3,14 +3,27 @@
 
 import Link from "next/link";
 import type { Product } from "@/types";
+import SalesChart from "@/components/admin/SalesChart";
 import { adminText, useAdminLanguage } from "./LanguageProvider";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faBoxOpen,
+  faFish,
+  faClock,
+  faMoneyBillWave,
+} from "@fortawesome/free-solid-svg-icons";
 
 export default function DashboardAdminClient({
   products,
   revenue,
 }: {
   products: Product[];
-  revenue: { total: number; orders: number };
+  revenue: {
+    total: number;
+    orders: number;
+    dailySales: Array<{ key: string; label: string; total: number }>;
+    monthlySales: Array<{ key: string; label: string; total: number }>;
+  };
 }) {
   const { language } = useAdminLanguage();
   const text = (th: string, en: string) => adminText(language, th, en);
@@ -21,10 +34,10 @@ export default function DashboardAdminClient({
     (p) => (p.stockQty ?? 0) <= 3 && (p.stockQty ?? 0) > 0,
   );
   const cards = [
-    [text("สินค้าทั้งหมด", "Total products"), products.length, "◆", text("สินค้าทั้งหมดในระบบ", "All catalog records")],
-    [text("ปลาพร้อมขาย", "Available fish"), available, "●", text("พร้อมแสดงให้ลูกค้าสั่งซื้อ", "Ready for customers")],
-    [text("จองแล้ว", "Reserved"), reserved, "◐", text("กำลังรอการชำระเงิน", "Awaiting payment")],
-    [text("รายรับรวม", "Total revenue"), `฿${revenue.total.toLocaleString()}`, "฿", text(`${revenue.orders} ออเดอร์ที่ชำระแล้ว`, `${revenue.orders} paid orders`)],
+    [text("สินค้าทั้งหมด", "Total products"), products.length, faBoxOpen, text("สินค้าทั้งหมดในระบบ", "All catalog records")],
+    [text("ปลาพร้อมขาย", "Available fish"), available, faFish, text("พร้อมแสดงให้ลูกค้าสั่งซื้อ", "Ready for customers")],
+    [text("จองแล้ว", "Reserved"), reserved, faClock, text("กำลังรอการชำระเงิน", "Awaiting payment")],
+    [text("รายรับรวม", "Total revenue"), `฿${revenue.total.toLocaleString()}`, faMoneyBillWave, text(`${revenue.orders} ออเดอร์ที่ชำระแล้ว`, `${revenue.orders} paid orders`)],
   ];
 
   return (
@@ -47,13 +60,16 @@ export default function DashboardAdminClient({
           <div key={String(label)} className="rounded-2xl border border-black/6 bg-white p-5 shadow-sm">
             <div className="flex items-start justify-between">
               <p className="text-sm font-medium text-[#73736c]">{label}</p>
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#f6ead8] text-[#ac6826]">{icon}</span>
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#f6ead8] text-[#ac6826]">
+                <FontAwesomeIcon icon={icon} aria-hidden="true" />
+              </span>
             </div>
             <p className="mt-4 text-3xl font-bold">{value}</p>
             <p className="mt-2 text-xs text-[#99998f]">{note}</p>
           </div>
         ))}
       </div>
+      <SalesChart dailySales={revenue.dailySales} monthlySales={revenue.monthlySales} />
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.5fr_1fr]">
         <section className="rounded-2xl border border-black/6 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">

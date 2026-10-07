@@ -50,7 +50,21 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     catch (error) { console.error("Slip LINE notification failed", error); }
   }
   if (order.lineUserId && process.env.LINE_CHANNEL_ACCESS_TOKEN) {
-    try { await pushLineMessage(order.lineUserId, `ได้รับสลิปออเดอร์ ${order.id.slice(0, 8).toUpperCase()} แล้วค่ะ 🧾\nแอดมินกำลังตรวจสอบและจะแจ้งผลให้ทราบ`); }
+    try {
+      const itemLines = order.items
+        .map((item) => `• ${item.productName} × ${item.quantity} — ฿${(Number(item.price || 0) * item.quantity).toLocaleString("th-TH")}`)
+        .join("\n");
+      const summary = [
+        `🧾 ได้รับสลิปการชำระเงินแล้วครับ`,
+        `ออเดอร์ #${order.id.slice(0, 8).toUpperCase()}`,
+        "รายการที่สั่ง:",
+        itemLines,
+        `ค่าส่ง: ฿${Number(order.shippingFee).toLocaleString("th-TH")}`,
+        `ยอดรวม: ฿${Number(order.totalPrice).toLocaleString("th-TH")}`,
+        "\nขณะนี้กำลังรอแอดมินตรวจสอบสลิป เมื่อยืนยันแล้วจะแจ้งให้ทราบอีกครั้งครับ",
+      ].join("\n");
+      await pushLineMessage(order.lineUserId, summary);
+    }
     catch (error) { console.error("Customer slip confirmation failed", error); }
   }
   return NextResponse.json({ success: true });

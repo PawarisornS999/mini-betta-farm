@@ -27,23 +27,23 @@ export default function Footer() {
     fishCare: [
       {
         label: lang === "en" ? "Betta Care Guide" : "คู่มือดูแลปลากัด",
-        href: "/blog/how-to-care-for-betta-fish",
+        href: "/blog",
       },
       {
         label: lang === "en" ? "Types of Betta" : "สายพันธุ์ปลากัด",
-        href: "/blog/types-of-betta-fish",
+        href: "/blog",
       },
       {
         label: lang === "en" ? "Feeding Guide" : "คู่มือการให้อาหาร",
-        href: "/blog/betta-feeding-guide",
+        href: "/blog",
       },
       {
         label: lang === "en" ? "Disease Treatment" : "การรักษาโรค",
-        href: "/blog/how-to-treat-ich-white-spot-disease",
+        href: "/blog",
       },
       {
         label: lang === "en" ? "Breeding Guide" : "คู่มือการเพาะพันธุ์",
-        href: "/blog/breeding-betta-fish-basics",
+        href: "/blog/breed-betta-fish",
       },
     ],
   };

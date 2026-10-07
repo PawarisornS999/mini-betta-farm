@@ -25,6 +25,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     from: { left: number; top: number; size: number };
     to: { left: number; top: number };
   } | null>(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const animationId = useRef(0);
   const alreadyInCart = useCartStore((s) =>
     s.items.some((item) => item.product.id === product.id),
@@ -33,6 +34,16 @@ export default function ProductCard({ product }: ProductCardProps) {
   const isOutOfStock = product.stockStatus === "out_of_stock";
   const isSold = product.adminStatus === "sold";
   const unavailable = isOutOfStock || isSold;
+  const badgeText = product.badge?.toLowerCase() ?? "";
+  const badgeColor = /ขายดี|best|popular/.test(badgeText)
+    ? "bg-rose-500"
+    : /ใหม่|new/.test(badgeText)
+      ? "bg-red-500"
+      : /ลด|sale|โปร|discount/.test(badgeText)
+        ? "bg-orange-500"
+        : /พิเศษ|limited|rare|หายาก/.test(badgeText)
+          ? "bg-violet-500"
+          : "bg-accent";
 
   const handleAddToCart = () => {
     if (unavailable || alreadyInCart) return;
@@ -115,8 +126,11 @@ export default function ProductCard({ product }: ProductCardProps) {
         )}
       <Link href={`/shop/${product.id}`}>
         <div className="relative overflow-hidden bg-gradient-to-br from-sky-50 to-cyan-50 aspect-square">
+          {!imageLoaded && (
+            <div aria-hidden="true" className="absolute inset-0 z-[1] animate-pulse bg-slate-200" />
+          )}
           {product.badge && (
-            <span className="absolute top-3 left-3 z-10 bg-accent text-white text-xs font-semibold px-3 py-1 rounded-full">
+            <span className={`absolute top-3 left-3 z-10 ${badgeColor} text-white text-xs font-semibold px-3 py-1 rounded-full`}>
               {product.badge}
             </span>
           )}
@@ -138,6 +152,8 @@ export default function ProductCard({ product }: ProductCardProps) {
             fill
             className="object-cover group-hover:scale-110 transition-transform duration-500"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            loading="lazy"
+            onLoad={() => setImageLoaded(true)}
           />
         </div>
       </Link>

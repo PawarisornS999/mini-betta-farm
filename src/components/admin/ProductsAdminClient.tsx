@@ -360,7 +360,7 @@ export default function ProductsAdminClient({
           </button>
         </div>
       </div>
-      <div className="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div id="group-summary-product" className="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {[
           [text("สินค้าทั้งหมด", "All products"), counts.total, "#222"],
           [text("พร้อมขาย", "Available"), counts.available, "#18825e"],

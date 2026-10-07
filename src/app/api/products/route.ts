@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
-import { getProducts } from "@/lib/supabase/queries";
+import { getProductsPage } from "@/lib/supabase/queries";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const products = await getProducts();
+    const url = new URL(request.url);
+    const page = Math.max(1, Number.parseInt(url.searchParams.get("page") || "1", 10) || 1);
+    const pageSize = Math.min(100, Math.max(1, Number.parseInt(url.searchParams.get("pageSize") || "100", 10) || 100));
+    const { products, total } = await getProductsPage(page, pageSize);
     return NextResponse.json({
       success: true,
-      data: { data: products, total: products.length, page: 1, pageSize: products.length, totalPages: 1 },
+      data: { data: products, total, page, pageSize, totalPages: Math.ceil(total / pageSize) },
     });
   } catch (error) {
     console.error("Failed to load products", error);
@@ -16,4 +19,3 @@ export async function GET() {
     );
   }
 }
-

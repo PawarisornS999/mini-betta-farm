@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import BlogCard from "@/components/BlogCard";
 import Footer from "@/sections/Footer";
 import Header from "@/sections/Header";
@@ -24,20 +23,8 @@ export default function BlogPostContent({
   return (
     <>
       <Header />
-      <main className="pt-24 pb-16">
+      <main className="pt-10 pb-16">
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="text-sm text-muted mb-6">
-            <Link href="/" className="hover:text-accent">
-              {t.nav.home}
-            </Link>
-            <span className="mx-2">/</span>
-            <Link href="/blog" className="hover:text-accent">
-              {t.nav.blog}
-            </Link>
-            <span className="mx-2">/</span>
-            <span className="text-foreground">{post.title}</span>
-          </nav>
-
           <header className="mb-8">
             <div className="flex items-center gap-3 mb-4">
               <span className="bg-accent/15 text-accent text-xs font-semibold px-3 py-1 rounded-full">

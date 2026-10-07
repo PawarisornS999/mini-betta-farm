@@ -13,7 +13,7 @@ import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
 import { formatPrice } from "@/lib/utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAngleRight, faGreaterThan } from "@fortawesome/free-solid-svg-icons";
+import { faGreaterThan } from "@fortawesome/free-solid-svg-icons";
 import type { StockStatus } from "@/types";
 
 export default function ProductDetailPage({
@@ -112,23 +112,8 @@ export default function ProductDetailPage({
   return (
     <>
       <Header />
-      <main className="pt-24 pb-16">
+      <main className="pt-10 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Breadcrumb */}
-          <nav className="text-sm text-muted mb-8 font-medium">
-            <Link href="/" className="hover:text-accent">
-              {t.nav.home}
-            </Link>
-            <span className="mx-2">
-              <FontAwesomeIcon icon={faAngleRight} className="w-2 h-2" />
-            </span>
-            <Link href="/shop" className="hover:text-accent">
-              {t.nav.shop}
-            </Link>
-            <span className="mx-2"> <FontAwesomeIcon icon={faAngleRight} className="w-2 h-2" /></span>
-            <span className="text-foreground">{product.name}</span>
-          </nav>
-
           <div className="grid md:grid-cols-2 gap-10">
             {/* Image Gallery */}
             <motion.div

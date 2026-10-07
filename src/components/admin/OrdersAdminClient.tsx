@@ -236,7 +236,7 @@ export default function OrdersAdminClient() {
             placeholder="ค้นหาเลขออเดอร์ ชื่อ เบอร์โทร หรือเลขพัสดุ"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            className="w-full rounded-xl border border-gray-200 p-3 text-sm sm:w-80"
+            className="w-full bg-white rounded-xl border border-gray-200 p-3 text-sm sm:w-80"
           />
         </div>
       </div>
@@ -258,7 +258,15 @@ export default function OrdersAdminClient() {
                 </h3>
                 <p className="text-sm text-gray-500">
                   {order.customerPhone} ·{" "}
-                  {new Date(order.createdAt).toLocaleString("th-TH")}
+                  {new Date(order.createdAt).toLocaleString("th-TH", {
+                    timeZone: "Asia/Bangkok",
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hourCycle: "h23",
+                  })}
                 </p>
               </div>
               <div className="text-right">

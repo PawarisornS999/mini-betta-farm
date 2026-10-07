@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
 import CartSidebar from "@/components/CartSidebar";
+import Breadcrumb from "@/components/Breadcrumb";
 import { useCartStore } from "@/store/cart";
 import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
@@ -12,6 +14,7 @@ import {
   faBars,
   faCartShopping,
   faFishFins,
+  faRightToBracket,
   faUser,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
@@ -22,15 +25,44 @@ export default function Header() {
   const [cartOpen, setCartOpen] = useState(false);
   const [cartBump, setCartBump] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [sessionChecked, setSessionChecked] = useState(false);
   const [lineProfile, setLineProfile] = useState<{ displayName?: string; pictureUrl?: string } | null>(null);
+  const pathname = usePathname();
   const cartItems = useCartStore((s) => s.items);
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const { lang, toggle } = useLangStore();
   const t = getT(lang);
+  const breadcrumbLabels: Record<string, string> = {
+    shop: t.nav.shop,
+    blog: t.nav.blog,
+    about: t.nav.about,
+    contact: t.nav.contact,
+    "how-to-order": lang === "en" ? "How to Order" : "วิธีการสั่งซื้อ",
+    cart: lang === "en" ? "Cart" : "ตะกร้าสินค้า",
+    checkout: lang === "en" ? "Checkout" : "ชำระเงิน",
+    profile: t.nav.profile,
+    orders: lang === "en" ? "My Orders" : "การซื้อของฉัน",
+    tracking: lang === "en" ? "Track Shipment" : "ติดตามพัสดุ",
+  };
+  const breadcrumbItems = pathname === "/" ? [] : [
+    { label: t.nav.home, href: "/" },
+    ...pathname.split("/").filter(Boolean).map((segment, index, segments) => ({
+      label: breadcrumbLabels[segment] ?? (
+        segments[index - 1] === "blog"
+          ? (lang === "en" ? "Article" : "บทความ")
+          : segments[index - 1] === "shop"
+            ? (lang === "en" ? "Product details" : "รายละเอียดสินค้า")
+            : segments[index - 1] === "orders"
+              ? (lang === "en" ? "Order details" : "รายละเอียดคำสั่งซื้อ")
+              : segment
+      ),
+    })),
+  ];
 
   const navLinks = [
     { label: t.nav.home, href: "/" },
     { label: t.nav.shop, href: "/shop" },
+    { label: lang === "en" ? "How to Order" : "วิธีการสั่งซื้อ", href: "/how-to-order" },
     { label: t.nav.blog, href: "/blog" },
     { label: t.nav.about, href: "/about" },
     { label: t.nav.contact, href: "/contact" },
@@ -60,7 +92,8 @@ export default function Header() {
           setLineProfile({ displayName: result.data.displayName, pictureUrl: result.data.pictureUrl });
         }
       })
-      .catch(() => setLineProfile(null));
+      .catch(() => setLineProfile(null))
+      .finally(() => setSessionChecked(true));
   }, []);
 
   useEffect(() => {
@@ -126,31 +159,41 @@ export default function Header() {
                 <span>{lang === "en" ? "TH" : "EN"}</span>
               </motion.button>
 
-              <div className="relative">
-                <button
-                  onClick={() => setUserMenuOpen((open) => !open)}
-                  aria-label={t.nav.profile}
-                  title={t.nav.profile}
-                  className="p-2 rounded-xl hover:bg-foreground/5 hover:text-accent transition-colors"
+              {sessionChecked && (lineProfile ? (
+                <div className="relative">
+                  <button
+                    onClick={() => setUserMenuOpen((open) => !open)}
+                    aria-label={t.nav.profile}
+                    title={lineProfile.displayName || t.nav.profile}
+                    className="p-2 rounded-xl hover:bg-foreground/5 hover:text-accent transition-colors"
+                  >
+                    {lineProfile.pictureUrl ? (
+                      <span
+                        className="block h-7 w-7 rounded-full bg-cover bg-center"
+                        style={{ backgroundImage: `url(${lineProfile.pictureUrl})` }}
+                        aria-label={lineProfile.displayName || "LINE profile"}
+                      />
+                    ) : (
+                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-200">
+                        <FontAwesomeIcon icon={faUser} className="h-4 w-4" />
+                      </span>
+                    )}
+                  </button>
+                  {userMenuOpen && <div className="absolute right-0 top-12 z-50 w-48 rounded-2xl bg-white p-2 shadow-xl ring-1 ring-black/5">
+                    <Link href="/profile" onClick={() => setUserMenuOpen(false)} className="block rounded-xl px-4 py-3 text-sm font-semibold hover:bg-accent/10 hover:text-accent">{t.nav.profile}</Link>
+                    <Link href="/orders" onClick={() => setUserMenuOpen(false)} className="block rounded-xl px-4 py-3 text-sm font-semibold hover:bg-accent/10 hover:text-accent">การซื้อของฉัน</Link>
+                    <button type="button" onClick={() => void logout()} className="block w-full rounded-xl px-4 py-3 text-left text-sm font-semibold text-red-600 hover:bg-red-50">ออกจากระบบ</button>
+                  </div>}
+                </div>
+              ) : (
+                <Link
+                  href="/api/line/login?returnTo=%2F"
+                  className="inline-flex items-center gap-2 rounded-xl bg-green-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-600 sm:px-4"
                 >
-                  {lineProfile?.pictureUrl ? (
-                    <span
-                      className="block h-7 w-7 rounded-full bg-cover bg-center "
-                      style={{ backgroundImage: `url(${lineProfile.pictureUrl})` }}
-                      aria-label={lineProfile.displayName || "LINE profile"}
-                    />
-                  ) : (
-                  <div className="text-center bg-gray-300 p-1 w-7 h-7 rounded-full">
-                      <FontAwesomeIcon icon={faUser} className="w-6 h-6" />
-                  </div>
-                  )}
-                </button>
-                {userMenuOpen && <div className="absolute right-0 top-12 z-50 w-48 rounded-2xl bg-white p-2 shadow-xl ring-1 ring-black/5">
-                  <Link href="/profile" onClick={() => setUserMenuOpen(false)} className="block rounded-xl px-4 py-3 text-sm font-semibold hover:bg-accent/10 hover:text-accent">{t.nav.profile}</Link>
-                  <Link href="/orders" onClick={() => setUserMenuOpen(false)} className="block rounded-xl px-4 py-3 text-sm font-semibold hover:bg-accent/10 hover:text-accent">การซื้อของฉัน</Link>
-                  <button type="button" onClick={() => void logout()} className="block w-full rounded-xl px-4 py-3 text-left text-sm font-semibold text-red-600 hover:bg-red-50">ออกจากระบบ</button>
-                </div>}
-              </div>
+                  <FontAwesomeIcon icon={faRightToBracket} className="h-4 w-4" />
+                  <span>{lang === "en" ? "Log in" : "เข้าสู่ระบบ"}</span>
+                </Link>
+              ))}
 
               <button
                 onClick={() => setCartOpen(true)}
@@ -212,6 +255,12 @@ export default function Header() {
           )}
         </div>
       </motion.header>
+
+      {breadcrumbItems.length > 0 && (
+        <div className="relative z-30 mx-auto max-w-7xl px-4 pt-20 sm:px-6 lg:px-8">
+          <Breadcrumb items={breadcrumbItems} className="mb-0" />
+        </div>
+      )}
 
       <CartSidebar isOpen={cartOpen} onClose={() => setCartOpen(false)} />
     </>

@@ -45,6 +45,7 @@ export default function BaseDropdown<T extends string = string>({
   const dropdownId = id ?? generatedId;
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const touchSelectionRef = useRef(false);
   const selectedOption = options.find((option) => option.value === value);
 
   useEffect(() => {
@@ -55,8 +56,8 @@ export default function BaseDropdown<T extends string = string>({
       )
         setOpen(false);
     };
-    document.addEventListener("mousedown", closeOnOutsideClick);
-    return () => document.removeEventListener("mousedown", closeOnOutsideClick);
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    return () => document.removeEventListener("pointerdown", closeOnOutsideClick);
   }, []);
 
   const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
@@ -72,8 +73,24 @@ export default function BaseDropdown<T extends string = string>({
     setOpen(false);
   };
 
+  const handleOptionClick = (nextValue: T) => {
+    if (touchSelectionRef.current) {
+      touchSelectionRef.current = false;
+      return;
+    }
+    selectOption(nextValue);
+  };
+
+  const handleOptionTouchEnd = (nextValue: T) => {
+    touchSelectionRef.current = true;
+    selectOption(nextValue);
+    window.setTimeout(() => {
+      touchSelectionRef.current = false;
+    }, 700);
+  };
+
   return (
-    <div ref={containerRef} className={`relative ${className}`}>
+    <div ref={containerRef} className={`relative ${open ? "z-50" : "z-0"} ${className}`}>
       {label && (
         <label
           htmlFor={dropdownId}
@@ -105,14 +122,15 @@ export default function BaseDropdown<T extends string = string>({
       {open && (
         <div
           role="listbox"
-          className="absolute left-0 right-0 top-full z-30 mt-2 max-h-60 overflow-auto rounded-xl border border-gray-100 bg-white p-1.5 shadow-lg"
+          className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 overflow-auto rounded-xl border border-gray-100 bg-white p-1.5 shadow-lg"
         >
           {placeholder !== undefined && (
             <button
               type="button"
               role="option"
               aria-selected={value === ""}
-              onClick={() => selectOption("" as T)}
+              onTouchEnd={() => handleOptionTouchEnd("" as T)}
+              onClick={() => handleOptionClick("" as T)}
               className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-accent/10 ${value === "" ? "bg-accent/10 text-accent font-medium" : "text-muted"}`}
             >
               {placeholder}
@@ -124,7 +142,8 @@ export default function BaseDropdown<T extends string = string>({
               type="button"
               role="option"
               aria-selected={option.value === value}
-              onClick={() => selectOption(option.value)}
+              onTouchEnd={() => handleOptionTouchEnd(option.value)}
+              onClick={() => handleOptionClick(option.value)}
               className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-accent/10 ${option.value === value ? "bg-accent/10 text-accent font-medium" : "text-foreground"}`}
             >
               {option.label}

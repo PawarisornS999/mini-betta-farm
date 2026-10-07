@@ -229,7 +229,7 @@ const translations = {
       hoursValue: "Open 24/7",
     },
     about: {
-      title: "About Aurora Betta Farm",
+      title: "About Our Farm",
       subtitle:
         "We are passionate betta fish breeders dedicated to producing healthy, beautiful fish and sharing our knowledge with fellow enthusiasts.",
       ourStory: "Our Story",
@@ -563,7 +563,7 @@ const translations = {
       hoursValue: "เปิดตลอด 24 ชั่วโมง",
     },
     about: {
-      title: "เกี่ยวกับ Aurora Betta Farm",
+      title: "เกี่ยวกับฟาร์มของเรา",
       subtitle:
         "เราคือผู้เพาะเลี้ยงปลากัดที่มีความหลงใหล มุ่งมั่นที่จะผลิตปลาที่มีสุขภาพดีและสวยงาม พร้อมแบ่งปันความรู้แก่เพื่อนๆทุกคน",
       ourStory: "เรื่องราวของเรา",
