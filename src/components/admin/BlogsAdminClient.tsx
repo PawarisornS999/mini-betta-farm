@@ -6,6 +6,8 @@ import type { BlogCategory, BlogPost } from "@/types";
 import BaseDropdown from "../BaseDropdown";
 import Modal from "../Modal";
 import { adminText, useAdminLanguage } from "./LanguageProvider";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
 
 type BlogDraft = {
   id?: string;
@@ -323,7 +325,7 @@ export default function BlogsAdminClient({
         <div className="flex flex-col gap-3 border-b border-black/6 p-4 sm:flex-row">
           <div className="relative flex-1">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#99998f]">
-              ⌕
+              <FontAwesomeIcon icon={faSearch} className="w-4 h-4" />
             </span>
             <input
               value={search}

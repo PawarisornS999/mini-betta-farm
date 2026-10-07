@@ -507,9 +507,7 @@ export default function CheckoutPage() {
                     {submitError}
                   </p>
                 )}
-                <p className="text-xs text-muted text-center mt-3">
-                  {t.lineNote}
-                </p>
+                
               </div>
             </div>
           </div>

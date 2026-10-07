@@ -67,6 +67,8 @@ export default function Header() {
     { label: t.nav.about, href: "/about" },
     { label: t.nav.contact, href: "/contact" },
   ];
+  const isNavActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
 
   useEffect(() => {
     void useCartStore.persist.rehydrate();
@@ -137,7 +139,8 @@ export default function Header() {
                 <Link
                   key={link.label}
                   href={link.href}
-                  className="text-sm font-medium text-foreground/70 hover:text-accent transition-colors duration-200"
+                  aria-current={isNavActive(link.href) ? "page" : undefined}
+                  className={`text-sm font-medium transition-colors duration-200 ${isNavActive(link.href) ? "text-accent" : "text-foreground/70 hover:text-accent"}`}
                 >
                   {link.label}
                 </Link>
@@ -236,7 +239,8 @@ export default function Header() {
                   key={link.label}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className="block px-4 p-2.5 text-sm font-medium text-foreground/70 hover:text-accent transition-colors"
+                  aria-current={isNavActive(link.href) ? "page" : undefined}
+                  className={`block rounded-lg px-4 p-2.5 text-sm font-medium transition-colors ${isNavActive(link.href) ? "bg-accent/10 text-accent" : "text-foreground/70 hover:text-accent"}`}
                 >
                   {link.label}
                 </Link>

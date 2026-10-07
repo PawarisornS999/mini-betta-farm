@@ -7,6 +7,8 @@ import { maximumStockDecrease } from "@/lib/inventory";
 import { adminText, useAdminLanguage } from "./LanguageProvider";
 import BaseDropdown from "../BaseDropdown";
 import Modal from "../Modal";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
 
 type FormState = {
   id?: string;
@@ -68,11 +70,12 @@ function statusClass(status?: string) {
 }
 
 function productToForm(product: Product): FormState {
+  const sku = product.sku ?? "";
   return {
     id: product.id,
     name: product.name,
-    sku: product.sku ?? "",
-    slug: product.slug ?? "",
+    sku,
+    slug: sku.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
     price: String(product.price),
     cost: String(product.cost ?? 0),
     category: product.category ?? "betta-fish",
@@ -102,6 +105,9 @@ export default function ProductsAdminClient({
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<(typeof statuses)[number]>("all");
   const [form, setForm] = useState<FormState | null>(null);
+  const [invalidFields, setInvalidFields] = useState<string[]>([]);
+  const [showRequiredModal, setShowRequiredModal] = useState(false);
+  const [requiredModalMessage, setRequiredModalMessage] = useState("");
   const [stockProduct, setStockProduct] = useState<Product | null>(null);
   const [deleteProductTarget, setDeleteProductTarget] = useState<Product | null>(null);
   const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
@@ -150,55 +156,63 @@ export default function ProductsAdminClient({
   const projectedStock = stockOperation === "decrease"
     ? currentStock - (Number.isFinite(adjustmentQuantity) ? adjustmentQuantity : 0)
     : currentStock + (Number.isFinite(adjustmentQuantity) ? adjustmentQuantity : 0);
+  const formImageUrls = form?.images.split("\n").map((url) => url.trim()).filter(Boolean) ?? [];
 
   function showToast(message: string) {
     setToast(message);
     window.setTimeout(() => setToast(""), 2600);
   }
   function setField<K extends keyof FormState>(key: K, value: FormState[K]) {
-    setForm((current) => (current ? { ...current, [key]: value } : current));
+    setInvalidFields((current) => current.filter((field) => field !== key));
+    setForm((current) => {
+      if (!current) return current;
+      if (key === "sku") {
+        const sku = String(value).toUpperCase();
+        const slug = sku.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+        return { ...current, sku, slug };
+      }
+      return { ...current, [key]: value };
+    });
   }
 
-  async function uploadImage(file: File) {
-    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+  async function uploadImages(files: File[]) {
+    if (!files.length) return;
+    if (files.some((file) => !["image/jpeg", "image/png", "image/webp"].includes(file.type))) {
       setError(text("รองรับเฉพาะไฟล์ JPG, PNG หรือ WebP", "Only JPG, PNG, or WebP files are supported"));
       return;
     }
-    if (file.size > 10 * 1024 * 1024) {
-      setError(text("รูปภาพต้องมีขนาดไม่เกิน 10 MB", "Image must not exceed 10 MB"));
+    if (files.some((file) => file.size > 10 * 1024 * 1024)) {
+      setError(text("รูปภาพแต่ละไฟล์ต้องมีขนาดไม่เกิน 10 MB", "Each image must be 10 MB or less"));
       return;
     }
 
     setUploading(true);
     setError("");
     try {
-      const data = new FormData();
-      data.append("file", file);
-      const response = await fetch("/api/admin/media", {
-        method: "POST",
-        body: data,
-      });
-      const body = (await response.json().catch(() => null)) as {
-        message?: string;
-        data?: { url?: string };
-      } | null;
-      if (!response.ok || !body?.data?.url) {
-        throw new Error(
-          body?.message ?? text(`อัปโหลดรูปไม่สำเร็จ (${response.status})`, `Image upload failed (${response.status})`),
-        );
+      const uploadedUrls: string[] = [];
+      for (const file of files) {
+        const data = new FormData();
+        data.append("file", file);
+        const response = await fetch("/api/admin/media", { method: "POST", body: data });
+        const body = (await response.json().catch(() => null)) as {
+          message?: string;
+          data?: { url?: string };
+        } | null;
+        if (!response.ok || !body?.data?.url) {
+          throw new Error(body?.message ?? text(`อัปโหลดรูปไม่สำเร็จ (${response.status})`, `Image upload failed (${response.status})`));
+        }
+        uploadedUrls.push(body.data.url);
       }
-      const imageUrl = body.data.url;
       setForm((current) =>
         current
           ? {
               ...current,
-              images: [current.images.trim(), imageUrl]
-                .filter(Boolean)
-                .join("\n"),
+              images: [...new Set([...current.images.split("\n").map((url) => url.trim()).filter(Boolean), ...uploadedUrls])].join("\n"),
             }
           : current,
       );
-      showToast(text("อัปโหลดรูปสินค้าแล้ว", "Product image uploaded"));
+      setInvalidFields((current) => current.filter((field) => field !== "images"));
+      showToast(text(`อัปโหลดรูปสินค้า ${uploadedUrls.length} รูปแล้ว`, `Uploaded ${uploadedUrls.length} product image(s)`));
     } catch (uploadError) {
       setError(
         uploadError instanceof Error
@@ -213,8 +227,32 @@ export default function ProductsAdminClient({
   async function saveProduct(event: FormEvent) {
     event.preventDefault();
     if (!form) return;
-    setSaving(true);
     setError("");
+    const requiredFields = ["name", "sku", "slug", "category", "price", "stockQty"] as const;
+    const missingFields = requiredFields.filter((field) => !String(form[field] ?? "").trim());
+    const imageUrls = form.images.split("\n").map((url) => url.trim()).filter(Boolean);
+    const hasInvalidImageUrl = imageUrls.some((value) => {
+      try {
+        const url = new URL(value);
+        return url.protocol !== "http:" && url.protocol !== "https:";
+      } catch {
+        return true;
+      }
+    });
+    if (missingFields.length || imageUrls.length === 0 || hasInvalidImageUrl) {
+      setInvalidFields([...missingFields, ...(imageUrls.length === 0 || hasInvalidImageUrl ? ["images"] : [])]);
+      setRequiredModalMessage(
+        imageUrls.length === 0
+          ? text("กรุณาเพิ่มรูปสินค้าอย่างน้อย 1 รูปก่อนบันทึก", "Add at least one product image before saving.")
+          : hasInvalidImageUrl
+            ? text("URL รูปสินค้าต้องเป็นลิงก์ HTTP หรือ HTTPS ที่ถูกต้อง", "Product image URLs must be valid HTTP or HTTPS links.")
+            : text("ช่องที่ยังไม่ได้กรอกถูกไฮไลต์ด้วยกรอบสีแดงแล้ว", "The missing fields are highlighted in red."),
+      );
+      setShowRequiredModal(true);
+      return;
+    }
+    setInvalidFields([]);
+    setSaving(true);
     const payload = {
       ...form,
       price: Number(form.price),
@@ -352,6 +390,7 @@ export default function ProductsAdminClient({
           <button
             onClick={() => {
               setError("");
+              setInvalidFields([]);
               setForm({ ...emptyForm });
             }}
             className="rounded-xl bg-gradient-to-r from-[#d79639] to-[#ba6c22] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-orange-900/15"
@@ -387,7 +426,7 @@ export default function ProductsAdminClient({
         <div className="flex flex-col gap-3 border-b border-black/6 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative flex-1 sm:max-w-md">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#99998f]">
-              ⌕
+              <FontAwesomeIcon icon={faSearch} className="w-4 h-4" />
             </span>
             <input
               value={search}
@@ -505,6 +544,7 @@ export default function ProductsAdminClient({
                       <button
                         onClick={() => {
                           setError("");
+                          setInvalidFields([]);
                           setForm(productToForm(product));
                         }}
                         className="rounded-lg border border-black/8 px-3 py-2 text-xs font-semibold hover:border-[#d28a31] hover:text-[#a86524]"
@@ -564,7 +604,10 @@ export default function ProductsAdminClient({
               </div>
               <div className="mt-3 flex gap-2">
                 <button
-                  onClick={() => setForm(productToForm(product))}
+                  onClick={() => {
+                    setInvalidFields([]);
+                    setForm(productToForm(product));
+                  }}
                   className="flex-1 rounded-lg bg-[#20201e] py-2 text-xs font-semibold text-white"
                 >
                   {text("แก้ไข", "Edit")}
@@ -611,6 +654,7 @@ export default function ProductsAdminClient({
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/55 p-0 backdrop-blur-sm sm:items-center sm:p-6">
           <form
             onSubmit={saveProduct}
+            noValidate
             className="max-h-[94vh] w-full max-w-4xl overflow-y-auto rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl"
           >
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-black/6 bg-white/95 px-6 py-5 backdrop-blur">
@@ -634,38 +678,33 @@ export default function ProductsAdminClient({
               <div className="space-y-6">
                 <FormSection title={text("ข้อมูลสินค้า", "Product information")}>
                   <Field label={text("ชื่อสินค้า *", "Product name *")}>
-                    <input
-                      required
-                      value={form.name}
-                      onChange={(e) => setField("name", e.target.value)}
-                      className="input-admin"
+                      <input
+                        value={form.name}
+                        onChange={(e) => setField("name", e.target.value)}
+                        className={`input-admin ${invalidFields.includes("name") ? "!border-red-500 focus:!border-red-500 focus:!ring-red-500/20" : ""}`}
                     />
                   </Field>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Field label="SKU *">
                       <input
-                        required
                         value={form.sku}
-                        onChange={(e) =>
-                          setField("sku", e.target.value.toUpperCase())
-                        }
-                        className="input-admin font-mono"
+                        onChange={(e) => setField("sku", e.target.value)}
+                        className={`input-admin font-mono ${invalidFields.includes("sku") ? "!border-red-500 focus:!border-red-500 focus:!ring-red-500/20" : ""}`}
                       />
                       <span className="text-[8px] text-[#8b8174] whitespace-nowrap">{`รหัสตัวอย่าง : [ตัวย่อสายพันธุ์][เพศ][ตัวเลข] เช่น DBM01`}</span>
                     </Field>
                     <Field label={text("ชื่อ URL *", "URL slug *")}>
                       <input
-                        required
                         value={form.slug}
                         onChange={(e) => setField("slug", e.target.value)}
-                        className="input-admin"
+                        className={`input-admin ${invalidFields.includes("slug") ? "!border-red-500" : ""}`}
                       />
-                      <span className="text-[8px] text-[#8b8174] whitespace-nowrap">{`ชื่อ URL ต้องเป็นตัวอักษรภาษาอังกฤษและตัวเลขเท่านั้น`}</span>
+                      <span className="text-[8px] text-[#8b8174] whitespace-nowrap">{text("สร้างจาก SKU อัตโนมัติ และแก้ไขได้", "Generated from SKU and can be edited")}</span>
                     </Field>
                   </div>
                   <div className="flex flex-col gap-4">
                       <Field label={text("หมวดหมู่ *", "Category *")}>
-                        <BaseDropdown value={form.category} onChange={(value) => setField("category", value)} options={categories.filter((category) => category.isActive !== false).map((category) => ({ value: category.slug, label: category.name }))} />
+                        <BaseDropdown className={invalidFields.includes("category") ? "[&_button]:!border-red-500" : ""} value={form.category} onChange={(value) => setField("category", value)} options={categories.filter((category) => category.isActive !== false).map((category) => ({ value: category.slug, label: category.name }))} />
                       </Field>
                     <Field label={text("เพศ", "Gender")}>
                       <BaseDropdown
@@ -706,33 +745,44 @@ export default function ProductsAdminClient({
                     <input
                       type="file"
                       accept="image/jpeg,image/png,image/webp"
+                      multiple
                       className="sr-only"
                       disabled={uploading}
                       onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) void uploadImage(file);
+                        const files = Array.from(e.target.files ?? []);
+                        if (files.length) void uploadImages(files);
                         e.target.value = "";
                       }}
                     />
                   </label>
                   <p className="text-xs text-[#8a8a82]">
-                    {text("สูงสุด 10 MB และเก็บใน Supabase Storage", "Maximum 10 MB, stored in Supabase Storage")}
+                    {text("เลือกได้หลายรูป · JPG, PNG หรือ WebP · รูปละไม่เกิน 10 MB", "Select multiple images · JPG, PNG, or WebP · up to 10 MB each")}
                   </p>
-                  <Field label={text("URL รูปภาพ (หนึ่งรายการต่อบรรทัด)", "Image URLs (one per line)")}>
+                  <Field label={text("URL รูปสินค้า * (หนึ่งรายการต่อบรรทัด)", "Product image URLs * (one per line)")}>
                     <textarea
                       rows={4}
                       value={form.images}
                       onChange={(e) => setField("images", e.target.value)}
                       placeholder="https://.../betta.webp"
-                      className="input-admin resize-none font-mono text-xs"
+                      className={`input-admin resize-none font-mono text-xs ${invalidFields.includes("images") ? "!border-red-500 focus:!border-red-500 focus:!ring-red-500/20" : ""}`}
                     />
                   </Field>
-                  {form.images.split("\n").filter(Boolean)[0] && (
-                    <img
-                      src={form.images.split("\n").filter(Boolean)[0]}
-                      alt="Preview"
-                      className="h-48 w-full rounded-xl bg-[#f1eee8] object-cover"
-                    />
+                  {formImageUrls.length > 0 && (
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                      {formImageUrls.map((url, index) => (
+                        <div key={`${url}-${index}`} className="relative overflow-hidden rounded-xl bg-[#f1eee8]">
+                          <img src={url} alt={`${text("ตัวอย่างรูปสินค้า", "Product image preview")} ${index + 1}`} className="h-36 w-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => setField("images", formImageUrls.filter((_, imageIndex) => imageIndex !== index).join("\n"))}
+                            aria-label={text(`ลบรูปที่ ${index + 1}`, `Remove image ${index + 1}`)}
+                            className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-black/65 text-sm font-bold text-white hover:bg-red-600"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </FormSection>
               </div>
@@ -741,12 +791,11 @@ export default function ProductsAdminClient({
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
                     <Field label={text("ราคา (บาท) *", "Price (THB) *")}>
                       <input
-                        required
                         min="0"
                         type="number"
                         value={form.price}
                         onChange={(e) => setField("price", e.target.value)}
-                        className="input-admin"
+                        className={`input-admin ${invalidFields.includes("price") ? "!border-red-500 focus:!border-red-500 focus:!ring-red-500/20" : ""}`}
                       />
                     </Field>
                     <Field label={text("ต้นทุน (บาท)", "Cost (THB)")}>
@@ -761,13 +810,12 @@ export default function ProductsAdminClient({
                     </Field>
                     <Field label={text("สต็อก *", "Stock *")}>
                       <input
-                        required
                         min="0"
                         step="1"
                         type="number"
                         value={form.stockQty}
                         onChange={(e) => setField("stockQty", e.target.value)}
-                        className="input-admin"
+                        className={`input-admin ${invalidFields.includes("stockQty") ? "!border-red-500 focus:!border-red-500 focus:!ring-red-500/20" : ""}`}
                         disabled={Boolean(form.id)}
                       />
                       {form.id && (
@@ -964,6 +1012,14 @@ export default function ProductsAdminClient({
           </form>
         </div>
       )}
+      <Modal
+        isOpen={showRequiredModal}
+        onClose={() => setShowRequiredModal(false)}
+        title={text("กรุณากรอกข้อมูลให้ครบ", "Please complete the required fields")}
+        description={requiredModalMessage || text("ช่องที่ยังไม่ได้กรอกถูกไฮไลต์ด้วยกรอบสีแดงแล้ว", "The missing fields are highlighted in red.")}
+        variant="warning"
+        cancelText={text("รับทราบ", "Got it")}
+      />
       <Modal
         isOpen={Boolean(error)}
         onClose={() => setError("")}

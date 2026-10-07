@@ -248,7 +248,7 @@ export default function ProductDetailPage({
                   : isOutOfStock
                   ? t.product.outOfStock
                   : alreadyInCart
-                    ? "Already in cart"
+                    ? t.product.alreadyInCart
                     : t.product.addToCart}
               </button>
             </motion.div>

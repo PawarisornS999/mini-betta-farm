@@ -194,9 +194,7 @@ const translations = {
       shipping: "Shipping",
       shippingCalc: "Calculated by seller",
       total: "Total",
-      orderViaLine: "Send Order via LINE OA ",
-      lineNote:
-        "Your order details will be sent to our LINE OA for processing.",
+      orderViaLine: "Order via LINE",
       itemsSuffix: "items",
       liveArrivalGuarantee: "Live Arrival Guarantee",
       descriptionLiveArrivalGuarantee:
@@ -532,8 +530,7 @@ const translations = {
       shipping: "ค่าจัดส่ง",
       shippingCalc: "คำนวณโดยผู้ขาย",
       total: "ยอดรวม",
-      orderViaLine: "สั่งซื้อผ่าน LINE OA ",
-      lineNote: "รายละเอียดคำสั่งซื้อจะถูกส่งไปยัง LINE OA ของเรา",
+      orderViaLine: "สั่งซื้อผ่าน LINE",
       itemsSuffix: "ตัว",
       liveArrivalGuarantee: "รับประกันปลาถึงมือคุณ",
       descriptionLiveArrivalGuarantee:"ปลาทุกตัวจะถูกบรรจุอย่างระมัดระวังด้วยถุงออกซิเจนและบรรจุภัณฑ์ฉนวน\nเราประกันการส่งถึงมือคุณหรือเงินคืน"

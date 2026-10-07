@@ -2,6 +2,7 @@
 "use client";
 
 import Link from "next/link";
+import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import type { Product } from "@/types";
 import SalesChart from "@/components/admin/SalesChart";
 import { adminText, useAdminLanguage } from "./LanguageProvider";
@@ -9,7 +10,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBoxOpen,
   faFish,
-  faClock,
   faMoneyBillWave,
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -28,16 +28,14 @@ export default function DashboardAdminClient({
   const { language } = useAdminLanguage();
   const text = (th: string, en: string) => adminText(language, th, en);
   const available = products.filter((p) => p.adminStatus === "available").length;
-  const reserved = products.filter((p) => p.adminStatus === "reserved").length;
   const sold = products.filter((p) => p.adminStatus === "sold").length;
   const lowStock = products.filter(
     (p) => (p.stockQty ?? 0) <= 3 && (p.stockQty ?? 0) > 0,
   );
-  const cards = [
-    [text("สินค้าทั้งหมด", "Total products"), products.length, faBoxOpen, text("สินค้าทั้งหมดในระบบ", "All catalog records")],
-    [text("ปลาพร้อมขาย", "Available fish"), available, faFish, text("พร้อมแสดงให้ลูกค้าสั่งซื้อ", "Ready for customers")],
-    [text("จองแล้ว", "Reserved"), reserved, faClock, text("กำลังรอการชำระเงิน", "Awaiting payment")],
-    [text("รายรับรวม", "Total revenue"), `฿${revenue.total.toLocaleString()}`, faMoneyBillWave, text(`${revenue.orders} ออเดอร์ที่ชำระแล้ว`, `${revenue.orders} paid orders`)],
+  const cards: Array<{ label: string; value: string | number; icon: IconDefinition; note: string }> = [
+    { label: text("สินค้าทั้งหมด", "Total products"), value: products.length, icon: faBoxOpen, note: text("สินค้าทั้งหมดในระบบ", "All catalog records") },
+    { label: text("ปลาพร้อมขาย", "Available fish"), value: available, icon: faFish, note: text("พร้อมแสดงให้ลูกค้าสั่งซื้อ", "Ready for customers") },
+    { label: text("รายรับรวม", "Total revenue"), value: `฿${revenue.total.toLocaleString()}`, icon: faMoneyBillWave, note: text(`${revenue.orders} ออเดอร์ที่ชำระแล้ว`, `${revenue.orders} paid orders`) },
   ];
 
   return (
@@ -56,8 +54,8 @@ export default function DashboardAdminClient({
         </Link>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {cards.map(([label, value, icon, note]) => (
-          <div key={String(label)} className="rounded-2xl border border-black/6 bg-white p-5 shadow-sm">
+        {cards.map(({ label, value, icon, note }) => (
+          <div key={label} className="rounded-2xl border border-black/6 bg-white p-5 shadow-sm">
             <div className="flex items-start justify-between">
               <p className="text-sm font-medium text-[#73736c]">{label}</p>
               <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#f6ead8] text-[#ac6826]">
@@ -69,11 +67,11 @@ export default function DashboardAdminClient({
           </div>
         ))}
       </div>
-      <SalesChart dailySales={revenue.dailySales} monthlySales={revenue.monthlySales} />
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1.5fr_1fr]">
+    
+      <div id="recent-updates" className="mt-6 grid gap-6 lg:grid-cols-[1.5fr_1fr]">
         <section className="rounded-2xl border border-black/6 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
-            <div>
+            <div id="recent-updates-header">
               <h3 className="font-bold">{text("อัปเดตล่าสุด", "Recently updated")}</h3>
               <p className="text-sm text-[#85857d]">{text("สินค้าที่มีการแก้ไขล่าสุด", "Recently modified products")}</p>
             </div>
@@ -81,7 +79,7 @@ export default function DashboardAdminClient({
               {text("ดูทั้งหมด", "View all")}
             </Link>
           </div>
-          <div className="mt-5 divide-y divide-black/5">
+          <div id="recent-product" className="mt-5 divide-y divide-black/5">
             {products.slice(0, 6).map((product) => (
               <div key={product.id} className="flex items-center gap-4 py-3">
                 <div className="h-12 w-12 overflow-hidden rounded-xl bg-[#efe9df]">
@@ -117,6 +115,7 @@ export default function DashboardAdminClient({
           </div>
         </section>
       </div>
+        <SalesChart dailySales={revenue.dailySales} monthlySales={revenue.monthlySales} />
     </div>
   );
 }

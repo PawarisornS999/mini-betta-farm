@@ -9,7 +9,7 @@ import {
   shortOrderId,
   type OrderAction,
 } from "@/lib/orders/workflow";
-import { faBasketShopping } from "@fortawesome/free-solid-svg-icons";
+import { faBasketShopping, faCheck, faCircle, faCopy } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import BaseDropdown from "@/components/BaseDropdown";
 
@@ -73,6 +73,34 @@ export default function OrdersAdminClient() {
   const [trackingTarget, setTrackingTarget] = useState<Order | null>(null);
   const [trackingValue, setTrackingValue] = useState("");
   const [trackingError, setTrackingError] = useState("");
+  const [copiedAddressOrderId, setCopiedAddressOrderId] = useState<string | null>(null);
+
+  async function copyCustomerAddress(order: Order) {
+    const shippingDetails = [
+      `ชื่อผู้รับ: ${order.customerName}`,
+      `เบอร์โทร: ${order.customerPhone}`,
+      `ที่อยู่: ${order.customerAddress || "ไม่ระบุ"}`,
+    ].join("\n");
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shippingDetails);
+      } else {
+        const input = document.createElement("textarea");
+        input.value = shippingDetails;
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        const copied = document.execCommand("copy");
+        input.remove();
+        if (!copied) throw new Error("Copy failed");
+      }
+      setCopiedAddressOrderId(order.id);
+      window.setTimeout(() => setCopiedAddressOrderId((current) => current === order.id ? null : current), 2000);
+    } catch {
+      setError("คัดลอกที่อยู่ไม่สำเร็จ กรุณาคัดลอกด้วยตนเอง");
+    }
+  }
 
   async function load() {
     try {
@@ -231,12 +259,13 @@ export default function OrdersAdminClient() {
             ariaLabel="กรองตามสถานะสินค้า"
             className="w-full sm:w-52"
           />
+          
           <input
             aria-label="ค้นหาออเดอร์"
             placeholder="ค้นหาเลขออเดอร์ ชื่อ เบอร์โทร หรือเลขพัสดุ"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            className="w-full bg-white rounded-xl border border-gray-200 p-3 text-sm sm:w-80"
+            className="w-full h-[42px] bg-white rounded-xl border border-gray-200 p-3 text-sm sm:w-80"
           />
         </div>
       </div>
@@ -296,9 +325,20 @@ export default function OrdersAdminClient() {
               <p className="mt-2">
                 ค่าส่ง {formatMoney(order.shippingFee || 0)}
               </p>
-              <p className="mt-2 text-gray-600">
-                ที่อยู่: {order.customerAddress || "ไม่ระบุ"}
-              </p>
+              <div className="mt-2 flex flex-wrap items-start gap-2 text-gray-600">
+                <p className="min-w-0 flex-1">ที่อยู่: {order.customerAddress || "ไม่ระบุ"}</p>
+                {(order.customerName || order.customerPhone || order.customerAddress) && (
+                  <button
+                    type="button"
+                    onClick={() => void copyCustomerAddress(order)}
+                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-gray-100 px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-200"
+                    aria-label="คัดลอกชื่อ เบอร์โทร และที่อยู่ลูกค้า"
+                  >
+                    <FontAwesomeIcon icon={copiedAddressOrderId === order.id ? faCheck : faCopy} />
+                    {copiedAddressOrderId === order.id ? "คัดลอกแล้ว" : "คัดลอกข้อมูลจัดส่ง"}
+                  </button>
+                )}
+              </div>
               {order.notes && <p>หมายเหตุ: {order.notes}</p>}
               {order.trackingNumber && (
                 <p className="mt-3 rounded-xl bg-blue-50 px-3 py-2 font-mono text-sm font-semibold text-blue-800">
@@ -460,7 +500,7 @@ function OrderStepper({ order }: { order: Order }) {
                 <span className={`absolute left-[13px] top-7 h-[calc(100%-0.25rem)] w-0.5 ${complete ? "bg-emerald-400" : "bg-gray-200"}`} />
               )}
               <span className={`relative z-10 grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-bold ${complete ? "bg-emerald-500 text-white" : current ? "bg-amber-500 text-white ring-4 ring-amber-100" : "bg-gray-200 text-gray-500"}`}>
-                {complete ? "✓" : index + 1}
+                <FontAwesomeIcon icon={complete ? faCheck : faCircle} className="w-3 h-3" />
               </span>
               <div>
                 <p className={`text-sm font-bold ${complete ? "text-emerald-700" : current ? "text-amber-700" : "text-gray-500"}`}>{step.title}</p>
