@@ -1,0 +1,21 @@
+src/app/api/orders/checkout/route.ts
+  s_17475018c0d18a::t_d7b96c61d96777 78-83
+src/app/orders/[id]/OrderStatusClient.tsx
+  s_17475018c0d18a::t_b286243690a85d 6,232-233
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.3",
+  "base_commit_sha": "88cf0cbdd4eefc3624557e17e92ba5dcc28d2b8c",
+  "prompts": {},
+  "sessions": {
+    "s_17475018c0d18a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1176d-9aeb-7b53-87d6-5b7fb54a8ffa",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Pawarisorn <pawarisorn.son@axonstech.com>"
+    }
+  }
+}
