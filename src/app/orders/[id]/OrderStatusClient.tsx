@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck, faCloudArrowUp, faFileImage, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCloudArrowUp, faCreditCard, faFileImage, faXmark } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import Header from "@/sections/Header";
 import Footer from "@/sections/Footer";
@@ -229,7 +229,8 @@ export default function OrderStatusClient({ id }: { id: string }) {
               )}
 
               <section className="rounded-2xl bg-gradient-to-r from-emerald-50 to-green-100 px-5 py-5 text-center">
-                <p className="text-sm font-semibold text-slate-500">
+                <p className="flex items-center justify-center gap-2 text-sm font-semibold text-slate-500">
+                  <FontAwesomeIcon icon={faCreditCard} aria-hidden="true" />
                   {payable ? text("ยอดที่ต้องชำระ", "Amount due") : text("ยอดรวมคำสั่งซื้อ", "Order total")}
                 </p>
                 <p className="mt-1 text-4xl font-extrabold text-green-600">

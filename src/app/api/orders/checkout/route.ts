@@ -3,7 +3,6 @@ import { supabaseRest } from "@/lib/supabase/rest";
 import type { CheckoutPayload, Order } from "@/types";
 import { customerOrderFlexMessage, formatOrderNotification, orderFlexMessage, pushLineFlex, pushLineMessage } from "@/lib/line/messaging";
 import { getLineFriendship, getLineSession, LINE_SESSION_COOKIE } from "@/lib/line/login";
-import { orderCustomerUrl } from "@/lib/orders/workflow";
 import { saveCustomerProfile } from "@/lib/customer/profile";
 import { validateCustomerProfile } from "@/lib/customer/profile-validation";
 
@@ -76,13 +75,12 @@ export async function POST(request: Request) {
 
     if (process.env.LINE_CHANNEL_ACCESS_TOKEN && order.customerToken) {
       try {
-        await pushLineFlex(
-          lineSession.userId,
-          customerOrderFlexMessage(
-            order,
-            orderCustomerUrl(order.id),
-          ),
-        );
+        const returnTo = `/orders/${encodeURIComponent(order.id)}`;
+        const paymentUrl = new URL(
+          `/api/line/login?returnTo=${encodeURIComponent(returnTo)}`,
+          request.url,
+        ).toString();
+        await pushLineFlex(lineSession.userId, customerOrderFlexMessage(order, paymentUrl));
       } catch (lineError) {
         console.error("LINE customer order notification failed", lineError);
       }
