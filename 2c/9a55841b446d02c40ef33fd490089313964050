@@ -1,0 +1,92 @@
+src/sections/Header.tsx
+  s_17475018c0d18a::t_1c3e6353b55ead 17,28,95-96,162-189,191,193-196
+  s_17475018c0d18a::t_9a6493f5d38406 5,8,30,35-60,259-263
+  s_17475018c0d18a::t_20b09585580833 65
+  s_17475018c0d18a::t_a93b4ce50d06b3 190
+  s_17475018c0d18a::t_d41e57c15deb55 264
+src/app/api/products/route.ts
+  s_17475018c0d18a::t_b45b25b3654c62 8
+  s_17475018c0d18a::t_eb1440febc16b9 2,4,6-7,9,12
+src/lib/supabase/queries.ts
+  s_17475018c0d18a::t_eb1440febc16b9 13-26
+src/app/api/orders/[id]/slip/route.ts
+  s_17475018c0d18a::t_d2637f5eefb54d 55
+  s_17475018c0d18a::t_84b2d8fc9b7adb 53-54,56-57,59-63,65-67
+  s_17475018c0d18a::t_380756fec56279 58
+  s_17475018c0d18a::t_1bd4245a858692 64
+src/app/shop/[id]/page.tsx
+  s_17475018c0d18a::t_1a53ac54d3a929 16
+src/components/admin/DashboardAdminClient.tsx
+  s_17475018c0d18a::t_0e10ed19e58a95 6,72
+  s_17475018c0d18a::t_e1ba55095f4522 9-14,37-40,63-65
+  s_17475018c0d18a::t_2d84fe9ad98446 21-26
+  s_17475018c0d18a::t_cd5b7ea6c7134c 8
+src/components/Breadcrumb.tsx
+  s_17475018c0d18a::t_27c0b8ac777449 3-22,24-28,30-35,37-45
+  s_17475018c0d18a::t_53af7f7c290df7 1-2
+  s_17475018c0d18a::t_eeb3bbd7cc1a22 23
+  s_17475018c0d18a::t_0647d3e5f3b563 29
+  s_17475018c0d18a::t_5c2f6f4f439ae1 36
+src/components/ProductCard.tsx
+  s_17475018c0d18a::t_f9834435fb11b5 28,129-131,155-156
+  s_17475018c0d18a::t_17fbc57b7e0338 37-40,42-46,133
+  s_17475018c0d18a::t_60e53ece38b795 41
+src/app/orders/page.tsx
+  s_17475018c0d18a::t_6333db734e88dd 180-187
+  s_17475018c0d18a::t_a2425f6ff249c8 15,42
+  s_17475018c0d18a::t_26cfa38f5b80a9 12,195-205
+  s_abd4a5f5fb572f::t_bb4026f352fc4d 206-208
+  s_17475018c0d18a::t_aa7785073f0b61 13,40,179
+  s_17475018c0d18a::t_4fac6935917d30 178
+  s_17475018c0d18a::t_d7b54fda692f7c 188
+  s_17475018c0d18a::t_75884d67133a5a 176
+src/components/LazyProductCard.tsx
+  s_17475018c0d18a::t_f9834435fb11b5 1-34
+src/components/admin/OrdersAdminClient.tsx
+  s_17475018c0d18a::t_8f4579ae903911 261-269
+src/app/how-to-order/page.tsx
+  s_17475018c0d18a::t_0da65eff65a447 60,62-69
+  s_17475018c0d18a::t_f93874a29816cb 1-35,37-43,45-59,61,70-113
+  s_17475018c0d18a::t_cb64016c573cb4 36
+  s_17475018c0d18a::t_3373978ba6b609 44
+package.json
+  s_17475018c0d18a::t_7f5e0f2e4d741c 22
+src/app/shop/page.tsx
+  s_17475018c0d18a::t_ba66fba9381168 3,8,15-17,20-28,48-88,115,122,189,208-222
+  s_17475018c0d18a::t_f943b747468207 128,186
+  s_17475018c0d18a::t_f9834435fb11b5 6
+  s_17475018c0d18a::t_b45b25b3654c62 194-206
+src/lib/admin/products.ts
+  s_17475018c0d18a::t_a2a03f2a184b52 13-24,27-62,64-67
+src/components/BaseDropdown.tsx
+  s_17475018c0d18a::t_a3a53f92c76de7 48,59-60,76-91,132-133,145-146
+  s_17475018c0d18a::t_f943b747468207 93,125
+src/components/admin/SalesChart.tsx
+  s_17475018c0d18a::t_b619c311dc43e4 1-115
+package-lock.json
+  s_17475018c0d18a::t_e7b822b7795be5 20,2705-2730,2738-2749,3053-3115,3175-3180,4477-4485,4587-4707,4795-4800,5129-5140,5579-5584,6144-6153,6211-6219,8247-8269,8282-8326,8445-8450,9257-9262,9645-9675
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.3",
+  "base_commit_sha": "2c9a55841b446d02c40ef33fd490089313964050",
+  "prompts": {},
+  "sessions": {
+    "s_17475018c0d18a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1176d-9aeb-7b53-87d6-5b7fb54a8ffa",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Pawarisorn <pawarisorn.son@axonstech.com>"
+    },
+    "s_abd4a5f5fb572f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0fd52-56cc-7ad1-8d57-0c82307ac68f",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Pawarisorn <pawarisorn.son@axonstech.com>"
+    }
+  }
+}
