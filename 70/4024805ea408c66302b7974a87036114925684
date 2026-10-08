@@ -1,0 +1,48 @@
+src/app/how-to-order/page.tsx
+  s_0baef67d09b0e8::t_d42dc57580edb6 89-103
+src/components/admin/OrdersAdminClient.tsx
+  s_0baef67d09b0e8::t_31d02a3852103b 66-77,148,163,184,219,237,255
+  s_0baef67d09b0e8::t_b04ec0c51aef3c 89,118-140,371-383
+  s_0baef67d09b0e8::t_cb25a7312b2b90 493-499
+  s_0baef67d09b0e8::t_270225120ca532 500
+src/app/admin/login/page.tsx
+  s_0baef67d09b0e8::t_08878394cc0888 14-29,37-108
+  s_0baef67d09b0e8::t_1fe00e5eee1bdd 109-111
+src/app/checkout/page.tsx
+  s_0baef67d09b0e8::t_d5a4427b98e21a 85,182,241,389,391,454-460,462-463,468-469,477,479,481
+  s_0baef67d09b0e8::t_f20d7e7329af4b 19,495-507
+  s_0baef67d09b0e8::t_192950f5309c5c 356
+  s_0baef67d09b0e8::t_97232d5d8f00b4 478
+src/app/shop/[id]/page.tsx
+  s_0baef67d09b0e8::t_7b8c130e46aa2b 179,182-183,185-186,209
+  s_0baef67d09b0e8::t_d5d5f1e2cbe5fc 7-11,41-42,130-134,155-169,171-178,180-181,184,187-190,192-194
+  s_0baef67d09b0e8::t_c56aeaa6a02694 21-25,43,47,127-129,135-137,139-140,154,191,195,213,215-217,340,343,346,389-390,396-414
+  s_0baef67d09b0e8::t_b2bda513c7ba3e 3,44,46,138,349,351-360,362-372,376-381,383-388,391-395
+  s_0baef67d09b0e8::t_caa520cfd86bab 45,350,361,373-375,382
+src/sections/Header.tsx
+  s_0baef67d09b0e8::t_76dbc762ce8c95 53
+  s_0baef67d09b0e8::t_376c6121c300c6 15,204-208,215-219,266
+  s_0baef67d09b0e8::t_e20e537816473a 52
+  s_0baef67d09b0e8::t_a5564b48880017 54-56
+  s_0baef67d09b0e8::t_ccf1d9f34ff4f5 201-203
+  s_0baef67d09b0e8::t_a1faa5224afa1f 209-214
+  s_0baef67d09b0e8::t_0c06e2ba45bb06 220-222
+  s_0baef67d09b0e8::t_ec72976b2d4c9b 267-269
+  s_0baef67d09b0e8::t_b7972298a1f713 20-21,31-34,57-77,82-85,91-93,113-122,125-128,199-200,223-228,230-264,270-274,286,293,330
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.3",
+  "base_commit_sha": "704024805ea408c66302b7974a87036114925684",
+  "prompts": {},
+  "sessions": {
+    "s_0baef67d09b0e8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a11c6b-cb5b-7882-baf1-4663c185c292",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Pawarisorn <pawarisorn.son@axonstech.com>"
+    }
+  }
+}
