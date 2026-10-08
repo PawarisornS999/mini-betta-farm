@@ -16,7 +16,8 @@ export default function Testimonial() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
           className="text-center mb-12"
         >
           <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
@@ -32,11 +33,7 @@ export default function Testimonial() {
         </motion.div>
 
         <div className="-mx-4 overflow-hidden px-4 pb-4 sm:mx-0 sm:px-0">
-          <motion.div
-            className="flex w-max flex-row gap-4"
-            animate={{ x: ["0%", "-50%"] }}
-            transition={{ duration: 45, ease: "linear", repeat: Infinity }}
-          >
+          <div className="testimonial-track flex w-max flex-row gap-4">
           {[...reviews, ...reviews].map((item, i) => (
             <div
               key={`${item.name}-${i}`}
@@ -63,7 +60,7 @@ export default function Testimonial() {
               </div>
             </div>
           ))}
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>
