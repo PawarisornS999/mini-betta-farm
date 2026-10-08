@@ -1,0 +1,26 @@
+src/app/sitemap.ts
+  s_ec66567fb62561::t_1640ed55c609ef 43-48
+src/app/robots.ts
+  s_ec66567fb62561::t_73db07e9f319a3 11-19
+src/sections/Testimonial.tsx
+  s_ec66567fb62561::t_e4f1862e78f56d 19-20
+  s_ec66567fb62561::t_5f11f5fe057ae5 36,63
+src/app/how-to-order/layout.tsx
+  s_ec66567fb62561::t_972891548be1eb 1-18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.3",
+  "base_commit_sha": "ffbfa821660ce5b0dc9bb1c060a203e83aa9c948",
+  "prompts": {},
+  "sessions": {
+    "s_ec66567fb62561": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a11cdd-c06e-7352-a009-4a28af327b85",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Pawarisorn <pawarisorn.son@axonstech.com>"
+    }
+  }
+}
