@@ -26,16 +26,16 @@ export default function HowToOrderPage() {
         { icon: faCartShopping, title: "Add to cart", description: "Select the quantity and add the item to your cart. Review your items before checkout." },
         { icon: faLocationDot, title: "Enter delivery details", description: "Continue to checkout, sign in with LINE, then enter your name, phone, and complete shipping address." },
         { icon: faReceipt, title: "Confirm your order", description: "Check your items, shipping fee, and total, then confirm to create your order." },
-        { icon: faQrcode, title: "Pay with PromptPay", description: "Open your order page and scan its QR code with your banking app. Pay the exact amount shown." },
-        { icon: faShieldHalved, title: "Keep the order page", description: "Your payment status is updated on the order page. Keep the page or order number to check progress." },
+        { icon: faQrcode, title: "Pay with PromptPay Or Bank Transfer", description: "Open your order page and scan its QR code with your banking app. Pay the exact amount shown." },
+        { icon: faShieldHalved, title: "Keep the order page", description: "Your payment status is updated on the order page. and Notify you of the status via LINE" },
       ]
     : [
         { icon: faMagnifyingGlass, title: "เลือกปลากัดที่ถูกใจ", description: "เลือกชมสินค้า เปิดดูรูปและรายละเอียดของปลาที่สนใจ" },
         { icon: faCartShopping, title: "เพิ่มสินค้าลงตะกร้า", description: "เลือกจำนวนแล้วกดเพิ่มลงตะกร้า ตรวจสอบรายการก่อนชำระเงิน" },
         { icon: faLocationDot, title: "กรอกข้อมูลจัดส่ง", description: "ไปหน้าชำระเงิน เข้าสู่ระบบด้วย LINE แล้วกรอกชื่อ เบอร์โทร และที่อยู่ให้ครบถ้วน" },
         { icon: faReceipt, title: "ตรวจสอบและยืนยันออเดอร์", description: "เช็ครายการสินค้า ค่าจัดส่ง และยอดรวม ก่อนกดยืนยันคำสั่งซื้อ" },
-        { icon: faQrcode, title: "ชำระเงินด้วย PromptPay", description: "เปิดหน้ารายละเอียดออเดอร์ แล้วสแกน QR ด้วยแอปธนาคาร ชำระตามยอดที่ระบบแสดง" },
-        { icon: faShieldHalved, title: "ติดตามสถานะคำสั่งซื้อ", description: "ระบบจะแสดงสถานะการชำระเงินในหน้าออเดอร์ เก็บหน้านี้หรือเลขออเดอร์ไว้ตรวจสอบ" },
+        { icon: faQrcode, title: "ชำระเงินด้วยพร้อมเพย์ หรือ บัญชีธนาคาร", description: "เปิดหน้ารายละเอียดออเดอร์ แล้วสแกน QR ด้วยแอปธนาคาร ชำระตามยอดที่ระบบแสดง" },
+        { icon: faShieldHalved, title: "ติดตามสถานะคำสั่งซื้อ", description: "ระบบจะแสดงสถานะการชำระเงินในหน้าออเดอร์ และจะแจ้งเตือนสถานะผ่าน LINE" },
       ];
 
   return (
@@ -77,20 +77,30 @@ export default function HowToOrderPage() {
             ))}
           </ol>
 
-          <section className="mt-8 rounded-2xl border border-sky-100 bg-white p-6 shadow-sm sm:p-8">
+          <section  className="relative max-w-3xl mx-auto mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm ">
             <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-50 text-green-600">
-                <FontAwesomeIcon icon={faCreditCard} className="text-xl" />
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-green-600">
+                <FontAwesomeIcon icon={faCreditCard} className="text-amber-500 text-xl" />
               </div>
               <div>
                 <h2 className="mb-2 text-lg font-bold text-foreground">
-                  {isEnglish ? "Payment by PromptPay QR" : "ชำระเงินผ่าน QR PromptPay"}
+                  {isEnglish ? "Payment by QR Code" : "ชำระเงินผ่าน QR Code"}
                 </h2>
-                <p className="text-sm leading-relaxed text-muted">
-                  {isEnglish
-                    ? "The QR code and exact amount appear after you confirm your order. Scan it in your mobile banking app and complete payment. Check the order page for the latest payment status."
-                    : "หลังยืนยันออเดอร์ ระบบจะแสดง QR Code และยอดที่ต้องชำระ สแกนผ่านแอปธนาคารบนมือถือและชำระให้ครบตามยอด จากนั้นตรวจสอบสถานะได้ที่หน้ารายละเอียดออเดอร์"}
-                </p>
+                <ul className="list-disc space-y-1 pl-5 text-sm leading-relaxed text-muted">
+                  {isEnglish ? (
+                    <>
+                      <li>The QR code and exact amount appear after you confirm your order.</li>
+                      <li>Scan it in your mobile banking app and complete payment.</li>
+                      <li>Check the order page for the latest payment status.</li>
+                    </>
+                  ) : (
+                    <>
+                      <li>หลังยืนยันออเดอร์ ระบบจะแสดง QR Code และยอดที่ต้องชำระ</li>
+                      <li>สแกนผ่านแอปธนาคารบนมือถือและชำระให้ครบตามยอด</li>
+                      <li>ตรวจสอบสถานะล่าสุดได้ที่หน้ารายละเอียดออเดอร์</li>
+                    </>
+                  )}
+                </ul>
               </div>
             </div>
           </section>

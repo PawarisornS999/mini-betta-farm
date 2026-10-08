@@ -63,6 +63,18 @@ function stageBadgeClass(order: Order) {
   return "bg-amber-50 text-amber-700 ring-amber-600/15";
 }
 
+function formatAdminOrderError(cause: unknown, fallback: string) {
+  let message = cause instanceof Error ? cause.message : fallback;
+  try {
+    const parsed = JSON.parse(message) as { message?: unknown };
+    if (typeof parsed.message === "string") message = parsed.message;
+  } catch {
+    // Keep plain error messages as-is.
+  }
+  if (message === "Order already cancelled") return "ออเดอร์นี้ถูกยกเลิกไปแล้ว";
+  return message || fallback;
+}
+
 export default function OrdersAdminClient() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [error, setError] = useState("");
@@ -74,6 +86,7 @@ export default function OrdersAdminClient() {
   const [trackingValue, setTrackingValue] = useState("");
   const [trackingError, setTrackingError] = useState("");
   const [copiedAddressOrderId, setCopiedAddressOrderId] = useState<string | null>(null);
+  const [copiedTrackingOrderId, setCopiedTrackingOrderId] = useState<string | null>(null);
 
   async function copyCustomerAddress(order: Order) {
     const shippingDetails = [
@@ -102,6 +115,29 @@ export default function OrdersAdminClient() {
     }
   }
 
+  async function copyTrackingNumber(order: Order) {
+    if (!order.trackingNumber) return;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(order.trackingNumber);
+      } else {
+        const input = document.createElement("textarea");
+        input.value = order.trackingNumber;
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        const copied = document.execCommand("copy");
+        input.remove();
+        if (!copied) throw new Error("Copy failed");
+      }
+      setCopiedTrackingOrderId(order.id);
+      window.setTimeout(() => setCopiedTrackingOrderId((current) => current === order.id ? null : current), 2000);
+    } catch {
+      setError("คัดลอกเลขพัสดุไม่สำเร็จ กรุณาคัดลอกด้วยตนเอง");
+    }
+  }
+
   async function load() {
     try {
       const response = await fetch("/api/admin/orders", { cache: "no-store" });
@@ -109,7 +145,7 @@ export default function OrdersAdminClient() {
       const result = (await response.json()) as { data: Order[] };
       setOrders(result.data);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "โหลดออเดอร์ไม่สำเร็จ");
+      setError(formatAdminOrderError(cause, "โหลดออเดอร์ไม่สำเร็จ"));
     }
   }
   useEffect(() => {
@@ -124,9 +160,7 @@ export default function OrdersAdminClient() {
       })
       .catch((cause) => {
         if (active)
-          setError(
-            cause instanceof Error ? cause.message : "โหลดออเดอร์ไม่สำเร็จ",
-          );
+          setError(formatAdminOrderError(cause, "โหลดออเดอร์ไม่สำเร็จ"));
       });
     return () => {
       active = false;
@@ -147,7 +181,7 @@ export default function OrdersAdminClient() {
       await load();
       if (action === "cancel") setConfirmTarget(null);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "อัปเดตไม่สำเร็จ");
+      setError(formatAdminOrderError(cause, "อัปเดตไม่สำเร็จ"));
     } finally {
       setBusy(null);
     }
@@ -182,9 +216,7 @@ export default function OrdersAdminClient() {
       setTrackingTarget(null);
       setTrackingValue("");
     } catch (cause) {
-      setError(
-        cause instanceof Error ? cause.message : "บันทึกเลขพัสดุไม่สำเร็จ",
-      );
+      setError(formatAdminOrderError(cause, "บันทึกเลขพัสดุไม่สำเร็จ"));
     } finally {
       setBusy(null);
     }
@@ -202,7 +234,7 @@ export default function OrdersAdminClient() {
       setOrders((current) => current.filter((item) => item.id !== order.id));
       setConfirmTarget(null);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "ลบออเดอร์ไม่สำเร็จ");
+      setError(formatAdminOrderError(cause, "ลบออเดอร์ไม่สำเร็จ"));
     } finally {
       setBusy(null);
     }
@@ -220,7 +252,7 @@ export default function OrdersAdminClient() {
         throw new Error(result.message || "เปิดสลิปไม่สำเร็จ");
       window.open(result.url, "_blank", "noopener,noreferrer");
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "เปิดสลิปไม่สำเร็จ");
+      setError(formatAdminOrderError(cause, "เปิดสลิปไม่สำเร็จ"));
     }
   }
 
@@ -269,11 +301,6 @@ export default function OrdersAdminClient() {
           />
         </div>
       </div>
-      {error && (
-        <p role="alert" className="mt-5 rounded-xl bg-red-50 p-4 text-red-700">
-          {error}
-        </p>
-      )}
       <div className="mt-6 space-y-4">
         {filtered.map((order) => (
           <article
@@ -341,9 +368,19 @@ export default function OrdersAdminClient() {
               </div>
               {order.notes && <p>หมายเหตุ: {order.notes}</p>}
               {order.trackingNumber && (
-                <p className="mt-3 rounded-xl bg-blue-50 px-3 py-2 font-mono text-sm font-semibold text-blue-800">
-                  เลขพัสดุ: {order.trackingNumber}
-                </p>
+                <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-800">
+                  <span>เลขพัสดุ:</span>
+                  <span className="font-mono">{order.trackingNumber}</span>
+                  <button
+                    type="button"
+                    onClick={() => void copyTrackingNumber(order)}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-white/80 px-2.5 py-1.5 text-xs font-semibold text-blue-800 transition hover:bg-white"
+                    aria-label="คัดลอกเลขพัสดุ"
+                  >
+                    <FontAwesomeIcon icon={copiedTrackingOrderId === order.id ? faCheck : faCopy} />
+                    {copiedTrackingOrderId === order.id ? "คัดลอกแล้ว" : "คัดลอก"}
+                  </button>
+                </div>
               )}
               </div>
               <OrderStepper order={order} />
@@ -452,6 +489,14 @@ export default function OrdersAdminClient() {
         variant="error"
         confirmText={confirmTarget?.action === "delete" ? "ลบออเดอร์" : "ยืนยันยกเลิก"}
         cancelText="ยกเลิก"
+      />
+      <Modal
+        isOpen={Boolean(error)}
+        onClose={() => setError("")}
+        title="เกิดข้อผิดพลาด"
+        description={error || undefined}
+        variant="error"
+        cancelText="ปิด"
       />
     </div>
   );

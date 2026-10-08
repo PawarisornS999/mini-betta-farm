@@ -12,11 +12,13 @@ import { getT } from "@/lib/i18n";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBars,
+  faChevronDown,
   faCartShopping,
   faFishFins,
-  faRightToBracket,
   faUser,
   faXmark,
+  faSignOutAlt,
+  faBagShopping,
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function Header() {
@@ -26,7 +28,10 @@ export default function Header() {
   const [cartBump, setCartBump] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [sessionChecked, setSessionChecked] = useState(false);
-  const [lineProfile, setLineProfile] = useState<{ displayName?: string; pictureUrl?: string } | null>(null);
+  const [lineProfile, setLineProfile] = useState<{
+    displayName?: string;
+    pictureUrl?: string;
+  } | null>(null);
   const pathname = usePathname();
   const cartItems = useCartStore((s) => s.items);
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -44,31 +49,48 @@ export default function Header() {
     orders: lang === "en" ? "My Orders" : "การซื้อของฉัน",
     tracking: lang === "en" ? "Track Shipment" : "ติดตามพัสดุ",
   };
-  const breadcrumbItems = pathname === "/" ? [] : [
-    { label: t.nav.home, href: "/" },
-    ...pathname.split("/").filter(Boolean).map((segment, index, segments) => ({
-      label: breadcrumbLabels[segment] ?? (
-        segments[index - 1] === "blog"
-          ? (lang === "en" ? "Article" : "บทความ")
-          : segments[index - 1] === "shop"
-            ? (lang === "en" ? "Product details" : "รายละเอียดสินค้า")
-            : segments[index - 1] === "orders"
-              ? (lang === "en" ? "Order details" : "รายละเอียดคำสั่งซื้อ")
-              : segment
-      ),
-    })),
-  ];
+  const breadcrumbItems =
+    pathname === "/" || pathname === "/tracking"
+      ? []
+      : [
+          { label: t.nav.home, href: "/" },
+          ...pathname
+            .split("/")
+            .filter(Boolean)
+            .map((segment, index, segments) => ({
+              label:
+                breadcrumbLabels[segment] ??
+                (segments[index - 1] === "blog"
+                  ? lang === "en"
+                    ? "Article"
+                    : "บทความ"
+                  : segments[index - 1] === "shop"
+                    ? lang === "en"
+                      ? "Product details"
+                      : "รายละเอียดสินค้า"
+                    : segments[index - 1] === "orders"
+                      ? lang === "en"
+                        ? "Order details"
+                        : "รายละเอียดคำสั่งซื้อ"
+                      : segment),
+            })),
+        ];
 
   const navLinks = [
     { label: t.nav.home, href: "/" },
     { label: t.nav.shop, href: "/shop" },
-    { label: lang === "en" ? "How to Order" : "วิธีการสั่งซื้อ", href: "/how-to-order" },
+    {
+      label: lang === "en" ? "How to Order" : "วิธีการสั่งซื้อ",
+      href: "/how-to-order",
+    },
     { label: t.nav.blog, href: "/blog" },
     { label: t.nav.about, href: "/about" },
     { label: t.nav.contact, href: "/contact" },
   ];
   const isNavActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+    href === "/"
+      ? pathname === "/"
+      : pathname === href || pathname.startsWith(`${href}/`);
 
   useEffect(() => {
     void useCartStore.persist.rehydrate();
@@ -88,10 +110,22 @@ export default function Header() {
 
   useEffect(() => {
     fetch("/api/line/session", { cache: "no-store" })
-      .then((response) => response.json() as Promise<{ data?: { authenticated?: boolean; displayName?: string; pictureUrl?: string } }>)
+      .then(
+        (response) =>
+          response.json() as Promise<{
+            data?: {
+              authenticated?: boolean;
+              displayName?: string;
+              pictureUrl?: string;
+            };
+          }>,
+      )
       .then((result) => {
         if (result.data?.authenticated) {
-          setLineProfile({ displayName: result.data.displayName, pictureUrl: result.data.pictureUrl });
+          setLineProfile({
+            displayName: result.data.displayName,
+            pictureUrl: result.data.pictureUrl,
+          });
         }
       })
       .catch(() => setLineProfile(null))
@@ -162,41 +196,82 @@ export default function Header() {
                 <span>{lang === "en" ? "TH" : "EN"}</span>
               </motion.button>
 
-              {sessionChecked && (lineProfile ? (
-                <div className="relative">
-                  <button
-                    onClick={() => setUserMenuOpen((open) => !open)}
-                    aria-label={t.nav.profile}
-                    title={lineProfile.displayName || t.nav.profile}
-                    className="p-2 rounded-xl hover:bg-foreground/5 hover:text-accent transition-colors"
-                  >
-                    {lineProfile.pictureUrl ? (
-                      <span
-                        className="block h-7 w-7 rounded-full bg-cover bg-center"
-                        style={{ backgroundImage: `url(${lineProfile.pictureUrl})` }}
-                        aria-label={lineProfile.displayName || "LINE profile"}
-                      />
-                    ) : (
-                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-200">
-                        <FontAwesomeIcon icon={faUser} className="h-4 w-4" />
+              {sessionChecked &&
+                (lineProfile ? (
+                  <div className="relative">
+                    <button
+                      id="user-menu-button"
+                      type="button"
+                      onClick={() => setUserMenuOpen((open) => !open)}
+                      aria-label={lineProfile.displayName || t.nav.profile}
+                      aria-expanded={userMenuOpen}
+                      aria-haspopup="menu"
+                      title={lineProfile.displayName || t.nav.profile}
+                      className="inline-flex items-center gap-2  p-1 px-2 bg-white text-foreground/80 transition-colors rounded-full border border-foreground/15 hover:bg-foreground/5 hover:text-accent"
+                    >
+                      {lineProfile.pictureUrl ? (
+                        <span
+                          id="user-avatar"
+                          className="block h-8 w-8 shrink-0 rounded-full bg-cover bg-center"
+                          style={{
+                            backgroundImage: `url(${lineProfile.pictureUrl})`,
+                          }}
+                          role="img"
+                          aria-label={lineProfile.displayName || "LINE profile"}
+                        />
+                      ) : (
+                        <span id="user-avatar" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-200">
+                          <FontAwesomeIcon icon={faUser} className="h-4 w-4" />
+                        </span>
+                      )}
+                      <span id="user-name" className="hidden max-w-32 truncate text-sm font-semibold sm:block">
+                        {lineProfile.displayName || t.nav.profile}
                       </span>
+                      <FontAwesomeIcon
+                        icon={faChevronDown}
+                        className={`text-xs hidden h-2 w-2 transition-transform sm:block ${userMenuOpen ? "rotate-180" : ""}`}
+                      />
+                    </button>
+                    {userMenuOpen && (
+                      <div
+                        role="menu"
+                        className="absolute right-0 top-12 z-50 w-48 rounded-2xl bg-white p-2 shadow-xl ring-1 ring-black/5"
+                      >
+                        <Link
+                          href="/profile"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="block rounded-xl px-4 py-3 text-sm font-semibold hover:bg-accent/10 hover:text-accent"
+                        >
+                          <FontAwesomeIcon icon={faUser} className="mr-2 w-3.5 h-3.5" />
+                          {t.nav.profile}
+                        </Link>
+                        <Link
+                          href="/orders"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="block rounded-xl px-4 py-3 text-sm font-semibold hover:bg-accent/10 hover:text-accent"
+                        >
+                          <FontAwesomeIcon icon={faBagShopping} className="mr-2 w-3.5 h-3.5" />
+                          การซื้อของฉัน
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => void logout()}
+                          className="block w-full rounded-xl px-4 py-3 text-left text-sm font-semibold text-red-600 hover:bg-red-50"
+                        >
+                          <FontAwesomeIcon icon={faSignOutAlt} className="mr-2 w-3.5 h-3.5" />
+                          ออกจากระบบ
+                        </button>
+                      </div>
                     )}
-                  </button>
-                  {userMenuOpen && <div className="absolute right-0 top-12 z-50 w-48 rounded-2xl bg-white p-2 shadow-xl ring-1 ring-black/5">
-                    <Link href="/profile" onClick={() => setUserMenuOpen(false)} className="block rounded-xl px-4 py-3 text-sm font-semibold hover:bg-accent/10 hover:text-accent">{t.nav.profile}</Link>
-                    <Link href="/orders" onClick={() => setUserMenuOpen(false)} className="block rounded-xl px-4 py-3 text-sm font-semibold hover:bg-accent/10 hover:text-accent">การซื้อของฉัน</Link>
-                    <button type="button" onClick={() => void logout()} className="block w-full rounded-xl px-4 py-3 text-left text-sm font-semibold text-red-600 hover:bg-red-50">ออกจากระบบ</button>
-                  </div>}
-                </div>
-              ) : (
-                <Link
-                  href="/api/line/login?returnTo=%2F"
-                  className="inline-flex items-center gap-2 rounded-xl bg-green-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-600 sm:px-4"
-                >
-                  <FontAwesomeIcon icon={faRightToBracket} className="h-4 w-4" />
-                  <span>{lang === "en" ? "Log in" : "เข้าสู่ระบบ"}</span>
-                </Link>
-              ))}
+                  </div>
+                ) : (
+                  <Link
+                    href="/api/line/login?returnTo=%2F"
+                    className="inline-flex items-center gap-2 rounded-xl bg-accent hover:bg-accent/80 px-3 py-2 text-sm font-semibold text-white transition-colorssm:px-4"
+                  >
+                    <span>{lang === "en" ? "Log in" : "เข้าสู่ระบบ"}</span>
+                  </Link>
+                ))}
 
               <button
                 onClick={() => setCartOpen(true)}
@@ -208,13 +283,14 @@ export default function Header() {
               >
                 <FontAwesomeIcon icon={faCartShopping} className="w-5 h-5" />
                 {totalItems > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center">
                     {totalItems}
                   </span>
                 )}
               </button>
 
               <button
+                id="mobile-menu-button"
                 className="md:hidden pt-2 pb-1 rounded-xl hover:bg-foreground/5 transition-colors"
                 onClick={() => setMobileOpen(!mobileOpen)}
                 aria-label="Menu"
@@ -251,6 +327,7 @@ export default function Header() {
                   setMobileOpen(false);
                 }}
                 className="flex items-center gap-2 w-full px-4 p-2.5 text-sm font-medium text-foreground/70 hover:text-accent transition-colors"
+                id="language-switcher"
               >
                 <span>{lang === "en" ? "🇹🇭" : "🇬🇧"}</span>
                 <span>{lang === "en" ? "ภาษาไทย" : "English"}</span>

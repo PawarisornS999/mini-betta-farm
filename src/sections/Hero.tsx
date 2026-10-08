@@ -137,7 +137,7 @@ export default function Hero() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-accent hover:bg-accent-dark text-white font-semibold px-8 py-3.5 rounded-2xl shadow-lg shadow-accent/25 transition-colors duration-200 text-sm"
+                  className="w-[157px] h-[44px] bg-accent hover:bg-accent-dark text-white font-semibold  rounded-2xl shadow-lg shadow-accent/25 transition-colors duration-200 text-sm"
                 >
                   {t.shopNow}
                   <FontAwesomeIcon icon={faBasketShopping} className="ml-2 w-4 h-4" />
@@ -147,7 +147,7 @@ export default function Hero() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="border-2 border-foreground/15 text-foreground font-semibold px-8 py-3.5 rounded-2xl hover:border-accent hover:text-accent transition-colors duration-200 text-sm"
+                  className="w-[157px] h-[44px] border-2 border-foreground/15 text-foreground font-semibold  rounded-2xl hover:border-accent hover:text-accent transition-colors duration-200 text-sm"
                 >
                   {t.careGuides}
                   <FontAwesomeIcon icon={faBook} className="ml-2 w-4 h-4" />

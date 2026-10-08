@@ -176,7 +176,7 @@ export default function ShopPage() {
                     onChange={(e) =>
                       setPriceRange([priceRange[0], Number(e.target.value)])
                     }
-                    className="w-full accent-accent"
+                    className="w-full accent-accent "
                   />
                 </div>
               </div>

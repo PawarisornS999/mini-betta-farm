@@ -1,9 +1,14 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "motion/react";
+import type { Swiper as SwiperInstance } from "swiper";
+import { Autoplay, Navigation } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/navigation";
 import Header from "@/sections/Header";
 import Footer from "@/sections/Footer";
 import ProductCard from "@/components/ProductCard";
@@ -13,7 +18,11 @@ import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
 import { formatPrice } from "@/lib/utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGreaterThan } from "@fortawesome/free-solid-svg-icons";
+import {
+  faMagnifyingGlassMinus,
+  faMagnifyingGlassPlus,
+  faXmark,
+} from "@fortawesome/free-solid-svg-icons";
 import type { StockStatus } from "@/types";
 
 export default function ProductDetailPage({
@@ -29,6 +38,13 @@ export default function ProductDetailPage({
     s.items.some((item) => item.product.id === id),
   );
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [mainSwiper, setMainSwiper] = useState<SwiperInstance | null>(null);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const panStart = useRef<{ pointerX: number; pointerY: number; x: number; y: number } | null>(null);
+
   useEffect(() => {
     if (!selectedImage) return;
     const closeOnEscape = (event: KeyboardEvent) => {
@@ -108,6 +124,20 @@ export default function ProductDetailPage({
   const isOutOfStock = product.stockStatus === "out_of_stock";
   const isSold = product.adminStatus === "sold";
   const unavailable = isOutOfStock || isSold;
+  const activeImage = product.images[activeImageIndex] ?? product.images[0];
+  const showImage = (index: number) => {
+    const nextIndex = (index + product.images.length) % product.images.length;
+    setActiveImageIndex(nextIndex);
+    if (mainSwiper && !mainSwiper.destroyed) {
+      if (product.images.length > 1) mainSwiper.slideToLoop(nextIndex);
+      else mainSwiper.slideTo(nextIndex);
+    }
+  };
+  const openImageZoom = () => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+    setSelectedImage(activeImage);
+  };
 
   return (
     <>
@@ -121,22 +151,48 @@ export default function ProductDetailPage({
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="relative aspect-square bg-gradient-to-br from-sky-50 to-cyan-50 rounded-3xl overflow-hidden mb-4">
-                <button
-                  type="button"
-                  onClick={() => setSelectedImage(product.images[0])}
-                  className="absolute inset-0 cursor-zoom-in"
-                  aria-label={`${t.product.viewImage}: ${product.name}`}
+              <div className="relative mb-4 aspect-square overflow-hidden rounded-3xl bg-gradient-to-br from-sky-50 to-cyan-50">
+                <Swiper
+                  key={product.id}
+                  modules={[Autoplay, Navigation]}
+                  onSwiper={(swiper) => setMainSwiper(swiper)}
+                  onSlideChange={(swiper) => setActiveImageIndex(swiper.realIndex)}
+                  slidesPerView={1}
+                  loop={product.images.length > 1}
+                  speed={700}
+                  autoplay={product.images.length > 1 ? {
+                    delay: 3000,
+                    disableOnInteraction: false,
+                    pauseOnMouseEnter: true,
+                  } : false}
+                  navigation={product.images.length > 1}
+                  className="absolute inset-0 !h-full w-full [--swiper-navigation-color:#fff] [--swiper-navigation-size:20px]"
                 >
-                  <Image
-                    src={product.images[0]}
-                    alt={product.name}
-                    fill
-                    className="object-cover transition-transform duration-300 hover:scale-105"
-                    priority
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                  />
-                </button>
+                  {product.images.map((image, index) => (
+                    <SwiperSlide key={`${image}-${index}`}>
+                      <button
+                        type="button"
+                        onClick={openImageZoom}
+                        className="relative block h-full w-full cursor-zoom-in"
+                        aria-label={`${t.product.viewImage}: ${product.name} ${index + 1}`}
+                      >
+                      <Image
+                        src={image}
+                        alt={`${product.name} ${index + 1}`}
+                        fill
+                        className="object-cover"
+                        priority={index === 0}
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                      />
+                      </button>
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+                {product.images.length > 1 && (
+                  <span className="pointer-events-none absolute bottom-3 right-3 z-10 rounded-full bg-black/55 px-3 py-1 text-xs font-semibold text-white">
+                    {activeImageIndex + 1} / {product.images.length}
+                  </span>
+                )}
                 {product.badge && (
                   <span className="absolute top-4 left-4 bg-accent text-white text-sm font-semibold px-4 py-1.5 rounded-full">
                     {product.badge}
@@ -150,14 +206,15 @@ export default function ProductDetailPage({
                   </span>
                 )}
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="flex scroll-smooth gap-3 overflow-x-auto pb-2">
                 {product.images.map((img, i) => (
                   <button
                     type="button"
-                    onClick={() => setSelectedImage(img)}
+                    onClick={() => showImage(i)}
                     key={i}
-                    className="relative aspect-square overflow-hidden rounded-xl bg-sky-50 cursor-zoom-in"
-                    aria-label={`${t.product.viewImage}: ${product.name} ${i + 1}`}
+                    className={`relative aspect-square w-20 shrink-0 overflow-hidden rounded-xl bg-sky-50 transition sm:w-24 ${activeImageIndex === i ? "ring-2 ring-accent ring-offset-2" : "opacity-70 hover:opacity-100"}`}
+                    aria-label={`แสดงรูปที่ ${i + 1}: ${product.name}`}
+                    aria-current={activeImageIndex === i ? "true" : undefined}
                   >
                     <Image
                       src={img}
@@ -280,23 +337,81 @@ export default function ProductDetailPage({
           <button
             type="button"
             onClick={() => setSelectedImage(null)}
-            className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full bg-white/15 text-2xl text-white hover:bg-white/25"
+            className="absolute right-4 top-4 z-20 grid h-11 w-11 place-items-center rounded-full bg-white/15 text-xl text-white hover:bg-white/25"
             aria-label={t.product.closeImage}
           >
-            ×
+            <FontAwesomeIcon icon={faXmark} />
           </button>
           <div
-            className="relative h-full w-full max-w-5xl"
+            className="relative h-full w-full max-w-5xl overflow-hidden"
             onClick={(event) => event.stopPropagation()}
           >
-            <Image
-              src={selectedImage}
-              alt={product.name}
-              fill
-              className="object-contain"
-              sizes="100vw"
-              priority
-            />
+            <div
+              className={`absolute inset-0 touch-none overflow-hidden ${zoom > 1 ? (isPanning ? "cursor-grabbing" : "cursor-grab") : ""}`}
+              onPointerDown={(event) => {
+                if (zoom <= 1 || (event.target as HTMLElement).closest("button")) return;
+                event.preventDefault();
+                event.currentTarget.setPointerCapture(event.pointerId);
+                panStart.current = {
+                  pointerX: event.clientX,
+                  pointerY: event.clientY,
+                  x: pan.x,
+                  y: pan.y,
+                };
+                setIsPanning(true);
+              }}
+              onPointerMove={(event) => {
+                if (!panStart.current) return;
+                const bounds = event.currentTarget.getBoundingClientRect();
+                const maxX = (bounds.width * (zoom - 1)) / 2;
+                const maxY = (bounds.height * (zoom - 1)) / 2;
+                setPan({
+                  x: Math.max(-maxX, Math.min(maxX, panStart.current.x + event.clientX - panStart.current.pointerX)),
+                  y: Math.max(-maxY, Math.min(maxY, panStart.current.y + event.clientY - panStart.current.pointerY)),
+                });
+              }}
+              onPointerUp={() => { panStart.current = null; setIsPanning(false); }}
+              onPointerCancel={() => { panStart.current = null; setIsPanning(false); }}
+              onLostPointerCapture={() => { panStart.current = null; setIsPanning(false); }}
+            >
+              <Image
+                src={selectedImage}
+                alt={product.name}
+                fill
+                draggable={false}
+                className={`pointer-events-none select-none object-contain ${isPanning ? "" : "transition-transform duration-200"}`}
+                style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
+                sizes="100vw"
+                priority
+              />
+            </div>
+            <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full bg-black/60 p-2" onPointerDown={(event) => event.stopPropagation()}>
+              <button
+                type="button"
+                onClick={() => setZoom((current) => {
+                  const next = Math.max(1, current - 0.5);
+                  if (next === 1) setPan({ x: 0, y: 0 });
+                  return next;
+                })}
+                disabled={zoom <= 1}
+                className="grid h-10 w-10 place-items-center rounded-full text-white hover:bg-white/15 disabled:opacity-40"
+                aria-label="ซูมออก"
+              >
+                <FontAwesomeIcon icon={faMagnifyingGlassMinus} />
+              </button>
+              <span className="min-w-12 text-center text-sm font-semibold text-white">
+                {Math.round(zoom * 100)}%
+              </span>
+              <button
+                type="button"
+                onClick={() => setZoom((current) => Math.min(3, current + 0.5))}
+                disabled={zoom >= 3}
+                className="grid h-10 w-10 place-items-center rounded-full text-white hover:bg-white/15 disabled:opacity-40"
+                aria-label="ซูมเข้า"
+              >
+                <FontAwesomeIcon icon={faMagnifyingGlassPlus} />
+              </button>
+            </div>
           </div>
         </div>
       )}

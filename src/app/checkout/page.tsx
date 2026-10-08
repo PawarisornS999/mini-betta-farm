@@ -16,12 +16,9 @@ import { orderTotal, SHIPPING_FEE } from "@/lib/orders/workflow";
 import BaseDropdown from "@/components/BaseDropdown";
 import { searchAddressByProvince } from "thai-address-database";
 import type { CheckoutPayload, CustomerProfile } from "@/types";
-import { faBoxOpen, faArrowLeft, faCartShopping } from "@fortawesome/free-solid-svg-icons";
+import { faBoxOpen, faArrowLeft, faCartShopping, faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 const thaiAddresses = searchAddressByProvince(".", 10000);
-const CHECKOUT_DRAFT_KEY = "mini-betta-line-checkout-draft";
-
-type CheckoutDraft = CheckoutPayload;
 
 type LineState =
   | { status: "loading" }
@@ -85,7 +82,7 @@ export default function CheckoutPage() {
     .filter(Boolean)
     .join(" ");
 
-  const completeCheckout = useCallback(async (payload: CheckoutDraft) => {
+  const completeCheckout = useCallback(async (payload: CheckoutPayload) => {
     setSubmitting(true);
     setSubmitError(null);
 
@@ -161,24 +158,6 @@ export default function CheckoutPage() {
           console.error("Customer profile preload failed", profileError);
         }
 
-        const savedDraft = window.sessionStorage.getItem(CHECKOUT_DRAFT_KEY);
-        if (params.get("line") !== "connected" || !savedDraft) return;
-        window.sessionStorage.removeItem(CHECKOUT_DRAFT_KEY);
-        const draft = JSON.parse(savedDraft) as CheckoutDraft;
-        if (!draft.customerName || !draft.customerPhone || !draft.customerAddress || !draft.items?.length) {
-          throw new Error("ข้อมูลออเดอร์ที่บันทึกไว้ไม่ครบ กรุณากรอกใหม่");
-        }
-        setName(draft.customerName);
-        setPhone(draft.customerPhone);
-        if (draft.profile) {
-          setAddressDetails(draft.profile.addressDetails);
-          setProvince(draft.profile.province);
-          setDistrict(draft.profile.district);
-          setSubdistrict(draft.profile.subdistrict);
-          setPostalCode(draft.profile.postalCode);
-        }
-        setRememberProfile(draft.rememberProfile !== false);
-        void completeCheckout(draft);
       })
       .catch((error) => {
         if (!active) return;
@@ -195,13 +174,12 @@ export default function CheckoutPage() {
       !province.trim() ||
       !district.trim() ||
       !subdistrict.trim() ||
-      !addressDetails.trim() ||
       postalCode.trim().length !== 5 ||
       submitting ||
       lineState.status === "loading"
     ) return;
 
-    const payload: CheckoutDraft = {
+    const payload: CheckoutPayload = {
       customerName: name,
       customerPhone: phone,
       customerAddress: address,
@@ -220,12 +198,6 @@ export default function CheckoutPage() {
         postalCode,
       },
     };
-
-    if (lineState.status !== "connected") {
-      window.sessionStorage.setItem(CHECKOUT_DRAFT_KEY, JSON.stringify(payload));
-      window.location.assign("/api/line/login?returnTo=/checkout");
-      return;
-    }
 
     await completeCheckout(payload);
   };
@@ -266,6 +238,7 @@ export default function CheckoutPage() {
           <div className="grid md:grid-cols-5 gap-8">
             {/* Customer Info */}
             <div className="md:col-span-3 space-y-6">
+              {lineState.status === "connected" ? <>
               <div className="bg-white rounded-2xl shadow-sm p-6">
                 <h2 className="text-lg font-bold text-foreground mb-4">
                   {t.customerInfo}
@@ -380,7 +353,7 @@ export default function CheckoutPage() {
                       </div>
                     </div>
                     <label className="text-sm text-muted block mt-4 mb-1.5">
-                      {t.addressDetails} *
+                      {t.addressDetails}
                     </label>
                     <textarea
                       value={addressDetails}
@@ -413,8 +386,9 @@ export default function CheckoutPage() {
                   {t.descriptionLiveArrivalGuarantee}
                 </p>
               </div>
+              </> : null}
 
-              <div className="rounded-2xl border border-green-200 bg-white p-5 shadow-sm">
+              <div className={`${lineState.status === "connected" ?'hidden':''} rounded-2xl border border-green-200 bg-white p-5 shadow-sm`}>
                 <div className="flex items-start gap-3">
                   <FontAwesomeIcon icon={faLine} className="mt-0.5 h-6 w-6 text-green-600" />
                   <div>
@@ -431,7 +405,6 @@ export default function CheckoutPage() {
                         Login with LINE
                       </button>
                     </>}
-                    {lineState.status === "connected" && <p className="mt-1 text-sm font-medium text-green-700">เชื่อมต่อแล้ว: {lineState.displayName}</p>}
                   </div>
                 </div>
               </div>
@@ -478,17 +451,22 @@ export default function CheckoutPage() {
                 <p className="text-xs text-muted text-right -mt-4 mb-5">รวมค่าส่ง {formatPrice(SHIPPING_FEE)} แล้ว</p>
 
                 <button
-                  onClick={handlePlaceOrder}
+                  onClick={() => {
+                    if (lineState.status !== "connected") {
+                      window.location.assign("/api/line/login?returnTo=/checkout");
+                      return;
+                    }
+                    void handlePlaceOrder();
+                  }}
                   disabled={
-                    !name.trim() ||
+                    lineState.status === "loading" ||
+                    (lineState.status === "connected" && (!name.trim() ||
                     !phone.trim() ||
                     !province.trim() ||
                     !district.trim() ||
                     !subdistrict.trim() ||
-                    !addressDetails.trim() ||
-                    postalCode.trim().length !== 5 ||
-                    submitting ||
-                    lineState.status === "loading"
+                    postalCode.trim().length !== 5)) ||
+                    submitting
                   }
                   className="w-full bg-green-500 text-white py-4 rounded-2xl font-semibold hover:bg-green-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
@@ -496,11 +474,11 @@ export default function CheckoutPage() {
                   {/*
                     <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314" />
                   */}
-                  {submitting
+                  {lineState.status !== "connected"
+                    ? "เข้าสู่ระบบด้วย LINE"
+                    : submitting
                     ? "กำลังสร้างคำสั่งซื้อ..."
-                    : lineState.status === "connected"
-                      ? "ยืนยันคำสั่งซื้อ"
-                      : "โปรดเข้าสู่ระบบ LINE ก่อนยืนยันออเดอร์"}
+                    : "ยืนยันคำสั่งซื้อ"}
                 </button>
                 {submitError && (
                   <p className="text-sm text-red-600 text-center mt-3">
@@ -514,6 +492,19 @@ export default function CheckoutPage() {
         </div>
       </main>
       <Footer />
+      {submitting && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="flex w-full max-w-sm flex-col items-center rounded-3xl bg-white px-8 py-10 text-center shadow-xl">
+            <FontAwesomeIcon icon={faSpinner} className="h-10 w-10 animate-spin text-green-500" />
+            <p className="mt-5 text-lg font-bold text-foreground">กำลังสร้างคำสั่งซื้อ...</p>
+            <p className="mt-2 text-sm text-muted">กรุณารอสักครู่ ระบบกำลังเตรียมหน้าชำระเงิน</p>
+          </div>
+        </div>
+      )}
     </>
   );
 }
