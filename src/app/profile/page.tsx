@@ -176,7 +176,7 @@ export default function ProfilePage() {
   return (
     <>
       <Header />
-      <main className="mx-auto min-h-[70vh] max-w-3xl px-4 pb-20 pt-28 text-foreground">
+      <main className="mx-auto min-h-[70vh] max-w-3xl px-4 pb-20 pt-10 text-foreground">
         <div className="rounded-3xl bg-white p-6 shadow-sm sm:p-8">
           <div className="flex items-center gap-4 border-b border-black/5 pb-6">
             {profile.pictureUrl ? (

@@ -97,6 +97,11 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
+    setMobileOpen(false);
+    setUserMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -168,7 +173,7 @@ export default function Header() {
               </span>
             </Link>
 
-            <nav className="hidden md:flex items-center gap-8">
+            <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
               {navLinks.map((link) => (
                 <Link
                   key={link.label}
@@ -188,7 +193,7 @@ export default function Header() {
                 whileTap={{ scale: 0.95 }}
                 onClick={toggle}
                 aria-label="Toggle language"
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-foreground/15 hover:border-accent hover:text-accent text-sm font-semibold text-foreground/70 transition-colors"
+                className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-foreground/15 hover:border-accent hover:text-accent text-sm font-semibold text-foreground/70 transition-colors"
               >
                 <span className="text-base leading-none">
                   {lang === "en" ? "🇹🇭" : "🇬🇧"}
@@ -202,7 +207,10 @@ export default function Header() {
                     <button
                       id="user-menu-button"
                       type="button"
-                      onClick={() => setUserMenuOpen((open) => !open)}
+                      onClick={() => {
+                        setMobileOpen(false);
+                        setUserMenuOpen((open) => !open);
+                      }}
                       aria-label={lineProfile.displayName || t.nav.profile}
                       aria-expanded={userMenuOpen}
                       aria-haspopup="menu"
@@ -274,7 +282,11 @@ export default function Header() {
                 ))}
 
               <button
-                onClick={() => setCartOpen(true)}
+                onClick={() => {
+                  setMobileOpen(false);
+                  setUserMenuOpen(false);
+                  setCartOpen(true);
+                }}
                 id="header-cart-button"
                 className={`relative p-2 rounded-xl hover:bg-foreground/5 transition-colors ${
                   cartBump ? "animate-bounce" : ""
@@ -291,8 +303,11 @@ export default function Header() {
 
               <button
                 id="mobile-menu-button"
-                className="md:hidden pt-2 pb-1 rounded-xl hover:bg-foreground/5 transition-colors"
-                onClick={() => setMobileOpen(!mobileOpen)}
+                className="lg:hidden p-2 rounded-xl hover:bg-foreground/5 transition-colors"
+                onClick={() => {
+                  setUserMenuOpen(false);
+                  setMobileOpen((open) => !open);
+                }}
                 aria-label="Menu"
               >
                 <FontAwesomeIcon
@@ -308,7 +323,7 @@ export default function Header() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-white rounded-lg shadow-sm mt-2"
+              className="lg:hidden bg-white rounded-lg shadow-sm mt-2"
             >
               {navLinks.map((link) => (
                 <Link

@@ -132,9 +132,7 @@ export default function BaseDropdown<T extends string = string>({
               aria-selected={value === ""}
               onTouchStart={handleOptionTouchStart}
               onTouchEnd={(event) => handleOptionTouchEnd("" as T, event)}
-              onClick={(event) => {
-                if (event.detail === 0) selectOption("" as T);
-              }}
+              onClick={() => selectOption("" as T)}
               className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-accent/10 ${value === "" ? "bg-accent/10 text-accent font-medium" : "text-muted"}`}
             >
               {placeholder}
@@ -148,9 +146,7 @@ export default function BaseDropdown<T extends string = string>({
               aria-selected={option.value === value}
               onTouchStart={handleOptionTouchStart}
               onTouchEnd={(event) => handleOptionTouchEnd(option.value, event)}
-              onClick={(event) => {
-                if (event.detail === 0) selectOption(option.value);
-              }}
+              onClick={() => selectOption(option.value)}
               className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-accent/10 ${option.value === value ? "bg-accent/10 text-accent font-medium" : "text-foreground"}`}
             >
               {option.label}

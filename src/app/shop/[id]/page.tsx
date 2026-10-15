@@ -143,15 +143,15 @@ export default function ProductDetailPage({
     <>
       <Header />
       <main className="pt-10 pb-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-10">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2 md:gap-10">
             {/* Image Gallery */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="relative mb-4 aspect-square overflow-hidden rounded-3xl bg-gradient-to-br from-sky-50 to-cyan-50">
+              <div className="relative mb-3 aspect-square overflow-hidden rounded-2xl bg-gradient-to-br from-sky-50 to-cyan-50 sm:mb-4 sm:rounded-3xl">
                 <Swiper
                   key={product.id}
                   modules={[Autoplay, Navigation]}
@@ -166,7 +166,7 @@ export default function ProductDetailPage({
                     pauseOnMouseEnter: true,
                   } : false}
                   navigation={product.images.length > 1}
-                  className="absolute inset-0 !h-full w-full [--swiper-navigation-color:#fff] [--swiper-navigation-size:20px]"
+                  className="absolute inset-0 !h-full w-full [--swiper-navigation-color:#fff] [--swiper-navigation-size:16px] sm:[--swiper-navigation-size:20px]"
                 >
                   {product.images.map((image, index) => (
                     <SwiperSlide key={`${image}-${index}`}>
@@ -194,7 +194,7 @@ export default function ProductDetailPage({
                   </span>
                 )}
                 {product.badge && (
-                  <span className="absolute top-4 left-4 bg-accent text-white text-sm font-semibold px-4 py-1.5 rounded-full">
+                  <span className="absolute top-3 left-3 bg-accent text-white text-xs font-semibold px-3 py-1.5 rounded-full sm:top-4 sm:left-4 sm:px-4 sm:text-sm">
                     {product.badge}
                   </span>
                 )}
@@ -212,7 +212,7 @@ export default function ProductDetailPage({
                     type="button"
                     onClick={() => showImage(i)}
                     key={i}
-                    className={`relative aspect-square w-20 shrink-0 overflow-hidden rounded-xl bg-sky-50 transition sm:w-24 ${activeImageIndex === i ? "ring-2 ring-accent ring-offset-2" : "opacity-70 hover:opacity-100"}`}
+                    className={`relative aspect-square w-16 shrink-0 overflow-hidden rounded-xl bg-sky-50 transition sm:w-24 ${activeImageIndex === i ? "ring-2 ring-accent ring-offset-2" : "opacity-70 hover:opacity-100"}`}
                     aria-label={`แสดงรูปที่ ${i + 1}: ${product.name}`}
                     aria-current={activeImageIndex === i ? "true" : undefined}
                   >
@@ -237,12 +237,12 @@ export default function ProductDetailPage({
               <span className="text-accent text-sm font-semibold">
                 {product.species}
               </span>
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground mt-1 mb-4">
+              <h1 className="mt-1 mb-3 break-words text-2xl font-bold leading-tight text-foreground sm:text-3xl md:mb-4 md:text-4xl">
                 {product.name}
               </h1>
 
-              <div className="flex items-center gap-3 mb-6">
-                <span className="text-3xl font-bold text-accent">
+              <div className="mb-4 flex flex-wrap items-baseline gap-x-3 gap-y-1 sm:mb-6">
+                <span className="text-2xl font-bold text-accent sm:text-3xl">
                   {formatPrice(product.price)}
                 </span>
                 {product.originalPrice && (
@@ -252,13 +252,13 @@ export default function ProductDetailPage({
                 )}
               </div>
 
-              <p className="text-muted leading-relaxed mb-6">
+              <p className="mb-5 text-sm leading-relaxed text-muted sm:mb-6 sm:text-base">
                 {product.description}
               </p>
 
-              <div className="mb-8 rounded-2xl bg-sky-50 p-5">
+              <div className="mb-6 rounded-2xl bg-sky-50 p-4 sm:mb-8 sm:p-5">
                 <h3 className="mb-4 font-bold text-foreground">รายละเอียดสินค้า</h3>
-                <div id="product-details" className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3 text-sm">
+                <div id="product-details" className="grid grid-cols-1 gap-x-4 gap-y-3 text-sm sm:grid-cols-2">
                   <Detail label="รหัสสินค้า" value={product.sku ?? "-"} />
                   <Detail
                     label="เพศ"
@@ -294,7 +294,7 @@ export default function ProductDetailPage({
                   !unavailable && !alreadyInCart && addItem(product)
                 }
                 disabled={unavailable || alreadyInCart}
-                className={`w-full py-4 rounded-2xl text-lg font-semibold transition-colors ${
+                className={`min-h-12 w-full rounded-xl py-3 text-base font-semibold transition-colors sm:rounded-2xl sm:py-4 sm:text-lg ${
                   unavailable || alreadyInCart
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                     : "bg-accent text-white hover:bg-accent-dark shadow-lg shadow-accent/25"
@@ -313,8 +313,8 @@ export default function ProductDetailPage({
 
           {/* Related Products */}
           {related.length > 0 && (
-            <section className="mt-16">
-              <h2 className="text-2xl font-bold text-foreground mb-6">
+            <section className="mt-10 sm:mt-16">
+              <h2 className="mb-4 text-xl font-bold text-foreground sm:mb-6 sm:text-2xl">
                 {t.product.moreSpecies.replace("{species}", product.species)}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
