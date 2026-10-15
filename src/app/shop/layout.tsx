@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description: "เลือกซื้อปลากัดสวยงามคัดเกรด Halfmoon, Plakat, Crowntail และสายพันธุ์หายาก พร้อมจัดส่งทั่วประเทศ",
   alternates: { canonical: "/shop" },
   openGraph: {
-    title: "เลือกซื้อปลากัดพรีเมียม | Aurora Betta Farm",
+    title: "เลือกซื้อปลากัดพรีเมียม | Betta World",
     description: "รวมปลากัดสวยงามคัดเกรด พร้อมจัดส่งทั่วประเทศ",
     url: "/shop",
     images: ["/assets/bettaHMPKHero.png"],

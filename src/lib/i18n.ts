@@ -218,7 +218,7 @@ const translations = {
       infoDesc:
         "Contact us through any of these channels — we typically respond within 24 hours.",
       addressLabel: "Address",
-      addressValue: "Aurora Betta Farm, Bangkok, Thailand",
+      addressValue: "Betta World, Bangkok, Thailand",
       lineLabel: "LINE OA",
       lineValue: "@097zxssv",
       emailLabel: "Email",
@@ -232,7 +232,7 @@ const translations = {
         "We are passionate betta fish breeders dedicated to producing healthy, beautiful fish and sharing our knowledge with fellow enthusiasts.",
       ourStory: "Our Story",
       storyText1:
-        "Aurora Betta Farm was founded in 2019 by a team of passionate betta fish enthusiasts in Bangkok, Thailand. What started as a hobby quickly grew into a mission: to provide aquarium hobbyists with the highest quality betta fish available.",
+        "Betta World was founded in 2019 by a team of passionate betta fish enthusiasts in Bangkok, Thailand. What started as a hobby quickly grew into a mission: to provide aquarium hobbyists with the highest quality betta fish available.",
       storyText2:
         "Our commitment to excellence has made us a trusted name in the betta fish community. We take pride in our breeding practices and the care we provide to each fish in our collection.",
       ourValues: "Our Values",
@@ -551,7 +551,7 @@ const translations = {
       infoTitle: "ช่องทางติดต่อ",
       infoDesc: "ติดต่อเราผ่านช่องทางเหล่านี้ — เราตอบกลับภายใน 24 ชั่วโมง",
       addressLabel: "ที่อยู่",
-      addressValue: "Aurora Betta Farm เชียงราย ประเทศไทย",
+      addressValue: "Betta World เชียงราย ประเทศไทย",
       lineLabel: "LINE OA",
       lineValue: "@minibettafarm",
       emailLabel: "อีเมล",
@@ -565,7 +565,7 @@ const translations = {
         "เราคือผู้เพาะเลี้ยงปลากัดที่มีความหลงใหล มุ่งมั่นที่จะผลิตปลาที่มีสุขภาพดีและสวยงาม พร้อมแบ่งปันความรู้แก่เพื่อนๆทุกคน",
       ourStory: "เรื่องราวของเรา",
       storyText1:
-        "Aurora Betta Farm ก่อตั้งขึ้นในปี 2562 โดยเพาะเลี้ยงตั้งแต่เริ่มต้นลงมือทำเองทุกอย่าง ดูแลเอาใจใส่อย่างดีจากภาคเหนือ ของประเทศไทย สิ่งที่เริ่มต้นเป็นงานอดิเรกได้กลายมาเป็นธุรกิจ: มอบปลากัดคุณภาพสูงสุดให้แก่ผู้ชื่นชอบปลากัดสวยงาม",
+        "Betta World ก่อตั้งขึ้นในปี 2562 โดยเพาะเลี้ยงตั้งแต่เริ่มต้นลงมือทำเองทุกอย่าง ดูแลเอาใจใส่อย่างดีจากภาคเหนือ ของประเทศไทย สิ่งที่เริ่มต้นเป็นงานอดิเรกได้กลายมาเป็นธุรกิจ: มอบปลากัดคุณภาพสูงสุดให้แก่ผู้ชื่นชอบปลากัดสวยงาม",
       storyText2:
         "เราเชี่ยวชาญในสายพันธุ์สีทองและหายากพิเศษ ได้แก่ ฮาฟมูนหูช้างสีทอง ปลากัดหูช้างสีทอง ปลากัดสีทองหางโพธิ์ ปลาแต่ละตัวได้รับการเลี้ยงดูอย่างดี คุณภาพน้ำที่เหมาะสม และเน้นคุณภาพของปลาเป็นหลัก",
       ourValues: "ค่านิยมของเรา",

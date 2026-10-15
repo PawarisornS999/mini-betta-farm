@@ -7,10 +7,10 @@ const BASE_URL = "https://minibettafarm.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
-  applicationName: "Aurora Betta Farm",
+  applicationName: "Betta World",
   title: {
-    default: "Aurora Betta Farm — ปลากัดพรีเมียม จำหน่ายปลากัดสวยงาม",
-    template: "%s | Aurora Betta Farm",
+    default: "Betta World — ปลากัดพรีเมียม จำหน่ายปลากัดสวยงาม",
+    template: "%s | Betta World",
   },
   description:
     "จำหน่ายปลากัดพรีเมียม ปลากัด Halfmoon Crowntail Plakat Giant และอื่นๆ คัดเกรด มีสุขภาพดี จัดส่งทั่วประเทศ รับประกันปลามีชีวิต",
@@ -24,34 +24,34 @@ export const metadata: Metadata = {
     "ซื้อปลากัด",
     "betta fish thailand",
   ],
-  authors: [{ name: "Aurora Betta Farm", url: BASE_URL }],
-  creator: "Aurora Betta Farm",
-  publisher: "Aurora Betta Farm",
+  authors: [{ name: "Betta World", url: BASE_URL }],
+  creator: "Betta World",
+  publisher: "Betta World",
   robots: {
     index: true,
     follow: true,
     googleBot: { index: true, follow: true, "max-image-preview": "large" },
   },
   openGraph: {
-    title: "Aurora Betta Farm — ปลากัดพรีเมียม จำหน่ายปลากัดสวยงาม",
+    title: "Betta World — ปลากัดพรีเมียม จำหน่ายปลากัดสวยงาม",
     description:
       "จำหน่ายปลากัดพรีเมียม ปลากัด Halfmoon Crowntail Plakat Giant และอื่นๆ จัดส่งทั่วประเทศ",
     type: "website",
     locale: "th_TH",
-    siteName: "Aurora Betta Farm",
+    siteName: "Betta World",
     url: BASE_URL,
     images: [
       {
         url: `${BASE_URL}/assets/bettaHMPKHero.png`,
         width: 1200,
         height: 630,
-        alt: "Aurora Betta Farm",
+        alt: "Betta World",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Aurora Betta Farm — ปลากัดพรีเมียม",
+    title: "Betta World — ปลากัดพรีเมียม",
     description: "จำหน่ายปลากัดพรีเมียม จัดส่งทั่วประเทศ",
     images: [`${BASE_URL}/assets/bettaHMPKHero.png`],
   },

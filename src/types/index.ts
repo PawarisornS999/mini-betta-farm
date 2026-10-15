@@ -1,5 +1,5 @@
 // ==========================================
-// 🐟 Aurora Betta Farm — Shared Domain Types
+// 🐟 Betta World — Shared Domain Types
 // ==========================================
 // Maps 1:1 to database schema (PostgreSQL)
 // Used by: web, admin, api, api-client

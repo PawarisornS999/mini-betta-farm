@@ -77,7 +77,7 @@ Betta fish (Siamese fighting fish) are one of the most popular freshwater aquari
 ## Conclusion
 
 With proper care, betta fish can live 3-5 years and bring daily joy. Invest in the right setup, maintain consistent water quality, and your betta will thrive.
-    ','https://placehold.co/800x400/0284c7/ffffff?text=Betta+Care+Guide','Care Guide','{}'::text[],'Aurora Betta Farm','8 min read',array['best-water-temperature-for-betta','betta-feeding-guide']::text[],true,'2025-05-20','Complete Betta Fish Care Guide 2025 | Aurora Betta Farm','Learn how to properly care for betta fish. Tank setup, feeding, water parameters, and common mistakes. Expert guide from Aurora Betta Farm.'),
+    ','https://placehold.co/800x400/0284c7/ffffff?text=Betta+Care+Guide','Care Guide','{}'::text[],'Betta World','8 min read',array['best-water-temperature-for-betta','betta-feeding-guide']::text[],true,'2025-05-20','Complete Betta Fish Care Guide 2025 | Betta World','Learn how to properly care for betta fish. Tank setup, feeding, water parameters, and common mistakes. Expert guide from Betta World.'),
 ('How to Treat White Spot Disease (Ich) in Betta Fish','how-to-treat-ich-white-spot-disease','White spot disease (Ich) is one of the most common betta fish illnesses. Learn how to identify, treat, and prevent this parasitic infection.','
 ## What is Ich (White Spot Disease)?
 
@@ -122,7 +122,7 @@ Gradually increase water temperature to 30°C (86°F) over 24-48 hours. This spe
 ## When to See a Vet
 
 If symptoms don''t improve after 7-10 days of treatment, consult an aquatic veterinarian.
-    ','https://placehold.co/800x400/dc2626/ffffff?text=Ich+Treatment+Guide','Health','{}'::text[],'Aurora Betta Farm','6 min read',array['how-to-care-for-betta-fish','best-water-temperature-for-betta']::text[],true,'2025-05-15','How to Treat Ich (White Spot Disease) in Betta Fish | Aurora Betta Farm','Step-by-step guide to treating white spot disease (Ich) in betta fish. Symptoms, treatment, and prevention tips from betta fish experts.'),
+    ','https://placehold.co/800x400/dc2626/ffffff?text=Ich+Treatment+Guide','Health','{}'::text[],'Betta World','6 min read',array['how-to-care-for-betta-fish','best-water-temperature-for-betta']::text[],true,'2025-05-15','How to Treat Ich (White Spot Disease) in Betta Fish | Betta World','Step-by-step guide to treating white spot disease (Ich) in betta fish. Symptoms, treatment, and prevention tips from betta fish experts.'),
 ('Best Water Temperature for Betta Fish: Complete Guide','best-water-temperature-for-betta','Maintaining the right water temperature is crucial for your betta''s health. Learn the ideal range and how to keep it stable.','
 ## The Ideal Temperature Range
 
@@ -168,7 +168,7 @@ Consistent, warm temperatures help prevent diseases like:
 ## Seasonal Considerations
 
 In Thailand, room temperature is often suitable for bettas. However, in air-conditioned rooms, a heater is still recommended to maintain consistent temperatures.
-    ','https://placehold.co/800x400/06b6d4/ffffff?text=Water+Temperature','Care Guide','{}'::text[],'Aurora Betta Farm','5 min read',array['how-to-care-for-betta-fish','how-to-treat-ich-white-spot-disease']::text[],true,'2025-05-10','Best Water Temperature for Betta Fish (2025 Guide) | Aurora Betta Farm','What''s the ideal water temperature for betta fish? Learn the perfect range, how to maintain it, and why it matters for your betta''s health.'),
+    ','https://placehold.co/800x400/06b6d4/ffffff?text=Water+Temperature','Care Guide','{}'::text[],'Betta World','5 min read',array['how-to-care-for-betta-fish','how-to-treat-ich-white-spot-disease']::text[],true,'2025-05-10','Best Water Temperature for Betta Fish (2025 Guide) | Betta World','What''s the ideal water temperature for betta fish? Learn the perfect range, how to maintain it, and why it matters for your betta''s health.'),
 ('Betta Fish Feeding Guide: What, How Much & How Often','betta-feeding-guide','A complete guide to feeding your betta fish. Learn the best foods, proper portions, and feeding schedules for a healthy betta.','
 ## What Do Betta Fish Eat?
 
@@ -223,7 +223,7 @@ A betta''s stomach is approximately the size of its eye. Overfeeding is the #1 m
 2. Soak pellets briefly before feeding for easier digestion
 3. Vary the diet for optimal nutrition
 4. Fast one day per week to prevent digestive issues
-    ','https://placehold.co/800x400/16a34a/ffffff?text=Feeding+Guide','Care Guide','{}'::text[],'Aurora Betta Farm','6 min read',array['how-to-care-for-betta-fish','breeding-betta-fish-basics']::text[],true,'2025-05-05','Betta Fish Feeding Guide: Diet, Portions & Schedule | Aurora Betta Farm','What should you feed your betta fish? Complete feeding guide with recommended foods, portions, and weekly schedule. Avoid overfeeding mistakes.'),
+    ','https://placehold.co/800x400/16a34a/ffffff?text=Feeding+Guide','Care Guide','{}'::text[],'Betta World','6 min read',array['how-to-care-for-betta-fish','breeding-betta-fish-basics']::text[],true,'2025-05-05','Betta Fish Feeding Guide: Diet, Portions & Schedule | Betta World','What should you feed your betta fish? Complete feeding guide with recommended foods, portions, and weekly schedule. Avoid overfeeding mistakes.'),
 ('Breeding Betta Fish: A Beginner''s Guide','breeding-betta-fish-basics','Interested in breeding betta fish? This guide covers the basics of betta breeding, from selecting pairs to raising fry.','
 ## Before You Start
 
@@ -286,7 +286,7 @@ Breeding betta fish is rewarding but challenging. Before starting, consider:
 2. Always have a backup plan for the female''s safety
 3. Indian almond leaves improve water conditions
 4. Maintain excellent water quality in the fry tank
-    ','https://placehold.co/800x400/7c3aed/ffffff?text=Breeding+Guide','Breeding','{}'::text[],'Aurora Betta Farm','10 min read',array['types-of-betta-fish','betta-feeding-guide']::text[],true,'2025-04-28','How to Breed Betta Fish: Beginner''s Guide | Aurora Betta Farm','Complete guide to breeding betta fish. Learn pair selection, conditioning, spawning process, and fry care. Expert tips from Aurora Betta Farm.'),
+    ','https://placehold.co/800x400/7c3aed/ffffff?text=Breeding+Guide','Breeding','{}'::text[],'Betta World','10 min read',array['types-of-betta-fish','betta-feeding-guide']::text[],true,'2025-04-28','How to Breed Betta Fish: Beginner''s Guide | Betta World','Complete guide to breeding betta fish. Learn pair selection, conditioning, spawning process, and fry care. Expert tips from Betta World.'),
 ('Types of Betta Fish: Halfmoon, Crowntail, Giant & More','types-of-betta-fish','Explore the stunning variety of betta fish types. From elegant Halfmoons to fierce Plakats, discover which betta is right for you.','
 ## Popular Betta Fish Types
 
@@ -362,7 +362,7 @@ Consider these factors:
 3. **Maintenance**: Long-finned varieties need more water changes
 4. **Activity level**: Plakats are most active, Halfmoons are more sedentary
 5. **Budget**: Prices vary widely based on type and quality
-    ','https://placehold.co/800x400/0ea5e9/ffffff?text=Betta+Types','Education','{}'::text[],'Aurora Betta Farm','8 min read',array['how-to-care-for-betta-fish','breeding-betta-fish-basics']::text[],true,'2025-04-20','Types of Betta Fish: Complete Guide to All Varieties | Aurora Betta Farm','Explore all types of betta fish — Halfmoon, Crowntail, Plakat, Giant, Double Tail, Dumbo Ear. Compare features, difficulty, and prices.')
+    ','https://placehold.co/800x400/0ea5e9/ffffff?text=Betta+Types','Education','{}'::text[],'Betta World','8 min read',array['how-to-care-for-betta-fish','breeding-betta-fish-basics']::text[],true,'2025-04-20','Types of Betta Fish: Complete Guide to All Varieties | Betta World','Explore all types of betta fish — Halfmoon, Crowntail, Plakat, Giant, Double Tail, Dumbo Ear. Compare features, difficulty, and prices.')
 on conflict (slug) do update set
   title=excluded.title, excerpt=excluded.excerpt, content=excluded.content,
   cover_image=excluded.cover_image, category=excluded.category, tags=excluded.tags,

@@ -19,7 +19,7 @@ export function generateLineMessage(
   const addressLine = customerAddress
     ? `\n📍 Address: ${customerAddress}`
     : "";
-  return `🐟 Order from Aurora Betta Farm:\n\n${itemLines}\n\n💰 Total: ${formatPrice(total)}\n👤 Name: ${customerName}\n📱 Phone: ${customerPhone}${addressLine}`;
+  return `🐟 Order from Betta World:\n\n${itemLines}\n\n💰 Total: ${formatPrice(total)}\n👤 Name: ${customerName}\n📱 Phone: ${customerPhone}${addressLine}`;
 }
 
 export function getLineOrderUrl(message: string): string {

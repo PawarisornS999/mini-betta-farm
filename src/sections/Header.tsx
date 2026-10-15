@@ -164,7 +164,7 @@ export default function Header() {
                 />
               </div>
               <span className="text-xl font-bold text-foreground">
-                Aurora<span className="text-accent">Betta</span>
+                Betta<span className="text-accent">World</span>
               </span>
             </Link>
 

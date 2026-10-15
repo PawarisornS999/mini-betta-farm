@@ -31,7 +31,7 @@ export default function AboutPage() {
             <div className="relative aspect-[4/3] rounded-3xl overflow-hidden">
               <Image
                 src="/assets/dbHMPK.jpg"
-                alt="Aurora Betta Farm"
+                alt="Betta World"
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 50vw"

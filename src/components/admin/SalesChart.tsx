@@ -55,12 +55,12 @@ export default function SalesChart({
               : text("ยอดขายรายเดือน · 12 เดือนล่าสุด", "Monthly sales · last 12 months")}
           </p>
         </div>
-        <div className="flex rounded-xl bg-[#f4f2ef] p-1" role="group" aria-label={text("เลือกช่วงเวลาของกราฟ", "Choose chart period")}>
+        <div className="w-full flex rounded-xl bg-[#f4f2ef] p-1" role="group" aria-label={text("เลือกช่วงเวลาของกราฟ", "Choose chart period")}>
           <button
             type="button"
             onClick={() => setView("daily")}
             aria-pressed={view === "daily"}
-            className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${view === "daily" ? "bg-white text-[#252522] shadow-sm" : "text-[#77776f]"}`}
+            className={`w-full rounded-lg px-3 py-2 text-sm font-semibold transition ${view === "daily" ? "bg-white text-[#252522] shadow-sm" : "text-[#77776f]"}`}
           >
             {text("รายวัน", "Daily")}
           </button>
@@ -68,7 +68,7 @@ export default function SalesChart({
             type="button"
             onClick={() => setView("monthly")}
             aria-pressed={view === "monthly"}
-            className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${view === "monthly" ? "bg-white text-[#252522] shadow-sm" : "text-[#77776f]"}`}
+            className={`w-full rounded-lg px-3 py-2 text-sm font-semibold transition ${view === "monthly" ? "bg-white text-[#252522] shadow-sm" : "text-[#77776f]"}`}
           >
             {text("รายเดือน", "Monthly")}
           </button>

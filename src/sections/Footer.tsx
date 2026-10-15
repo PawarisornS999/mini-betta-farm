@@ -63,7 +63,7 @@ export default function Footer() {
                 <FontAwesomeIcon icon={faFishFins} className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold">
-                Aurora<span className="text-accent">Betta</span>
+                Betta<span className="text-accent">Betta</span>
               </span>
             </Link>
             <p className="text-sm text-sky-300 mb-5 leading-relaxed">

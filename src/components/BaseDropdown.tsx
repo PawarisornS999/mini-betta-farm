@@ -45,7 +45,7 @@ export default function BaseDropdown<T extends string = string>({
   const dropdownId = id ?? generatedId;
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const touchSelectionRef = useRef(false);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const selectedOption = options.find((option) => option.value === value);
 
   useEffect(() => {
@@ -73,20 +73,20 @@ export default function BaseDropdown<T extends string = string>({
     setOpen(false);
   };
 
-  const handleOptionClick = (nextValue: T) => {
-    if (touchSelectionRef.current) {
-      touchSelectionRef.current = false;
-      return;
-    }
-    selectOption(nextValue);
+  const handleOptionTouchStart = (event: React.TouchEvent<HTMLButtonElement>) => {
+    const touch = event.changedTouches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
   };
 
-  const handleOptionTouchEnd = (nextValue: T) => {
-    touchSelectionRef.current = true;
-    selectOption(nextValue);
-    window.setTimeout(() => {
-      touchSelectionRef.current = false;
-    }, 700);
+  const handleOptionTouchEnd = (nextValue: T, event: React.TouchEvent<HTMLButtonElement>) => {
+    const touch = event.changedTouches[0];
+    const start = touchStartRef.current;
+    touchStartRef.current = null;
+    // Only treat a tap as a selection; a finger moving through the list is scrolling.
+    if (start && Math.hypot(touch.clientX - start.x, touch.clientY - start.y) < 10) {
+      event.preventDefault();
+      selectOption(nextValue);
+    }
   };
 
   return (
@@ -122,15 +122,19 @@ export default function BaseDropdown<T extends string = string>({
       {open && (
         <div
           role="listbox"
-          className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 overflow-auto rounded-xl border border-gray-100 bg-white p-1.5 shadow-lg"
+          className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 overflow-y-auto overscroll-contain rounded-xl border border-gray-100 bg-white p-1.5 shadow-lg touch-pan-y"
+          style={{ WebkitOverflowScrolling: "touch" }}
         >
           {placeholder !== undefined && (
             <button
               type="button"
               role="option"
               aria-selected={value === ""}
-              onTouchEnd={() => handleOptionTouchEnd("" as T)}
-              onClick={() => handleOptionClick("" as T)}
+              onTouchStart={handleOptionTouchStart}
+              onTouchEnd={(event) => handleOptionTouchEnd("" as T, event)}
+              onClick={(event) => {
+                if (event.detail === 0) selectOption("" as T);
+              }}
               className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-accent/10 ${value === "" ? "bg-accent/10 text-accent font-medium" : "text-muted"}`}
             >
               {placeholder}
@@ -142,8 +146,11 @@ export default function BaseDropdown<T extends string = string>({
               type="button"
               role="option"
               aria-selected={option.value === value}
-              onTouchEnd={() => handleOptionTouchEnd(option.value)}
-              onClick={() => handleOptionClick(option.value)}
+              onTouchStart={handleOptionTouchStart}
+              onTouchEnd={(event) => handleOptionTouchEnd(option.value, event)}
+              onClick={(event) => {
+                if (event.detail === 0) selectOption(option.value);
+              }}
               className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-accent/10 ${option.value === value ? "bg-accent/10 text-accent font-medium" : "text-foreground"}`}
             >
               {option.label}

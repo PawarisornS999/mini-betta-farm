@@ -57,13 +57,13 @@ Betta fish (Siamese fighting fish) are one of the most popular freshwater aquari
 With proper care, betta fish can live 3-5 years and bring daily joy. Invest in the right setup, maintain consistent water quality, and your betta will thrive.
     `,
     date: "2025-05-20",
-    author: "Aurora Betta Farm",
+    author: "Betta World",
     category: "Care Guide",
     readTime: "8 min read",
     seo: {
-      title: "Complete Betta Fish Care Guide 2025 | Aurora Betta Farm",
+      title: "Complete Betta Fish Care Guide 2025 | Betta World",
       description:
-        "Learn how to properly care for betta fish. Tank setup, feeding, water parameters, and common mistakes. Expert guide from Aurora Betta Farm.",
+        "Learn how to properly care for betta fish. Tank setup, feeding, water parameters, and common mistakes. Expert guide from Betta World.",
     },
     relatedSlugs: ["best-water-temperature-for-betta", "betta-feeding-guide"],
   },
@@ -120,12 +120,12 @@ Gradually increase water temperature to 30°C (86°F) over 24-48 hours. This spe
 If symptoms don't improve after 7-10 days of treatment, consult an aquatic veterinarian.
     `,
     date: "2025-05-15",
-    author: "Aurora Betta Farm",
+    author: "Betta World",
     category: "Health",
     readTime: "6 min read",
     seo: {
       title:
-        "How to Treat Ich (White Spot Disease) in Betta Fish | Aurora Betta Farm",
+        "How to Treat Ich (White Spot Disease) in Betta Fish | Betta World",
       description:
         "Step-by-step guide to treating white spot disease (Ich) in betta fish. Symptoms, treatment, and prevention tips from betta fish experts.",
     },
@@ -188,12 +188,12 @@ Consistent, warm temperatures help prevent diseases like:
 In Thailand, room temperature is often suitable for bettas. However, in air-conditioned rooms, a heater is still recommended to maintain consistent temperatures.
     `,
     date: "2025-05-10",
-    author: "Aurora Betta Farm",
+    author: "Betta World",
     category: "Care Guide",
     readTime: "5 min read",
     seo: {
       title:
-        "Best Water Temperature for Betta Fish (2025 Guide) | Aurora Betta Farm",
+        "Best Water Temperature for Betta Fish (2025 Guide) | Betta World",
       description:
         "What's the ideal water temperature for betta fish? Learn the perfect range, how to maintain it, and why it matters for your betta's health.",
     },
@@ -264,12 +264,12 @@ A betta's stomach is approximately the size of its eye. Overfeeding is the #1 mi
 4. Fast one day per week to prevent digestive issues
     `,
     date: "2025-05-05",
-    author: "Aurora Betta Farm",
+    author: "Betta World",
     category: "Care Guide",
     readTime: "6 min read",
     seo: {
       title:
-        "Betta Fish Feeding Guide: Diet, Portions & Schedule | Aurora Betta Farm",
+        "Betta Fish Feeding Guide: Diet, Portions & Schedule | Betta World",
       description:
         "What should you feed your betta fish? Complete feeding guide with recommended foods, portions, and weekly schedule. Avoid overfeeding mistakes.",
     },
@@ -346,13 +346,13 @@ Breeding betta fish is rewarding but challenging. Before starting, consider:
 4. Maintain excellent water quality in the fry tank
     `,
     date: "2025-04-28",
-    author: "Aurora Betta Farm",
+    author: "Betta World",
     category: "Breeding",
     readTime: "10 min read",
     seo: {
-      title: "How to Breed Betta Fish: Beginner's Guide | Aurora Betta Farm",
+      title: "How to Breed Betta Fish: Beginner's Guide | Betta World",
       description:
-        "Complete guide to breeding betta fish. Learn pair selection, conditioning, spawning process, and fry care. Expert tips from Aurora Betta Farm.",
+        "Complete guide to breeding betta fish. Learn pair selection, conditioning, spawning process, and fry care. Expert tips from Betta World.",
     },
     relatedSlugs: ["types-of-betta-fish", "betta-feeding-guide"],
   },
@@ -439,12 +439,12 @@ Consider these factors:
 5. **Budget**: Prices vary widely based on type and quality
     `,
     date: "2025-04-20",
-    author: "Aurora Betta Farm",
+    author: "Betta World",
     category: "Education",
     readTime: "8 min read",
     seo: {
       title:
-        "Types of Betta Fish: Complete Guide to All Varieties | Aurora Betta Farm",
+        "Types of Betta Fish: Complete Guide to All Varieties | Betta World",
       description:
         "Explore all types of betta fish — Halfmoon, Crowntail, Plakat, Giant, Double Tail, Dumbo Ear. Compare features, difficulty, and prices.",
     },

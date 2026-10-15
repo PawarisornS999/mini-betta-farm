@@ -27,7 +27,7 @@ export function ProductJsonLd({
     url,
     brand: {
       "@type": "Brand",
-      name: "Aurora Betta Farm",
+      name: "Betta World",
     },
     offers: {
       "@type": "Offer",
@@ -36,7 +36,7 @@ export function ProductJsonLd({
       availability: `https://schema.org/${availability}`,
       seller: {
         "@type": "Organization",
-        name: "Aurora Betta Farm",
+        name: "Betta World",
       },
     },
   };
@@ -68,7 +68,7 @@ export function ArticleJsonLd({
   url,
   datePublished,
   dateModified,
-  author = "Aurora Betta Farm",
+  author = "Betta World",
 }: ArticleJsonLdProps) {
   const jsonLd = {
     "@context": "https://schema.org",
@@ -86,7 +86,7 @@ export function ArticleJsonLd({
     },
     publisher: {
       "@type": "Organization",
-      name: "Aurora Betta Farm",
+      name: "Betta World",
       logo: {
         "@type": "ImageObject",
         url: "https://minibettafarm.com/logo.png",
@@ -108,7 +108,7 @@ export function OrganizationJsonLd() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "Aurora Betta Farm",
+    name: "Betta World",
     url: "https://minibettafarm.com",
     logo: "https://minibettafarm.com/favicon.ico",
     sameAs: [

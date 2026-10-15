@@ -21,7 +21,7 @@ export function generateLineMessage(
     )
     .join("\n");
 
-  let msg = `🐟 คำสั่งซื้อจาก Aurora Betta Farm\n`;
+  let msg = `🐟 คำสั่งซื้อจาก Betta World\n`;
   msg += `━━━━━━━━━━━━━━━━━━━━\n`;
   msg += `👤 ชื่อ: ${customerName}\n`;
   msg += `📱 เบอร์: ${customerPhone}\n`;
