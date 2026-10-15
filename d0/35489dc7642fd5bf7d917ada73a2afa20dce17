@@ -1,0 +1,20 @@
+src/components/BaseDropdown.tsx
+  s_339b3728dfb4c9::t_4c586a387e352a 125-126
+  s_339b3728dfb4c9::t_5c01217a13a911 48,76-78,81-89,133-137,149-153
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.3",
+  "base_commit_sha": "d035489dc7642fd5bf7d917ada73a2afa20dce17",
+  "prompts": {},
+  "sessions": {
+    "s_339b3728dfb4c9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13ecb-c0cf-7653-a701-7e000e6cb49b",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Pawarisorn <pawarisorn.son@axonstech.com>"
+    }
+  }
+}
