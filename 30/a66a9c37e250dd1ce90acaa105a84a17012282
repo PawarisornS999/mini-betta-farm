@@ -1,0 +1,25 @@
+src/app/shop/[id]/page.tsx
+  s_e7c55b395700a6::t_8d19ee82db9478 146-147,154,169,197,215,240,244-245,255,259,261,297,316-317
+src/components/BaseDropdown.tsx
+  s_e7c55b395700a6::t_8e4947ed9ae6d7 135,149
+src/sections/Header.tsx
+  s_e7c55b395700a6::t_48e6d103291a98 176,196,306,326
+  s_e7c55b395700a6::t_473aec44ebc860 100-103,210-213,285-289,307-310
+  s_e7c55b395700a6::t_17843ff72fb82c 99
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.3",
+  "base_commit_sha": "30a66a9c37e250dd1ce90acaa105a84a17012282",
+  "prompts": {},
+  "sessions": {
+    "s_e7c55b395700a6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13f06-34e2-7910-81cf-64fa5a0a0534",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Pawarisorn <pawarisorn.son@axonstech.com>"
+    }
+  }
+}
