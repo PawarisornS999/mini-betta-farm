@@ -122,12 +122,14 @@ export default function OrdersPage() {
             <h1 className="text-3xl font-bold">การซื้อของฉัน</h1>
             <p className="mt-2 text-muted">ติดตามสถานะคำสั่งซื้อของคุณ</p>
           </div>
-          <Link href="/tracking" className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-red-700">
+          <div className="flex flex-row gap-2">
+            <Link href="/tracking" className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-red-700">
             ติดตามพัสดุ
           </Link>
           <Link href="/refunds" className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm font-bold text-amber-800 hover:bg-amber-100">
             สถานะคืนเงิน
           </Link>
+          </div>
         </div>
         <div className="bg-white rounded-md p-2 mt-4 shadow-lg">
           {cancelError && <p role="alert" className="mx-2 mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{cancelError}</p>}
