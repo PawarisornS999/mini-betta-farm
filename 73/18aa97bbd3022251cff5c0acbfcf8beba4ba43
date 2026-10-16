@@ -1,0 +1,91 @@
+src/app/checkout/page.tsx
+  s_10d7d19f64a180::t_af81790774244a 20,442
+src/lib/supabase/mappers.ts
+  s_10d7d19f64a180::t_81466856d82e45 9-11,85-93,98-104
+src/app/cart/page.tsx
+  s_10d7d19f64a180::t_7a87943a6ea427 15,100
+src/components/admin/ProductsAdminClient.tsx
+  s_10d7d19f64a180::t_a797b539098cc9 830-837,839-846,848-855,857
+  s_10d7d19f64a180::t_e6f853c4c67d78 625,829,838,847,856
+  s_10d7d19f64a180::t_757f667bd67a58 543-544,624
+  s_10d7d19f64a180::t_cf7bcf2816e482 19-21,41-43,90-93,247-249,259-260,266-270,280-282
+  s_10d7d19f64a180::t_907151b4778ef4 66-70,516
+  s_10d7d19f64a180::t_36b2f02b762f71 515
+  s_10d7d19f64a180::t_3d04f85b453af0 517
+src/types/index.ts
+  s_10d7d19f64a180::t_b173889dea7315 133,135-138
+  s_10d7d19f64a180::t_83114d3af83325 89-94
+src/app/profile/page.tsx
+  s_e0e3f5a205a203::t_5b8f0a2b644730 32-43,48,55,120-123,178,375,377
+src/lib/utils/product.ts
+  s_10d7d19f64a180::t_3976d77ca1bb05 1-2,6,8
+  s_10d7d19f64a180::t_71a00f525d7c4f 3-5,7
+src/app/api/customer/orders/[id]/cancel/route.ts
+  s_4ab6e3b1f2c78e::t_9923411635b845 1-33
+src/app/orders/page.tsx
+  s_4ab6e3b1f2c78e::t_2ce77c5f3c47a7 10,50,60,213,254-257,261-265
+  s_4ab6e3b1f2c78e::t_9923411635b845 48-49,52-59,61-66,129,208-212,214,216-218,236
+  s_4ab6e3b1f2c78e::t_94b9e8cafcf21c 258,260
+  s_4ab6e3b1f2c78e::t_ca03eb4c943bdd 51
+  s_4ab6e3b1f2c78e::t_8cfbd1f995d7e8 215
+  s_4ab6e3b1f2c78e::t_9cdaebf660d764 219-221
+  s_4ab6e3b1f2c78e::t_6a9b3eaaca717a 259
+  s_10d7d19f64a180::t_e1a4f1b7242893 222,225,232,245-246
+src/components/ProductCard.tsx
+  s_10d7d19f64a180::t_a415d97eaad8be 13,138,140-142
+  s_10d7d19f64a180::t_e6f853c4c67d78 139
+src/sections/PetFoodies.tsx
+  s_e0e3f5a205a203::t_5229264efd8bcc 12-20,63-68
+  s_e0e3f5a205a203::t_8a4f2f7e798b70 69-71
+src/app/api/admin/products/route.ts
+  s_10d7d19f64a180::t_d8d89961146d17 12-14,42-45,58-60
+src/app/api/admin/products/[id]/route.ts
+  s_10d7d19f64a180::t_aa6c54d5a89abc 12-21,25-26
+supabase/migrations/202610160001_product_sale_prices.sql
+  s_10d7d19f64a180::t_0f9b9253cf65ef 1-114
+src/components/CartSidebar.tsx
+  s_10d7d19f64a180::t_6184400d184111 8,92
+src/store/cart.ts
+  s_10d7d19f64a180::t_b3cd5ac4a016e3 4,106
+  s_10d7d19f64a180::t_3bd449ebd8ac70 18,20-23
+src/app/shop/[id]/page.tsx
+  s_10d7d19f64a180::t_e6f853c4c67d78 285
+  s_10d7d19f64a180::t_519a5712146311 21,284,286
+  s_10d7d19f64a180::t_c5bb0eae1ffa99 7,39-45,145-165
+  s_10d7d19f64a180::t_fdd8a830f843db 504
+  s_10d7d19f64a180::t_006ed6a71d0170 328-365,367-368
+  s_10d7d19f64a180::t_51acddde606498 166
+  s_10d7d19f64a180::t_924263c8e634cc 287-288
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.3",
+  "base_commit_sha": "7318aa97bbd3022251cff5c0acbfcf8beba4ba43",
+  "prompts": {},
+  "sessions": {
+    "s_10d7d19f64a180": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14528-9d35-7ef3-a705-6780210de419",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Pawarisorn <pawarisorn.son@axonstech.com>"
+    },
+    "s_4ab6e3b1f2c78e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14466-277f-7fd1-90cb-a73049457c62",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Pawarisorn <pawarisorn.son@axonstech.com>"
+    },
+    "s_e0e3f5a205a203": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14501-52aa-7032-b293-339a0b8167ef",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Pawarisorn <pawarisorn.son@axonstech.com>"
+    }
+  }
+}
