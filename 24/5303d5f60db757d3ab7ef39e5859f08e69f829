@@ -1,0 +1,19 @@
+src/app/api/orders/checkout/route.ts
+  s_4ab6e3b1f2c78e::t_da0eaa6e5c00b8 80
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.3",
+  "base_commit_sha": "245303d5f60db757d3ab7ef39e5859f08e69f829",
+  "prompts": {},
+  "sessions": {
+    "s_4ab6e3b1f2c78e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14466-277f-7fd1-90cb-a73049457c62",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Pawarisorn <pawarisorn.son@axonstech.com>"
+    }
+  }
+}
