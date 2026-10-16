@@ -1,0 +1,30 @@
+src/components/BaseDropdown.tsx
+  s_10d7d19f64a180::t_4811319a81abaa 97,112
+src/app/shop/page.tsx
+  s_10d7d19f64a180::t_213d949349c479 306-310
+  s_10d7d19f64a180::t_36109b90b899b7 19-31,37,61,223-245,247,284,304
+  s_10d7d19f64a180::t_a410692a24512e 161,163,176,184,199,203
+src/components/ProductCard.tsx
+  s_10d7d19f64a180::t_98d9c1cb6cbf44 82,168,177
+  s_10d7d19f64a180::t_d1b1e002d1de6e 18,21,170,178,182,194,208
+src/components/WishlistButton.tsx
+  s_10d7d19f64a180::t_de9642958b2057 4-5,22-23,30,47-61,76,78,89-103
+src/components/LazyProductCard.tsx
+  s_10d7d19f64a180::t_1c78e0845f07ce 8,31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.3",
+  "base_commit_sha": "51f889fc3681e6481b7901ae71fb21ad5e09cbba",
+  "prompts": {},
+  "sessions": {
+    "s_10d7d19f64a180": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14528-9d35-7ef3-a705-6780210de419",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Pawarisorn <pawarisorn.son@axonstech.com>"
+    }
+  }
+}
