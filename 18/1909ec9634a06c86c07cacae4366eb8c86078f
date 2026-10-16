@@ -1,0 +1,33 @@
+src/app/api/orders/checkout/route.ts
+  s_4ab6e3b1f2c78e::t_36f4c79cba6b84 78-80,82-83
+src/app/admin/login/page.tsx
+  s_4ab6e3b1f2c78e::t_e5fb9ce495d350 17-32,38-46,49-85
+src/lib/utils.ts
+  s_4ab6e3b1f2c78e::t_1458f4b76a2b9c 1-9
+src/sections/Header.tsx
+  s_4ab6e3b1f2c78e::t_ab6b51ef02fc3e 31,129,135-144,275,277
+  s_4ab6e3b1f2c78e::t_31ae3087db21ed 274,276,278-281
+  s_4ab6e3b1f2c78e::t_762017088e59a6 273
+src/app/orders/[id]/OrderStatusClient.tsx
+  s_4ab6e3b1f2c78e::t_1458f4b76a2b9c 13,273
+src/components/admin/OrdersAdminClient.tsx
+  s_4ab6e3b1f2c78e::t_1458f4b76a2b9c 15,318
+src/app/orders/page.tsx
+  s_4ab6e3b1f2c78e::t_1458f4b76a2b9c 11,98,180
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.3",
+  "base_commit_sha": "181909ec9634a06c86c07cacae4366eb8c86078f",
+  "prompts": {},
+  "sessions": {
+    "s_4ab6e3b1f2c78e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14466-277f-7fd1-90cb-a73049457c62",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Pawarisorn <pawarisorn.son@axonstech.com>"
+    }
+  }
+}
