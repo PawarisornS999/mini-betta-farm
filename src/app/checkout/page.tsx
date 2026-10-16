@@ -18,6 +18,7 @@ import { searchAddressByProvince } from "thai-address-database";
 import type { CheckoutPayload, CustomerProfile } from "@/types";
 import { faBoxOpen, faArrowLeft, faCartShopping, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { effectiveProductPrice } from "@/lib/utils/product";
+import { welcomeCouponDiscount } from "@/lib/orders/welcome-coupon";
 
 const thaiAddresses = searchAddressByProvince(".", 10000);
 
@@ -25,6 +26,13 @@ type LineState =
   | { status: "loading" }
   | { status: "required" }
   | { status: "connected"; displayName: string };
+
+type WelcomeCoupon = {
+  code: string;
+  discountPercent: number;
+  maxDiscount: number;
+  available: boolean;
+};
 
 function uniqueValues(values: string[]) {
   return Array.from(new Set(values)).sort((first, second) =>
@@ -47,6 +55,7 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [lineState, setLineState] = useState<LineState>({ status: "loading" });
+  const [welcomeCoupon, setWelcomeCoupon] = useState<WelcomeCoupon | null>(null);
   const lang = useLangStore((s) => s.lang);
   const t = getT(lang).checkout;
   const provinces = useMemo(
@@ -137,10 +146,26 @@ export default function CheckoutPage() {
           setLineState({ status: "required" });
           return;
         }
-        setLineState({
-          status: "connected",
-          displayName: result.data.displayName || "LINE user",
-        });
+        try {
+          const couponResponse = await fetch("/api/customer/welcome-coupon", {
+            cache: "no-store",
+          });
+          if (couponResponse.ok) {
+            const couponResult = await couponResponse.json() as {
+              data: WelcomeCoupon | null;
+            };
+            if (active) setWelcomeCoupon(couponResult.data);
+          }
+        } catch (couponError) {
+          console.error("Welcome coupon preload failed", couponError);
+        }
+
+        if (active) {
+          setLineState({
+            status: "connected",
+            displayName: result.data.displayName || "LINE user",
+          });
+        }
 
         try {
           const profileResponse = await fetch("/api/customer/profile", { cache: "no-store" });
@@ -188,6 +213,7 @@ export default function CheckoutPage() {
         productId: item.product.id,
         quantity: item.quantity,
       })),
+      useWelcomeCoupon: welcomeCoupon?.available === true,
       rememberProfile,
       profile: {
         customerName: name,
@@ -202,6 +228,12 @@ export default function CheckoutPage() {
 
     await completeCheckout(payload);
   };
+
+  const subtotal = totalPrice();
+  const welcomeDiscount = welcomeCouponDiscount(
+    subtotal,
+    welcomeCoupon?.available === true,
+  );
 
   if (items.length === 0) {
     return (
@@ -444,10 +476,26 @@ export default function CheckoutPage() {
                     </div>
                   ))}
                 </div>
+                {welcomeCoupon?.available && (
+                  <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm">
+                    <p className="font-semibold text-emerald-800">
+                      {lang === "en" ? "Welcome coupon applied" : "ใช้คูปองต้อนรับลูกค้าใหม่แล้ว"}
+                    </p>
+                    <p className="mt-1 text-xs text-emerald-700">
+                      {welcomeCoupon.code} · {lang === "en" ? "50% off fish, up to ฿200" : "ลดราคาปลา 50% สูงสุด ฿200"}
+                    </p>
+                  </div>
+                )}
                 <hr className="my-4" />
+                {welcomeDiscount > 0 && (
+                  <div className="mb-2 flex justify-between text-sm text-emerald-700">
+                    <span>{lang === "en" ? "Welcome discount" : "ส่วนลดคูปองต้อนรับ"}</span>
+                    <span>−{formatPrice(welcomeDiscount)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between mb-6">
                   <span className="font-bold text-foreground">{t.total}</span>
-                  <span className="text-xl font-bold text-accent">{formatPrice(orderTotal(totalPrice(), SHIPPING_FEE))}</span>
+                  <span className="text-xl font-bold text-accent">{formatPrice(orderTotal(subtotal, SHIPPING_FEE, welcomeDiscount))}</span>
                 </div>
                 <p className="text-xs text-muted text-right -mt-4 mb-5">รวมค่าส่ง {formatPrice(SHIPPING_FEE)} แล้ว</p>
 

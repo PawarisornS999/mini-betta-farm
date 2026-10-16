@@ -53,6 +53,7 @@ export async function POST(request: Request) {
         p_notes: body.notes ?? "",
         p_items: body.items,
         p_line_user_id: lineSession.userId,
+        p_use_welcome_coupon: body.useWelcomeCoupon === true,
       }),
       serviceRole: true,
     });

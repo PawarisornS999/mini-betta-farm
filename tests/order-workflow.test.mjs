@@ -12,6 +12,7 @@ async function loadModule(path) {
 }
 
 const workflow = await loadModule("src/lib/orders/workflow.ts");
+const welcomeCoupon = await loadModule("src/lib/orders/welcome-coupon.ts");
 const line = await loadModule("src/lib/utils/line.ts");
 const messaging = await loadModule("src/lib/line/messaging.ts");
 const inventory = await loadModule("src/lib/inventory.ts");
@@ -23,12 +24,22 @@ test("fixed shipping is included exactly once", () => {
   assert.throws(() => workflow.orderTotal(350, -80));
 });
 
+test("welcome coupon discounts half the fish subtotal up to 200 baht without reducing shipping", () => {
+  assert.equal(welcomeCoupon.welcomeCouponDiscount(300, true), 150);
+  assert.equal(welcomeCoupon.welcomeCouponDiscount(400, true), 200);
+  assert.equal(welcomeCoupon.welcomeCouponDiscount(1000, true), 200);
+  assert.equal(welcomeCoupon.welcomeCouponDiscount(99.99, true), 50);
+  assert.equal(welcomeCoupon.welcomeCouponDiscount(500, false), 0);
+  assert.equal(welcomeCoupon.welcomeCouponDiscount(0, true), 0);
+  assert.equal(workflow.orderTotal(1000, workflow.SHIPPING_FEE, welcomeCoupon.welcomeCouponDiscount(1000, true)), 880);
+});
+
 test("paid or shipped orders cannot be cancelled and unpaid orders cannot ship", () => {
   assert.equal(workflow.canUpdateOrder({ status: "pending", paymentStatus: "awaiting_slip", shippingStatus: "pending" }, "cancel"), true);
   assert.equal(workflow.canUpdateOrder({ status: "processing", paymentStatus: "paid", shippingStatus: "pending" }, "cancel"), false);
   assert.equal(workflow.canUpdateOrder({ status: "pending", paymentStatus: "awaiting_slip", shippingStatus: "pending" }, "shipped"), false);
   assert.equal(workflow.canUpdateOrder({ status: "processing", paymentStatus: "paid", shippingStatus: "pending" }, "shipped"), false);
-  assert.equal(workflow.canUpdateOrder({ status: "processing", paymentStatus: "paid", shippingStatus: "ready_to_ship" }, "shipped"), true);
+  assert.equal(workflow.canUpdateOrder({ status: "processing", paymentStatus: "paid", shippingStatus: "ready_to_ship", trackingNumber: "TH123456789" }, "shipped"), true);
   assert.equal(workflow.canUpdateOrder({ status: "pending", paymentStatus: "slip_submitted", shippingStatus: "pending", slipPath: "slip.jpg" }, "paid"), true);
   assert.equal(workflow.canUpdateOrder({ status: "pending", paymentStatus: "slip_submitted", shippingStatus: "pending" }, "paid"), false);
 });

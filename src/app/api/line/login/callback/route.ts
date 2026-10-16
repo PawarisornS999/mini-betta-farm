@@ -8,6 +8,7 @@ import {
   LINE_SESSION_MAX_AGE,
   readLineAuthTransaction,
 } from "@/lib/line/login";
+import { supabaseRest } from "@/lib/supabase/rest";
 
 function loginError(request: NextRequest, code: string, returnTo = "/checkout") {
   const redirectUrl = new URL(returnTo, request.url);
@@ -37,6 +38,17 @@ export async function GET(request: NextRequest) {
       request.nextUrl.origin,
     );
     if (!friend) return loginError(request, "friend-required", transaction.returnTo);
+
+    try {
+      await supabaseRest("rpc/grant_welcome_coupon", {
+        method: "POST",
+        body: JSON.stringify({ p_line_user_id: session.userId }),
+        serviceRole: true,
+      });
+    } catch (couponError) {
+      // Do not block LINE login if coupon storage is temporarily unavailable.
+      console.error("Welcome coupon grant failed", couponError);
+    }
 
     const redirectUrl = new URL(transaction.returnTo, request.nextUrl.origin);
     redirectUrl.searchParams.set("line", "connected");

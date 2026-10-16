@@ -3,8 +3,8 @@ import { supabaseRest } from "@/lib/supabase/rest";
 
 export type OrderRow = {
   id: string; customer_name: string; customer_phone: string; customer_address: string | null;
-  notes: string | null; subtotal: number | string; shipping_fee: number | string;
-  discount: number | string; total_price: number | string; status: Order["status"];
+  notes: string | null; subtotal: number | string; discount: number | string;
+  shipping_fee: number | string; total_price: number | string; status: Order["status"];
   payment_status: Order["paymentStatus"]; shipping_status: Order["shippingStatus"];
   tracking_number: string | null; slip_path: string | null; line_user_id: string | null;
   customer_token?: string; created_at: string; reservation_expires_at: string | null;
@@ -15,7 +15,7 @@ export function mapOrder(row: OrderRow): Order {
   return {
     id: row.id, customerName: row.customer_name, customerPhone: row.customer_phone,
     customerAddress: row.customer_address || undefined, notes: row.notes || undefined,
-    subtotal: Number(row.subtotal), shippingFee: Number(row.shipping_fee),
+    subtotal: Number(row.subtotal), discount: Number(row.discount), shippingFee: Number(row.shipping_fee),
     totalPrice: Number(row.total_price), status: row.status,
     paymentStatus: row.payment_status, shippingStatus: row.shipping_status,
     trackingNumber: row.tracking_number || undefined, slipPath: row.slip_path || undefined,
@@ -30,7 +30,7 @@ export function mapOrder(row: OrderRow): Order {
   };
 }
 
-const select = "id,customer_name,customer_phone,customer_address,notes,subtotal,shipping_fee,discount,total_price,status,payment_status,shipping_status,tracking_number,slip_path,line_user_id,customer_token,created_at,reservation_expires_at,order_items(id,product_id,product_name,price,quantity)";
+const select = "id,customer_name,customer_phone,customer_address,notes,subtotal,discount,shipping_fee,total_price,status,payment_status,shipping_status,tracking_number,slip_path,line_user_id,customer_token,created_at,reservation_expires_at,order_items(id,product_id,product_name,price,quantity)";
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function getOrder(id: string, token?: string) {

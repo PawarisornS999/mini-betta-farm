@@ -264,6 +264,12 @@ export default function OrderStatusClient({ id }: { id: string }) {
                     <span>{text("ค่าจัดส่ง", "Shipping")}</span>
                     <span>{formatMoney(order?.shippingFee || 0)}</span>
                   </div>
+                  {(order?.discount || 0) > 0 && (
+                    <div className="flex justify-between text-emerald-700">
+                      <span>{text("ส่วนลดคูปอง", "Coupon discount")}</span>
+                      <span>−{formatMoney(order?.discount || 0)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-bold text-slate-800">
                     <span>{text("สถานะ", "Status")}</span>
                     <span>{status}</span>

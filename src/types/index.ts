@@ -215,6 +215,7 @@ export interface Order {
   items: OrderItem[];
   totalPrice?: number;
   subtotal?: number;
+  discount?: number;
   shippingFee?: number;
   shippingQuoted?: boolean;
   paymentStatus?: "pending" | "awaiting_slip" | "slip_submitted" | "paid" | "rejected" | "failed" | "refunded";
@@ -321,6 +322,7 @@ export interface CheckoutPayload {
   customerAddress?: string;
   notes?: string;
   items: { productId: string; quantity: number }[];
+  useWelcomeCoupon?: boolean;
   rememberProfile?: boolean;
   profile?: CustomerProfileInput;
 }
