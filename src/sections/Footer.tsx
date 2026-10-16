@@ -48,7 +48,7 @@ export default function Footer() {
     ],
   };
   return (
-    <footer className="bg-sky-950 text-white pt-14 pb-6">
+    <footer className="bg-sky-950 text-white pt-14 pb-6 mt-12 md:mt-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

@@ -7,6 +7,7 @@ import { motion } from "motion/react";
 import CartSidebar from "@/components/CartSidebar";
 import Breadcrumb from "@/components/Breadcrumb";
 import { useCartStore } from "@/store/cart";
+import { useWishlistStore } from "@/store/wishlist";
 import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -19,6 +20,7 @@ import {
   faXmark,
   faSignOutAlt,
   faBagShopping,
+  faHeart,
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function Header() {
@@ -35,6 +37,7 @@ export default function Header() {
   } | null>(null);
   const pathname = usePathname();
   const cartItems = useCartStore((s) => s.items);
+  const resetWishlist = useWishlistStore((s) => s.reset);
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const { lang, toggle } = useLangStore();
   const t = getT(lang);
@@ -49,6 +52,7 @@ export default function Header() {
     profile: t.nav.profile,
     orders: lang === "en" ? "My Orders" : "การซื้อของฉัน",
     tracking: lang === "en" ? "Track Shipment" : "ติดตามพัสดุ",
+    wishlist: lang === "en" ? "Wishlist" : "รายการที่ชอบ",
   };
   const breadcrumbItems =
     pathname === "/" || pathname === "/tracking"
@@ -111,6 +115,7 @@ export default function Header() {
   async function logout() {
     await fetch("/api/line/logout", { method: "POST" });
     setLineProfile(null);
+    resetWishlist();
     setUserMenuOpen(false);
   }
 
@@ -132,14 +137,17 @@ export default function Header() {
             displayName: result.data.displayName,
             pictureUrl: result.data.pictureUrl,
           });
-          const ordersResponse = await fetch("/api/customer/orders", { cache: "no-store" });
+          const ordersResponse = await fetch("/api/customer/orders", {
+            cache: "no-store",
+          });
           if (!ordersResponse.ok) return;
           const ordersBody = (await ordersResponse.json()) as {
             data?: Array<{ status?: string; paymentStatus?: string }>;
           };
           setHasUnpaidOrders(
             (ordersBody.data ?? []).some(
-              (order) => order.status !== "cancelled" && order.paymentStatus !== "paid",
+              (order) =>
+                order.status !== "cancelled" && order.paymentStatus !== "paid",
             ),
           );
         }
@@ -239,11 +247,17 @@ export default function Header() {
                           aria-label={lineProfile.displayName || "LINE profile"}
                         />
                       ) : (
-                        <span id="user-avatar" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-200">
+                        <span
+                          id="user-avatar"
+                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-200"
+                        >
                           <FontAwesomeIcon icon={faUser} className="h-4 w-4" />
                         </span>
                       )}
-                      <span id="user-name" className="hidden max-w-32 truncate text-sm font-semibold sm:block">
+                      <span
+                        id="user-name"
+                        className="hidden max-w-32 truncate text-sm font-semibold sm:block"
+                      >
                         {lineProfile.displayName || t.nav.profile}
                       </span>
                       <FontAwesomeIcon
@@ -261,7 +275,10 @@ export default function Header() {
                           onClick={() => setUserMenuOpen(false)}
                           className="block rounded-xl px-4 py-3 text-sm font-semibold hover:bg-accent/10 hover:text-accent"
                         >
-                          <FontAwesomeIcon icon={faUser} className="mr-2 w-3.5 h-3.5" />
+                          <FontAwesomeIcon
+                            icon={faUser}
+                            className="mr-2 w-3.5 h-3.5"
+                          />
                           {t.nav.profile}
                         </Link>
                         <Link
@@ -269,23 +286,50 @@ export default function Header() {
                           onClick={() => setUserMenuOpen(false)}
                           className="block rounded-xl px-4 py-3 text-sm font-semibold hover:bg-accent/10 hover:text-accent"
                         >
-                          <FontAwesomeIcon icon={faBagShopping} className="mr-2 w-3.5 h-3.5" />
+                          <FontAwesomeIcon
+                            icon={faBagShopping}
+                            className="mr-2 w-3.5 h-3.5"
+                          />
                           <span className="inline-flex items-center gap-2 pb-1">
                             {lang === "en" ? "My Orders" : "การซื้อของฉัน"}
                             {hasUnpaidOrders && (
                               <span
-                                aria-label={lang === "en" ? "Unpaid orders" : "มีคำสั่งซื้อที่ยังไม่ได้ชำระเงิน"}
+                                aria-label={
+                                  lang === "en"
+                                    ? "Unpaid orders"
+                                    : "มีคำสั่งซื้อที่ยังไม่ได้ชำระเงิน"
+                                }
                                 className="h-2 w-2 rounded-full bg-red-500"
                               />
                             )}
                           </span>
                         </Link>
+              {lineProfile && <Link
+                          href="/wishlist"
+                          aria-label={
+                            lang === "en" ? "Wishlist" : "รายการที่ชอบ"
+                          }
+                          title={lang === "en" ? "Wishlist" : "รายการที่ชอบ"}
+                          onClick={() => {
+                            setMobileOpen(false);
+                            setUserMenuOpen(false);
+                          }}
+                          className="block rounded-xl px-4 py-3 text-sm font-semibold hover:bg-accent/10 hover:text-accent"
+                        >
+                          <FontAwesomeIcon icon={faHeart} className="mr-2 h-5 w-5" />
+                          <span aria-label={lang === "en" ? "Wishlist" : "รายการที่ชอบ"} className="inline-flex items-center gap-2 pb-1">
+                            {lang === "en" ? "Wishlist" : "รายการที่ชอบ"}
+                          </span>
+              </Link>}
                         <button
                           type="button"
                           onClick={() => void logout()}
                           className="block w-full rounded-xl px-4 py-3 text-left text-sm font-semibold text-red-600 hover:bg-red-50"
                         >
-                          <FontAwesomeIcon icon={faSignOutAlt} className="mr-2 w-3.5 h-3.5" />
+                          <FontAwesomeIcon
+                            icon={faSignOutAlt}
+                            className="mr-2 w-3.5 h-3.5"
+                          />
                           ออกจากระบบ
                         </button>
                       </div>

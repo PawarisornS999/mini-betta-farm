@@ -11,6 +11,7 @@ import { formatPrice } from "@/lib/utils";
 import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
 import { calculateDiscount } from "@/lib/utils/product";
+import WishlistButton from "@/components/WishlistButton";
 
 interface ProductCardProps {
   product: Product;
@@ -182,13 +183,14 @@ export default function ProductCard({ product }: ProductCardProps) {
             </span>
           )}
         </div>
+        <div className="flex items-center gap-2">
         <motion.button
           ref={buttonRef}
           whileHover={{ scale: unavailable || alreadyInCart ? 1 : 1.03 }}
           whileTap={{ scale: unavailable || alreadyInCart ? 1 : 0.97 }}
           onClick={handleAddToCart}
           disabled={unavailable || alreadyInCart}
-          className={`w-full py-2.5 rounded-xl text-sm font-medium transition-colors duration-200 ${
+          className={`min-w-0 flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors duration-200 ${
             unavailable || alreadyInCart
               ? "bg-gray-300 text-gray-500 cursor-not-allowed"
               : "bg-foreground text-white hover:bg-accent"
@@ -202,6 +204,8 @@ export default function ProductCard({ product }: ProductCardProps) {
               ? pt.alreadyInCart
               : pt.addToCart}
         </motion.button>
+        <WishlistButton product={product} className="shrink-0" />
+        </div>
       </div>
     </motion.div>
   );

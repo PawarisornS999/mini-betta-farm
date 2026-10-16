@@ -13,6 +13,7 @@ import "swiper/css/navigation";
 import Header from "@/sections/Header";
 import Footer from "@/sections/Footer";
 import ProductCard from "@/components/ProductCard";
+import WishlistButton from "@/components/WishlistButton";
 import { useProduct, useProducts } from "@/lib/hooks/useCatalog";
 import { useCartStore } from "@/store/cart";
 import { useLangStore } from "@/store/lang";
@@ -363,11 +364,12 @@ export default function ProductDetailPage({
                 </motion.div>,
                 document.body,
               )}
+              <div className="flex items-center gap-2 sm:gap-3">
               <button
                 ref={addToCartButtonRef}
                 onClick={handleAddToCart}
                 disabled={unavailable || alreadyInCart}
-                className={`min-h-12 w-full rounded-xl py-3 text-base font-semibold transition-colors sm:rounded-2xl sm:py-4 sm:text-lg ${
+                className={`min-h-12 min-w-0 flex-1 rounded-xl py-3 text-base font-semibold transition-colors sm:rounded-2xl sm:py-4 sm:text-lg ${
                   unavailable || alreadyInCart
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                     : "bg-accent text-white hover:bg-accent-dark shadow-lg shadow-accent/25"
@@ -381,6 +383,8 @@ export default function ProductDetailPage({
                     ? t.product.alreadyInCart
                     : t.product.addToCart}
               </button>
+              <WishlistButton product={product} className="!h-12 !w-12 shrink-0 sm:!h-14 sm:!w-14" />
+              </div>
             </motion.div>
           </div>
 
