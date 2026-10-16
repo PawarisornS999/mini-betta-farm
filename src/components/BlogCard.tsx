@@ -78,7 +78,7 @@ export default function BlogCard({ post }: BlogCardProps) {
           <p className="text-xs text-muted mb-2">
             {post.createdAt ?? post.date}
           </p>
-          <h3 className="font-bold text-foreground text-lg mb-2 line-clamp-2 group-hover:text-accent transition-colors">
+          <h3 className="font-bold text-foreground text-lg line-clamp-2 group-hover:text-accent transition-colors">
             {post.title}
           </h3>
           <p className="text-muted text-sm mb-4 line-clamp-2">{post.excerpt}</p>

@@ -94,7 +94,7 @@ export default function BaseDropdown<T extends string = string>({
       {label && (
         <label
           htmlFor={dropdownId}
-          className="text-sm font-medium text-foreground block mb-2"
+          className="mb-1.5 block text-xs font-medium text-foreground sm:mb-2 sm:text-sm"
         >
           {label}
         </label>
@@ -109,7 +109,7 @@ export default function BaseDropdown<T extends string = string>({
         disabled={disabled}
         onClick={() => setOpen((isOpen) => !isOpen)}
         onKeyDown={handleKeyDown}
-        className="w-full flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-left transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 disabled:cursor-not-allowed disabled:bg-gray-100"
+        className="flex w-full items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-3 py-2 text-left text-xs transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 disabled:cursor-not-allowed disabled:bg-gray-100 sm:px-4 sm:py-2.5 sm:text-sm"
       >
         <span className={selectedOption ? "text-foreground" : "text-muted"}>
           {selectedOption?.label ?? placeholder}

@@ -16,11 +16,25 @@ import type { Product } from "@/types";
 
 const PRODUCT_PAGE_SIZE = 12;
 
+function GridViewIcon({ columns }: { columns: 1 | 2 }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`grid h-4 w-4 gap-0.5 ${columns === 1 ? "grid-cols-1 grid-rows-4" : "grid-cols-2 grid-rows-2"}`}
+    >
+      {Array.from({ length: 4 }, (_, index) => (
+        <span key={index} className="rounded-[1px] border border-current" />
+      ))}
+    </span>
+  );
+}
+
 export default function ShopPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [totalProducts, setTotalProducts] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [mobileGridColumns, setMobileGridColumns] = useState<1 | 2>(1);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
@@ -44,6 +58,7 @@ export default function ShopPage() {
   } = useFilterStore();
   const lang = useLangStore((s) => s.lang);
   const t = getT(lang).shop;
+  const gridClasses = `grid grid-cols-${mobileGridColumns} gap-5 sm:grid-cols-2 xl:grid-cols-3`;
 
   const loadPage = useCallback(async (nextPage: number) => {
     if (requestLock.current) return;
@@ -143,9 +158,9 @@ export default function ShopPage() {
           <div className="grid lg:grid-cols-4 gap-8">
             {/* Filters Sidebar */}
             <aside className="relative z-20 lg:col-span-1">
-              <div className="bg-white rounded-2xl p-6 shadow-sm sticky top-24 space-y-6">
+              <div className="sticky top-24 space-y-4 rounded-2xl bg-white p-4 shadow-sm sm:space-y-6 sm:p-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-foreground">
+                  <h3 className="text-sm font-bold text-foreground sm:text-base">
                     {t.filterHeading}
                   </h3>
                   <button
@@ -158,7 +173,7 @@ export default function ShopPage() {
 
                 {/* Search */}
                 <div>
-                  <label className="text-sm font-medium text-foreground block mb-2">
+                  <label className="mb-1.5 block text-xs font-medium text-foreground sm:mb-2 sm:text-sm">
                     {t.search.replace("...", "")}
                   </label>
                   <input
@@ -166,7 +181,7 @@ export default function ShopPage() {
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder={t.search}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-accent focus:outline-none text-sm"
+                    className="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs focus:border-accent focus:outline-none sm:px-4 sm:py-2.5 sm:text-sm"
                   />
                 </div>
 
@@ -181,10 +196,11 @@ export default function ShopPage() {
                     value: item.slug,
                     label: item.name,
                   }))}
+                  className="text-xs sm:text-sm"
                 />
                 {/* Price Range */}
                 <div>
-                  <label className="text-sm font-medium text-foreground block mb-2">
+                  <label className="mb-1.5 block text-xs font-medium text-foreground sm:mb-2 sm:text-sm">
                     {t.priceRange}: ฿{priceRange[0]} — ฿{priceRange[1]}
                   </label>
                   <input
@@ -204,8 +220,31 @@ export default function ShopPage() {
 
             {/* Product Grid */}
             <div className="relative z-0 lg:col-span-3">
+              <div className="mb-4 flex items-center justify-end gap-2 sm:hidden">
+                <span className="mr-1 text-xs text-muted">
+                  {lang === "en" ? "View" : "มุมมอง"}
+                </span>
+                <div
+                  role="group"
+                  aria-label={lang === "en" ? "Product grid layout" : "รูปแบบกริดสินค้า"}
+                  className="flex rounded-lg border border-gray-200 bg-white p-1"
+                >
+                  {([1, 2] as const).map((columns) => (
+                    <button
+                      key={columns}
+                      type="button"
+                      aria-label={lang === "en" ? `${columns} column${columns === 1 ? "" : "s"}` : `${columns} คอลัมน์`}
+                      aria-pressed={mobileGridColumns === columns}
+                      onClick={() => setMobileGridColumns(columns)}
+                      className={`flex h-9 w-10 items-center justify-center rounded-md transition-colors ${mobileGridColumns === columns ? "bg-accent text-white" : "text-muted hover:bg-gray-100"}`}
+                    >
+                      <GridViewIcon columns={columns} />
+                    </button>
+                  ))}
+                </div>
+              </div>
               {loading ? (
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                <div className={gridClasses}>
                   {Array.from({ length: PRODUCT_PAGE_SIZE }, (_, index) => (
                     <ProductCardSkeleton key={index} />
                   ))}
@@ -242,7 +281,7 @@ export default function ShopPage() {
                   </div>
                   <div ref={loadMoreRef} aria-hidden="true" className="h-8" />
                   {loadingMore && (
-                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                    <div className={gridClasses}>
                       {Array.from({ length: 6 }, (_, index) => (
                         <ProductCardSkeleton key={index} />
                       ))}
@@ -262,9 +301,13 @@ export default function ShopPage() {
                 </>
               ) : (
                 <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                  <div className={gridClasses}>
                     {filtered.map((product) => (
-                      <LazyProductCard key={product.id} product={product} />
+                      <LazyProductCard
+                        key={product.id}
+                        product={product}
+                        compactMobile={mobileGridColumns === 2}
+                      />
                     ))}
                     {loadingMore &&
                       Array.from({ length: 6 }, (_, index) => (

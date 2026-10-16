@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { motion } from "motion/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import { useLangStore } from "@/store/lang";
@@ -17,12 +19,15 @@ export default function WishlistButton({ product, className = "" }: { product: P
   const remove = useWishlistStore((state) => state.remove);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
+  const [fly, setFly] = useState<{ id: number; from: { left: number; top: number }; to: { left: number; top: number } } | null>(null);
+  const [animationId, setAnimationId] = useState(0);
   const saved = products.some((item) => item.id === product.id);
 
   useEffect(() => { void load(); }, [load]);
 
   async function toggle() {
     if (pending || !loaded) return;
+    const source = !saved ? document.getElementById(`wishlist-button-${product.id}`)?.getBoundingClientRect() : null;
     setPending(true);
     setError("");
     try {
@@ -39,8 +44,21 @@ export default function WishlistButton({ product, className = "" }: { product: P
       }
       const body = await response.json().catch(() => ({})) as { message?: string };
       if (!response.ok) throw new Error(body.message || (lang === "th" ? "บันทึกรายการที่ชอบไม่สำเร็จ" : "Unable to update wishlist"));
-      if (saved) remove(product.id);
-      else add(product);
+      if (saved) {
+        remove(product.id);
+      } else {
+        add(product);
+        const target = document.getElementById("user-menu-button")?.getBoundingClientRect();
+        if (source && target) {
+          const id = animationId + 1;
+          setAnimationId(id);
+          setFly({
+            id,
+            from: { left: source.left + source.width / 2 - 16, top: source.top + source.height / 2 - 16 },
+            to: { left: target.left + target.width / 2 - 16, top: target.top + target.height / 2 - 16 },
+          });
+        }
+      }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : (lang === "th" ? "เกิดข้อผิดพลาด" : "Something went wrong"));
     } finally {
@@ -55,7 +73,9 @@ export default function WishlistButton({ product, className = "" }: { product: P
   if (!authenticated) return null;
 
   return (
+    <>
     <button
+      id={`wishlist-button-${product.id}`}
       type="button"
       onClick={(event) => { event.preventDefault(); event.stopPropagation(); void toggle(); }}
       disabled={!loaded || pending}
@@ -66,5 +86,20 @@ export default function WishlistButton({ product, className = "" }: { product: P
     >
       <FontAwesomeIcon icon={faHeart} className={saved ? "text-rose-600" : "text-slate-500"} />
     </button>
+    {fly && typeof document !== "undefined" && createPortal(
+      <motion.div
+        key={fly.id}
+        aria-hidden="true"
+        initial={{ position: "fixed", left: fly.from.left, top: fly.from.top, width: 32, height: 32, opacity: 1, scale: 1, zIndex: 100, color: "#e11d48" }}
+        animate={{ left: fly.to.left, top: fly.to.top, opacity: 0.8, scale: 0.65, rotate: 360 }}
+        transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+        onAnimationComplete={() => setFly(null)}
+        className="pointer-events-none flex items-center justify-center text-2xl drop-shadow-md"
+      >
+        <FontAwesomeIcon icon={faHeart} />
+      </motion.div>,
+      document.body,
+    )}
+    </>
   );
 }

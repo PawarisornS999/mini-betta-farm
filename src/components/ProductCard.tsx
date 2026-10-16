@@ -15,9 +15,10 @@ import WishlistButton from "@/components/WishlistButton";
 
 interface ProductCardProps {
   product: Product;
+  compactMobile?: boolean;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product, compactMobile = false }: ProductCardProps) {
   const addItem = useCartStore((s) => s.addItem);
   const lang = useLangStore((s) => s.lang);
   const pt = getT(lang).product;
@@ -78,7 +79,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.5 }}
       whileHover={{ y: -8 }}
-      className="group bg-card-bg rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300"
+      className="group flex h-full flex-col overflow-hidden rounded-2xl bg-card-bg shadow-sm transition-shadow duration-300 hover:shadow-xl"
     >
       {fly &&
         typeof document !== "undefined" &&
@@ -164,21 +165,21 @@ export default function ProductCard({ product }: ProductCardProps) {
           />
         </div>
       </Link>
-      <div className="p-4">
+      <div className={`${compactMobile ? "p-2 sm:p-4" : "p-4"} flex flex-1 flex-col`}>
         <Link href={`/shop/${product.id}`}>
-          <p className="text-xs text-accent font-medium mb-1">
+          <p className={`${compactMobile ? "text-[10px] sm:text-xs" : "text-xs"} text-accent font-medium mb-1`}>
             <span className="text-gray-500">{pt.SKU}</span> {product.sku}
           </p>
-          <h3 className="font-semibold text-foreground text-sm mb-2 line-clamp-2 hover:text-accent transition-colors">
+          <h3 title={`${product.name} ( ${product.gender === "male" ? pt.gender.male : product.gender === "female" ? pt.gender.female : "Unsexed"} )`} className={`h-10 overflow-hidden font-semibold text-foreground ${compactMobile ? "text-xs sm:text-sm" : "text-sm"}  line-clamp-2 hover:text-accent transition-colors`}>
             {product.name} ( {product.gender === "male" ? pt.gender.male : product.gender === "female" ? pt.gender.female : "Unsexed"} )
           </h3>
         </Link>
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-accent font-bold text-lg">
+        <div className="mb-3 mt-auto flex min-h-7 items-center gap-2 overflow-hidden">
+          <span className={`text-accent font-bold ${compactMobile ? "text-sm sm:text-lg" : "text-lg"}`}>
             {formatPrice(product.price)}
           </span>
           {product.originalPrice && (
-            <span className="text-muted text-sm line-through">
+            <span className={`text-muted ${compactMobile ? "text-xs sm:text-sm" : "text-sm"} line-through`}>
               {formatPrice(product.originalPrice)}
             </span>
           )}
@@ -190,7 +191,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           whileTap={{ scale: unavailable || alreadyInCart ? 1 : 0.97 }}
           onClick={handleAddToCart}
           disabled={unavailable || alreadyInCart}
-          className={`min-w-0 flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors duration-200 ${
+          className={`min-w-0 flex-1 ${compactMobile ? "py-2 text-xs sm:py-2.5 sm:text-sm" : "py-2.5 text-sm"} rounded-xl font-medium transition-colors duration-200 ${
             unavailable || alreadyInCart
               ? "bg-gray-300 text-gray-500 cursor-not-allowed"
               : "bg-foreground text-white hover:bg-accent"
@@ -204,7 +205,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               ? pt.alreadyInCart
               : pt.addToCart}
         </motion.button>
-        <WishlistButton product={product} className="shrink-0" />
+        <WishlistButton product={product} className={compactMobile ? "h-9 w-9 text-base sm:h-10 sm:w-10 sm:text-lg" : "shrink-0"} />
         </div>
       </div>
     </motion.div>

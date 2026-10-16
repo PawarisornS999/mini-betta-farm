@@ -5,7 +5,7 @@ import type { Product } from "@/types";
 import ProductCard from "@/components/ProductCard";
 import ProductCardSkeleton from "@/components/ProductCardSkeleton";
 
-export default function LazyProductCard({ product }: { product: Product }) {
+export default function LazyProductCard({ product, compactMobile = false }: { product: Product; compactMobile?: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [shouldRender, setShouldRender] = useState(false);
 
@@ -28,7 +28,7 @@ export default function LazyProductCard({ product }: { product: Product }) {
 
   return (
     <div ref={containerRef}>
-      {shouldRender ? <ProductCard product={product} /> : <ProductCardSkeleton />}
+      {shouldRender ? <ProductCard product={product} compactMobile={compactMobile} /> : <ProductCardSkeleton />}
     </div>
   );
 }
