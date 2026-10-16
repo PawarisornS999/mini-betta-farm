@@ -86,6 +86,12 @@ export interface Product {
   name: string;
   slug?: string;
   price: number;
+  /** Regular catalog price; price may contain the currently effective sale price. */
+  basePrice?: number;
+  salePrice?: number;
+  saleStartDate?: string;
+  saleEndDate?: string;
+  saleActive?: boolean;
   originalPrice?: number;
   description: string;
   species: Species;
@@ -124,7 +130,12 @@ export type ProductListItem = Pick<
   | "name"
   | "slug"
   | "price"
+  | "basePrice"
   | "originalPrice"
+  | "salePrice"
+  | "saleStartDate"
+  | "saleEndDate"
+  | "saleActive"
   | "species"
   | "color"
   | "stockStatus"

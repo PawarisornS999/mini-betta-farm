@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist, type StateStorage } from "zustand/middleware";
 import type { CartItem, Product, ProductListItem } from "@/types";
+import { effectiveProductPrice } from "@/lib/utils/product";
 
 const CART_STORAGE_KEY = "mini-betta-cart";
 
@@ -14,7 +15,12 @@ function cartProduct(product: Product): ProductListItem {
     name: product.name,
     slug: product.slug,
     price: product.price,
+    basePrice: product.basePrice,
     originalPrice: product.originalPrice,
+    salePrice: product.salePrice,
+    saleStartDate: product.saleStartDate,
+    saleEndDate: product.saleEndDate,
+    saleActive: product.saleActive,
     species: product.species,
     color: product.color,
     stockStatus: product.stockStatus,
@@ -97,7 +103,7 @@ export const useCartStore = create<CartStore>()(
       totalItems: () => get().items.reduce((sum, i) => sum + i.quantity, 0),
 
       totalPrice: () =>
-        get().items.reduce((sum, i) => sum + i.product.price * i.quantity, 0),
+        get().items.reduce((sum, i) => sum + effectiveProductPrice(i.product) * i.quantity, 0),
     }),
     {
       name: CART_STORAGE_KEY,

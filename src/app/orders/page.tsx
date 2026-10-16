@@ -7,6 +7,7 @@ import Header from "@/sections/Header";
 import Footer from "@/sections/Footer";
 import type { Order, Product } from "@/types";
 import TabsMenu from "@/components/TabsMenu";
+import Modal from "@/components/Modal";
 import { formatMoney } from "@/lib/orders/workflow";
 import { formatDateTime } from "@/lib/utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -44,6 +45,25 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [loginRequired, setLoginRequired] = useState(false);
   const [productImages, setProductImages] = useState<Record<string, string>>({});
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [cancelError, setCancelError] = useState("");
+  const [cancelTarget, setCancelTarget] = useState<Order | null>(null);
+
+  async function cancelOrder(order: Order) {
+    setCancellingId(order.id);
+    setCancelError("");
+    try {
+      const response = await fetch(`/api/customer/orders/${encodeURIComponent(order.id)}/cancel`, { method: "POST" });
+      const body = await response.json() as { message?: string };
+      if (!response.ok) throw new Error(body.message || "ยกเลิกคำสั่งซื้อไม่สำเร็จ");
+      setOrders((current) => current.map((item) => item.id === order.id ? { ...item, status: "cancelled" } : item));
+      setCancelTarget(null);
+    } catch (cause) {
+      setCancelError(cause instanceof Error ? cause.message : "ยกเลิกคำสั่งซื้อไม่สำเร็จ");
+    } finally {
+      setCancellingId(null);
+    }
+  }
 
   useEffect(() => {
     Promise.all([
@@ -106,6 +126,7 @@ export default function OrdersPage() {
           </Link>
         </div>
         <div className="bg-white rounded-md p-2 mt-4 shadow-lg">
+          {cancelError && <p role="alert" className="mx-2 mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{cancelError}</p>}
           
           <TabsMenu options={tabOptions} value={tab} onChange={setTab} showCount={true} />
         
@@ -184,21 +205,35 @@ export default function OrdersPage() {
                   </strong>
                 </div>
                 </Link>
-                {order.status !== "cancelled" && order.paymentStatus !== "paid" && order.paymentStatus !== "slip_submitted" && (
-                  <div className="border-t border-black/5 px-5 py-3">
+                <div className="flex flex-row justify-end gap-2 mb-4 px-4">
+                  {order.status !== "cancelled" && order.paymentStatus !== "paid" && (
+                  <div >
+                    <button
+                      type="button"
+                      onClick={() => setCancelTarget(order)}
+                      disabled={cancellingId === order.id}
+                      className="w-full rounded-md border border-red-200 p-2 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:opacity-50"
+                    >
+                      {cancellingId === order.id ? "กำลังยกเลิก..." : "ยกเลิกคำสั่งซื้อ"}
+                    </button>
+                  </div>
+                )}
+                  {order.status !== "cancelled" && order.paymentStatus !== "paid" && order.paymentStatus !== "slip_submitted" && (
+                  <div>
                     <Link
                       href={`/orders/${order.id}`}
-                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-accent-dark"
+                      className="flex w-full items-center justify-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-accent-dark"
                     >
                       <FontAwesomeIcon icon={faCreditCard} />
                       ชำระเงิน
                     </Link>
                   </div>
                 )}
+    
                 {order.trackingNumber &&
                   order.status !== "completed" &&
                   order.shippingStatus !== "delivered" && (
-                  <div className="border-t border-black/5 px-5 py-3">
+                  <div >
                     <Link
                       href={`/tracking?number=${encodeURIComponent(order.trackingNumber)}`}
                       className="block rounded-xl bg-red-50 px-4 py-2.5 text-center text-sm font-bold text-red-700 hover:bg-red-100"
@@ -207,6 +242,8 @@ export default function OrdersPage() {
                     </Link>
                   </div>
                 )}
+                </div>
+                
               </article>
             ))}
           </div>
@@ -214,6 +251,18 @@ export default function OrdersPage() {
         </div>
       </main>
       <Footer />
+      <Modal
+        isOpen={Boolean(cancelTarget)}
+        onClose={() => cancellingId === null && setCancelTarget(null)}
+        onConfirm={() => cancelTarget && void cancelOrder(cancelTarget)}
+        title={cancelTarget
+          ? `${lang === "th" ? "ยืนยันยกเลิกคำสั่งซื้อ\n" : "Confirm cancellation"} "${cancelTarget.items.map((item) => item.productName).join(", ")}" ${lang === "th" ? "ใช่หรือไม่?" : "?"}`
+          : lang === "th" ? "ยืนยันยกเลิกคำสั่งซื้อ" : "Confirm cancellation"}
+        variant="warning"
+        confirmText={cancellingId ? (lang === "th" ? "กำลังยกเลิก..." : "Cancelling…") : (lang === "th" ? "ยืนยันยกเลิก" : "Cancel order")}
+        cancelText={lang === "th" ? "กลับ" : "Go back"}
+        confirmDisabled={cancellingId !== null}
+      />
     </>
   );
 }

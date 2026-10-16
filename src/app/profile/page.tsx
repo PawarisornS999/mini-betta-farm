@@ -29,16 +29,30 @@ const emptyProfile: CustomerProfile = {
   postalCode: "",
 };
 
+function profileValuesEqual(first: CustomerProfile, second: CustomerProfile) {
+  return (
+    first.customerName === second.customerName &&
+    first.customerPhone === second.customerPhone &&
+    first.addressDetails === second.addressDetails &&
+    first.province === second.province &&
+    first.district === second.district &&
+    first.subdistrict === second.subdistrict &&
+    first.postalCode === second.postalCode
+  );
+}
+
 export default function ProfilePage() {
   const lang = useLangStore((state) => state.lang);
   const text = (th: string, en: string) => (lang === "th" ? th : en);
   const [profile, setProfile] = useState<CustomerProfile>(emptyProfile);
+  const [savedProfile, setSavedProfile] = useState<CustomerProfile>(emptyProfile);
   const [loading, setLoading] = useState(true);
   const [loginRequired, setLoginRequired] = useState(false);
   const [saving, setSaving] = useState(false);
   const [attemptedSave, setAttemptedSave] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const isDirty = !profileValuesEqual(profile, savedProfile);
   const invalidFields = attemptedSave ? customerProfileFieldErrors(profile) : null;
   const validationError = attemptedSave ? validateCustomerProfile(profile) : null;
   const provinces = useMemo(
@@ -103,7 +117,10 @@ export default function ProfilePage() {
         return body.data;
       })
       .then((data) => {
-        if (active && data) setProfile(data);
+        if (active && data) {
+          setProfile(data);
+          setSavedProfile(data);
+        }
       })
       .catch((cause) => {
         if (active)
@@ -158,6 +175,7 @@ export default function ProfilePage() {
           body.message || text("บันทึกไม่สำเร็จ", "Unable to save profile"),
         );
       setProfile(body.data);
+      setSavedProfile(body.data);
       setAttemptedSave(false);
       setMessage(
         text("บันทึกข้อมูลเรียบร้อยแล้ว", "Profile saved successfully"),
@@ -354,8 +372,9 @@ export default function ProfilePage() {
                 </p>
               )}
               <button
+                id="save-profile-button"
                 type="button"
-                disabled={saving}
+                disabled={saving || !isDirty}
                 onClick={() => void save()}
                 className="w-full rounded-2xl bg-green-600 px-6 py-3.5 font-bold text-white hover:bg-green-700 disabled:opacity-50"
               >

@@ -9,6 +9,15 @@ import { useCategories, useProducts } from "@/lib/hooks/useCatalog";
 import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
 
+function EmptyProduct() {
+  const lang = useLangStore((s) => s.lang);
+  const t = getT(lang).collection;
+  return (
+    <div className="flex flex-col items-center justify-center gap-2 py-12 h-48 col-span-full">
+      <p className="text-sm text-foreground/60">{t.noProductsFound}</p>
+    </div>
+  );
+};
 export default function SpeciesCollection() {
   const { products, loading } = useProducts();
   const { categories } = useCategories();
@@ -51,9 +60,15 @@ export default function SpeciesCollection() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {loading ? Array.from({ length: 8 }, (_, index) => <ProductCardSkeleton key={index} />) : filtered.slice(0, 8).map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+          {loading && !products.length
+            ? Array.from({ length: 8 }, (_, index) => (
+                <ProductCardSkeleton key={index} />
+              ))
+            : filtered.length === 0
+            ? <EmptyProduct />
+            : filtered.slice(0, 8).map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
         </div>
       </div>
     </section>

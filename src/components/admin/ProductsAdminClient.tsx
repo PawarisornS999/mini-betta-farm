@@ -16,6 +16,9 @@ type FormState = {
   sku: string;
   slug: string;
   price: string;
+  salePrice: string;
+  saleStartDate: string;
+  saleEndDate: string;
   cost: string;
   category: string;
   gender: "male" | "female" | "unsexed";
@@ -35,6 +38,9 @@ const emptyForm: FormState = {
   sku: "",
   slug: "",
   price: "",
+  salePrice: "",
+  saleStartDate: "",
+  saleEndDate: "",
   cost: "",
   category: "",
   gender: "male",
@@ -57,6 +63,11 @@ const statuses = [
   "hidden",
 ] as const;
 
+function formatDateDMY(value?: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value ?? "");
+  return match ? `${match[3]}/${match[2]}/${match[1]}` : value ?? "";
+}
+
 function statusClass(status?: string) {
   return status === "available"
     ? "bg-emerald-50 text-emerald-700 ring-emerald-600/15"
@@ -76,7 +87,10 @@ function productToForm(product: Product): FormState {
     name: product.name,
     sku,
     slug: sku.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
-    price: String(product.price),
+    price: String(product.basePrice ?? product.price),
+    salePrice: product.salePrice == null ? "" : String(product.salePrice),
+    saleStartDate: product.saleStartDate ?? "",
+    saleEndDate: product.saleEndDate ?? "",
     cost: String(product.cost ?? 0),
     category: product.category ?? "betta-fish",
     gender: product.gender ?? "unsexed",
@@ -230,6 +244,9 @@ export default function ProductsAdminClient({
     setError("");
     const requiredFields = ["name", "sku", "slug", "category", "price", "stockQty"] as const;
     const missingFields = requiredFields.filter((field) => !String(form[field] ?? "").trim());
+    const hasSale = Boolean(form.salePrice || form.saleStartDate || form.saleEndDate);
+    const saleDatesValid = !hasSale || Boolean(form.salePrice && form.saleStartDate && form.saleEndDate && form.saleEndDate >= form.saleStartDate);
+    const salePriceValid = !hasSale || (Number.isFinite(Number(form.salePrice)) && Number(form.salePrice) >= 0 && Number(form.salePrice) < Number(form.price));
     const imageUrls = form.images.split("\n").map((url) => url.trim()).filter(Boolean);
     const hasInvalidImageUrl = imageUrls.some((value) => {
       try {
@@ -239,14 +256,18 @@ export default function ProductsAdminClient({
         return true;
       }
     });
-    if (missingFields.length || imageUrls.length === 0 || hasInvalidImageUrl) {
-      setInvalidFields([...missingFields, ...(imageUrls.length === 0 || hasInvalidImageUrl ? ["images"] : [])]);
+    if (missingFields.length || imageUrls.length === 0 || hasInvalidImageUrl || !saleDatesValid || !salePriceValid) {
+      setInvalidFields([...missingFields, ...(imageUrls.length === 0 || hasInvalidImageUrl ? ["images"] : []), ...(!saleDatesValid ? ["saleStartDate", "saleEndDate"] : []), ...(!salePriceValid ? ["salePrice"] : [])]);
       setRequiredModalMessage(
         imageUrls.length === 0
           ? text("กรุณาเพิ่มรูปสินค้าอย่างน้อย 1 รูปก่อนบันทึก", "Add at least one product image before saving.")
           : hasInvalidImageUrl
             ? text("URL รูปสินค้าต้องเป็นลิงก์ HTTP หรือ HTTPS ที่ถูกต้อง", "Product image URLs must be valid HTTP or HTTPS links.")
-            : text("ช่องที่ยังไม่ได้กรอกถูกไฮไลต์ด้วยกรอบสีแดงแล้ว", "The missing fields are highlighted in red."),
+            : !salePriceValid
+              ? text("ราคาส่วนลดต้องต่ำกว่าราคาปกติ", "Sale price must be lower than the regular price.")
+              : !saleDatesValid
+                ? text("กรุณากรอกวันเริ่มและวันสิ้นสุด โดยวันสิ้นสุดต้องไม่ก่อนวันเริ่ม", "Enter valid sale dates; the end date must not be before the start date.")
+                : text("ช่องที่ยังไม่ได้กรอกถูกไฮไลต์ด้วยกรอบสีแดงแล้ว", "The missing fields are highlighted in red."),
       );
       setShowRequiredModal(true);
       return;
@@ -256,6 +277,9 @@ export default function ProductsAdminClient({
     const payload = {
       ...form,
       price: Number(form.price),
+      salePrice: form.salePrice ? Number(form.salePrice) : null,
+      saleStartDate: form.salePrice ? form.saleStartDate : null,
+      saleEndDate: form.salePrice ? form.saleEndDate : null,
       cost: Number(form.cost || 0),
       ageMonths: form.ageMonths ? Number(form.ageMonths) : undefined,
       sizeInches: form.sizeInches ? Number(form.sizeInches) : undefined,
@@ -488,7 +512,9 @@ export default function ProductsAdminClient({
                         )}
                       </div>
                       <div>
-                        <p className="font-semibold">{product.name}</p>
+                        <p className="font-semibold">{product.name}
+                           {product.salePrice != null && <div className="mt-1 break-words text-[10px] font-medium leading-snug text-red-600">{text("โปร", "Sale")}: ฿{product.salePrice.toLocaleString()} · {formatDateDMY(product.saleStartDate)}–{formatDateDMY(product.saleEndDate)}</div>}
+                        </p>
                         <p className="mt-1 max-w-[260px] truncate text-xs text-[#96968d]">
                           {product.color}
                           {product.pattern ? ` · ${product.pattern}` : ""}
@@ -514,7 +540,8 @@ export default function ProductsAdminClient({
                           : "—"}
                   </td>
                   <td className="px-5 py-4 font-semibold">
-                    ฿{product.price.toLocaleString()}
+                    <div>฿{(product.basePrice ?? product.price).toLocaleString()}</div>
+                   
                   </td>
                   <td className="px-5 py-4">
                     <button
@@ -594,7 +621,8 @@ export default function ProductsAdminClient({
                   </div>
                   <div className="mt-3 flex items-center justify-between">
                     <p className="font-bold">
-                      ฿{product.price.toLocaleString()}
+                      ฿{(product.basePrice ?? product.price).toLocaleString()}
+                      {product.salePrice != null && <span className="ml-2 break-words text-[11px] leading-snug text-red-600 sm:text-xs">โปร ฿{product.salePrice.toLocaleString()}</span>}
                     </p>
                     <p className="text-sm">
                       {text("สต็อก", "Stock")} <b>{product.stockQty ?? 0}</b>
@@ -797,6 +825,35 @@ export default function ProductsAdminClient({
                         onChange={(e) => setField("price", e.target.value)}
                         className={`input-admin ${invalidFields.includes("price") ? "!border-red-500 focus:!border-red-500 focus:!ring-red-500/20" : ""}`}
                       />
+                    </Field>
+                    <Field label={text("ราคาขายโปร", "Sale price")}>
+                      <input
+                        min="0"
+                        step="0.01"
+                        type="number"
+                        value={form.salePrice}
+                        onChange={(e) => setField("salePrice", e.target.value)}
+                        className={`input-admin ${invalidFields.includes("salePrice") ? "!border-red-500" : ""}`}
+                      />
+                      <span className="mt-1 block text-[11px] leading-snug text-[#8b8174] sm:text-xs">{text("เว้นว่างเพื่อปิดโปร", "Leave blank to disable the promotion")}</span>
+                    </Field>
+                    <Field label={text("วันเริ่มโปร", "Sale start date")}>
+                      <input
+                        type="date"
+                        value={form.saleStartDate}
+                        onChange={(e) => setField("saleStartDate", e.target.value)}
+                        className={`input-admin ${invalidFields.includes("saleStartDate") ? "!border-red-500" : ""}`}
+                      />
+                      <span className="mt-1 block text-[11px] leading-snug text-[#8b8174] sm:text-xs">{text("เริ่มเวลา 00:00 น. ตามเวลาไทย", "Starts at 00:00 Thailand time")}</span>
+                    </Field>
+                    <Field label={text("วันสิ้นสุดโปร", "Sale end date")}>
+                      <input
+                        type="date"
+                        value={form.saleEndDate}
+                        onChange={(e) => setField("saleEndDate", e.target.value)}
+                        className={`input-admin ${invalidFields.includes("saleEndDate") ? "!border-red-500" : ""}`}
+                      />
+                      <span className="mt-1 block text-[11px] leading-snug text-[#8b8174] sm:text-xs">{text("รวมทั้งวันจนถึง 23:59 น. ตามเวลาไทย", "Valid through 23:59 Thailand time")}</span>
                     </Field>
                     <Field label={text("ต้นทุน (บาท)", "Cost (THB)")}>
                       <input

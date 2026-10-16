@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
 import { useCartStore } from "@/store/cart";
 import { formatPrice } from "@/lib/utils";
+import { effectiveProductPrice } from "@/lib/utils/product";
 import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -88,7 +89,7 @@ export default function CartSidebar({
                           {item.product.species}
                         </p>
                         <p className="text-accent font-semibold text-sm mt-1">
-                          {formatPrice(item.product.price)}
+                          {formatPrice(effectiveProductPrice(item.product))}
                         </p>
                         <div className="flex items-center gap-2 mt-2">
                           <button

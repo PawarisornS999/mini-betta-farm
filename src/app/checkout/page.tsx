@@ -17,6 +17,7 @@ import BaseDropdown from "@/components/BaseDropdown";
 import { searchAddressByProvince } from "thai-address-database";
 import type { CheckoutPayload, CustomerProfile } from "@/types";
 import { faBoxOpen, faArrowLeft, faCartShopping, faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { effectiveProductPrice } from "@/lib/utils/product";
 
 const thaiAddresses = searchAddressByProvince(".", 10000);
 
@@ -438,7 +439,7 @@ export default function CheckoutPage() {
                         <p className="text-xs text-muted">x{item.quantity}</p>
                       </div>
                       <span className="text-sm font-semibold">
-                        {formatPrice(item.product.price * item.quantity)}
+                        {formatPrice(effectiveProductPrice(item.product) * item.quantity)}
                       </span>
                     </div>
                   ))}

@@ -43,6 +43,7 @@ const translations = {
       title: "Our Collection",
       viewAll: "View All",
       filterAll: "All",
+      noProductsFound: "No products found",
     },
     clearance: {
       tag: "New Arrivals",
@@ -379,6 +380,7 @@ const translations = {
       title: "คอลเลกชันของเรา",
       viewAll: "ดูทั้งหมด",
       filterAll: "ทั้งหมด",
+      noProductsFound: "ไม่พบสินค้าที่ค้นหา",
     },
     clearance: {
       tag: "สินค้าใหม่",

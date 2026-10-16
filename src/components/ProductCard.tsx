@@ -10,6 +10,7 @@ import { createPortal } from "react-dom";
 import { formatPrice } from "@/lib/utils";
 import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
+import { calculateDiscount } from "@/lib/utils/product";
 
 interface ProductCardProps {
   product: Product;
@@ -132,6 +133,11 @@ export default function ProductCard({ product }: ProductCardProps) {
           {product.badge && (
             <span className={`absolute top-3 left-3 z-10 ${badgeColor} text-white text-xs font-semibold px-3 py-1 rounded-full`}>
               {product.badge}
+            </span>
+          )}
+          {product.saleActive && product.originalPrice != null && (
+            <span className="absolute right-3 top-3 z-10 rounded-full bg-red-600 px-2 py-1 text-[10px] font-bold leading-tight text-white sm:px-3 sm:text-xs">
+              -{calculateDiscount(product.originalPrice, product.price)}%
             </span>
           )}
           {product.stockStatus === "low_stock" && !product.badge && (

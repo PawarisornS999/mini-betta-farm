@@ -4,6 +4,7 @@ import { use, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "motion/react";
+import { createPortal } from "react-dom";
 import type { Swiper as SwiperInstance } from "swiper";
 import { Autoplay, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -17,6 +18,7 @@ import { useCartStore } from "@/store/cart";
 import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
 import { formatPrice } from "@/lib/utils";
+import { calculateDiscount } from "@/lib/utils/product";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faMagnifyingGlassMinus,
@@ -34,6 +36,13 @@ export default function ProductDetailPage({
   const { product, loading } = useProduct(id);
   const { products } = useProducts();
   const addItem = useCartStore((s) => s.addItem);
+  const addToCartButtonRef = useRef<HTMLButtonElement>(null);
+  const animationId = useRef(0);
+  const [fly, setFly] = useState<{
+    id: number;
+    from: { left: number; top: number; size: number };
+    to: { left: number; top: number };
+  } | null>(null);
   const alreadyInCart = useCartStore((s) =>
     s.items.some((item) => item.product.id === id),
   );
@@ -132,6 +141,28 @@ export default function ProductDetailPage({
       if (product.images.length > 1) mainSwiper.slideToLoop(nextIndex);
       else mainSwiper.slideTo(nextIndex);
     }
+  };
+
+  const handleAddToCart = () => {
+    if (unavailable || alreadyInCart) return;
+    addItem(product);
+
+    const source = addToCartButtonRef.current?.getBoundingClientRect();
+    const target = document.getElementById("header-cart-button")?.getBoundingClientRect();
+    if (!source || !target) return;
+
+    setFly({
+      id: ++animationId.current,
+      from: {
+        left: source.left + source.width / 2 - 28,
+        top: source.top + source.height / 2 - 28,
+        size: Math.max(source.width, 56),
+      },
+      to: {
+        left: target.left + target.width / 2 - 17,
+        top: target.top + target.height / 2 - 17,
+      },
+    });
   };
   const openImageZoom = () => {
     setZoom(1);
@@ -250,6 +281,11 @@ export default function ProductDetailPage({
                     {formatPrice(product.originalPrice)}
                   </span>
                 )}
+                {product.saleActive && product.originalPrice != null && (
+                  <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-bold leading-tight text-red-700 sm:px-2.5 sm:text-sm">
+                    -{calculateDiscount(product.originalPrice, product.price)}%
+                  </span>
+                )}
               </div>
 
               <p className="mb-5 text-sm leading-relaxed text-muted sm:mb-6 sm:text-base">
@@ -289,10 +325,47 @@ export default function ProductDetailPage({
               </div>
 
               {/* Add to Cart */}
+              {fly && typeof document !== "undefined" && createPortal(
+                <motion.div
+                  key={fly.id}
+                  aria-hidden="true"
+                  initial={{
+                    position: "fixed",
+                    left: fly.from.left,
+                    top: fly.from.top,
+                    width: fly.from.size,
+                    height: fly.from.size,
+                    opacity: 0.95,
+                    scale: 1,
+                    borderRadius: 18,
+                    zIndex: 100,
+                    overflow: "hidden",
+                    backgroundColor: "white",
+                  }}
+                  animate={{
+                    left: fly.to.left,
+                    top: fly.to.top,
+                    width: 34,
+                    height: 34,
+                    opacity: 0.85,
+                    scale: 0.8,
+                    borderRadius: 999,
+                    rotate: 360,
+                  }}
+                  transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+                  onAnimationComplete={() => {
+                    setFly(null);
+                    window.dispatchEvent(new CustomEvent("cart-fly-complete"));
+                  }}
+                  className="pointer-events-none shadow-xl ring-2 ring-white"
+                >
+                  <Image src={activeImage} alt="" fill sizes="56px" className="object-cover" />
+                </motion.div>,
+                document.body,
+              )}
               <button
-                onClick={() =>
-                  !unavailable && !alreadyInCart && addItem(product)
-                }
+                ref={addToCartButtonRef}
+                onClick={handleAddToCart}
                 disabled={unavailable || alreadyInCart}
                 className={`min-h-12 w-full rounded-xl py-3 text-base font-semibold transition-colors sm:rounded-2xl sm:py-4 sm:text-lg ${
                   unavailable || alreadyInCart
@@ -428,7 +501,7 @@ const stockBadgeClasses: Record<StockStatus, string> = {
 
 function Detail({ label, value, badgeStatus }: { label: string; value: string; badgeStatus?: StockStatus }) {
   return (
-    <div className="flex items-center gap-2 whitespace-nowrap"  >
+    <div className="flex items-center gap-2 whitespace-nowrap">
       <span className="text-muted">{label}:</span>
       <span
         className={`ml-2 font-medium ${badgeStatus ? `inline-flex rounded-full px-2.5 py-1 text-xs ring-1 ring-inset ${stockBadgeClasses[badgeStatus]}` : "text-foreground"}`}

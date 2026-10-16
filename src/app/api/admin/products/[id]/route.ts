@@ -9,10 +9,21 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   const { id } = await params;
   const body = await request.json();
+  const salePrice = body.salePrice == null || body.salePrice === "" ? null : Number(body.salePrice);
+  const basePrice = Number(body.price);
+  const hasSale = salePrice != null || body.saleStartDate || body.saleEndDate;
+  if (!Number.isFinite(basePrice) || basePrice < 0) return NextResponse.json({ success: false, message: "ราคาสินค้าไม่ถูกต้อง" }, { status: 400 });
+  if (hasSale && (salePrice == null || !body.saleStartDate || !body.saleEndDate || !Number.isFinite(salePrice) || salePrice < 0 || salePrice >= basePrice)) {
+    return NextResponse.json({ success: false, message: "กรุณาระบุราคาส่วนลดที่ต่ำกว่าราคาปกติ พร้อมวันเริ่มและวันสิ้นสุด" }, { status: 400 });
+  }
+  if (hasSale && (!/^\d{4}-\d{2}-\d{2}$/.test(body.saleStartDate) || !/^\d{4}-\d{2}-\d{2}$/.test(body.saleEndDate) || body.saleEndDate < body.saleStartDate)) {
+    return NextResponse.json({ success: false, message: "ช่วงวันที่ส่วนลดไม่ถูกต้อง" }, { status: 400 });
+  }
   const status = body.adminStatus;
   const row = {
     name: body.name?.trim(), sku: body.sku?.trim().toUpperCase(), slug: body.slug?.trim(),
-    price: Number(body.price), cost: Number(body.cost ?? 0), description: body.description?.trim() ?? "",
+    price: basePrice, sale_price: salePrice, sale_start_date: body.saleStartDate || null, sale_end_date: body.saleEndDate || null,
+    cost: Number(body.cost ?? 0), description: body.description?.trim() ?? "",
     species: body.species?.trim(), color: body.color?.trim(), category: body.category?.trim() || "betta-fish", gender: body.gender ?? "unsexed", difficulty_level: body.difficultyLevel ?? "beginner",
     pattern: body.pattern?.trim() || null, tail_type: body.tailType?.trim() || body.species?.trim(),
     age_months: body.ageMonths ?? null, size_cm: body.sizeInches == null ? body.sizeCm ?? null : Math.round(body.sizeInches * 2.54 * 100) / 100,

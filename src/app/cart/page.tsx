@@ -12,6 +12,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faCartShopping } from "@fortawesome/free-solid-svg-icons";
 import Modal from "@/components/Modal";
 import { useState } from "react";
+import { effectiveProductPrice } from "@/lib/utils/product";
 
 export default function CartPage() {
   const items = useCartStore((s) => s.items);
@@ -96,7 +97,7 @@ export default function CartPage() {
                       </button>
                     </div>
                     <p className="w-auto shrink-0 text-center font-bold text-foreground sm:w-24 sm:text-right">
-                      {formatPrice(item.product.price * item.quantity)}
+                      {formatPrice(effectiveProductPrice(item.product) * item.quantity)}
                     </p>
                     <button
                       onClick={() => removeItem(item.product.id)}

@@ -6,6 +6,9 @@ export type ProductRow = {
   slug: string | null;
   price: number | string;
   original_price: number | string | null;
+  sale_price?: number | string | null;
+  sale_start_date?: string | null;
+  sale_end_date?: string | null;
   description: string;
   species: Product["species"];
   color: string;
@@ -79,13 +82,26 @@ export function mapCategory(row: CategoryRow, productCount = 0): Category {
 }
 
 export function mapProduct(row: ProductRow): Product {
+  const basePrice = Number(row.price);
+  const todayInBangkok = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Bangkok",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+  const saleActive = row.sale_price != null && row.sale_start_date != null && row.sale_end_date != null
+    && todayInBangkok >= row.sale_start_date && todayInBangkok <= row.sale_end_date;
   return {
     id: row.id,
     name: row.name,
     slug: row.slug ?? undefined,
-    price: Number(row.price),
-    originalPrice:
-      row.original_price == null ? undefined : Number(row.original_price),
+    price: saleActive ? Number(row.sale_price) : basePrice,
+    basePrice,
+    salePrice: row.sale_price == null ? undefined : Number(row.sale_price),
+    saleStartDate: row.sale_start_date ?? undefined,
+    saleEndDate: row.sale_end_date ?? undefined,
+    saleActive,
+    originalPrice: saleActive ? basePrice : row.original_price == null ? undefined : Number(row.original_price),
     description: row.description,
     species: row.species,
     color: row.color,

@@ -106,7 +106,7 @@ export default function Modal({
             >
               <FontAwesomeIcon icon={config.icon} className="text-[40px]" />
             </div>
-            <h2 id="modal-title" className="text-xl font-bold text-foreground">
+            <h2 id="modal-title" className="text-xl font-bold text-foreground whitespace-pre-line">
               {title}
             </h2>
             {description && (

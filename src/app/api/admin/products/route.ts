@@ -9,6 +9,9 @@ type ProductInput = {
   sku?: string;
   slug?: string;
   price?: number;
+  salePrice?: number | null;
+  saleStartDate?: string | null;
+  saleEndDate?: string | null;
   cost?: number;
   description?: string;
   species?: string;
@@ -36,6 +39,10 @@ function validate(body: ProductInput) {
   if (!body.name?.trim()) return "กรุณากรอกชื่อสินค้า";
   if (!body.sku?.trim()) return "กรุณากรอก SKU";
   if (body.price == null || body.price < 0) return "ราคาสินค้าไม่ถูกต้อง";
+  const hasSale = body.salePrice != null || body.saleStartDate || body.saleEndDate;
+  if (hasSale && (body.salePrice == null || !body.saleStartDate || !body.saleEndDate)) return "กรุณากรอกราคาส่วนลดและวันเริ่ม–สิ้นสุดให้ครบ";
+  if (hasSale && (!Number.isFinite(body.salePrice) || body.salePrice! < 0 || body.salePrice! >= body.price)) return "ราคาส่วนลดต้องต่ำกว่าราคาปกติ";
+  if (hasSale && (!/^\d{4}-\d{2}-\d{2}$/.test(body.saleStartDate!) || !/^\d{4}-\d{2}-\d{2}$/.test(body.saleEndDate!) || body.saleEndDate! < body.saleStartDate!)) return "ช่วงวันที่ส่วนลดไม่ถูกต้อง";
   if (body.stockQty == null || !Number.isInteger(body.stockQty) || body.stockQty < 0) return "สต็อกต้องเป็นจำนวนเต็มตั้งแต่ 0 ขึ้นไป";
   return null;
 }
@@ -48,6 +55,9 @@ function toRow(body: ProductInput) {
     sku: body.sku?.trim().toUpperCase(),
     slug: slugify(body.slug || body.name || body.sku || "product"),
     price: Number(body.price),
+    sale_price: body.salePrice ?? null,
+    sale_start_date: body.saleStartDate || null,
+    sale_end_date: body.saleEndDate || null,
     cost: Number(body.cost ?? 0),
     description: body.description?.trim() ?? "",
     // These fields are optional in the form; keep empty strings because the
