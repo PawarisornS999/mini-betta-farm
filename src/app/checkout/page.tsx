@@ -19,6 +19,7 @@ import type { CheckoutPayload, CustomerProfile } from "@/types";
 import { faBoxOpen, faArrowLeft, faCartShopping, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { effectiveProductPrice } from "@/lib/utils/product";
 import { welcomeCouponDiscount } from "@/lib/orders/welcome-coupon";
+import { getLineOrderUrl } from "@/lib/utils/line";
 
 const thaiAddresses = searchAddressByProvince(".", 10000);
 
@@ -54,6 +55,7 @@ export default function CheckoutPage() {
   const [rememberProfile, setRememberProfile] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitErrorCode, setSubmitErrorCode] = useState<string | null>(null);
   const [lineState, setLineState] = useState<LineState>({ status: "loading" });
   const [welcomeCoupon, setWelcomeCoupon] = useState<WelcomeCoupon | null>(null);
   const lang = useLangStore((s) => s.lang);
@@ -95,6 +97,7 @@ export default function CheckoutPage() {
   const completeCheckout = useCallback(async (payload: CheckoutPayload) => {
     setSubmitting(true);
     setSubmitError(null);
+    setSubmitErrorCode(null);
 
     try {
       const response = await apiClient.orders.checkout(payload);
@@ -116,6 +119,9 @@ export default function CheckoutPage() {
         (error.code === "LINE_LOGIN_REQUIRED" || error.code === "LINE_FRIEND_REQUIRED")
       ) {
         setLineState({ status: "required" });
+      }
+      if (typeof error === "object" && error && "code" in error) {
+        setSubmitErrorCode(String(error.code));
       }
       setSubmitError(message);
     } finally {
@@ -230,6 +236,7 @@ export default function CheckoutPage() {
   };
 
   const subtotal = totalPrice();
+  const missedItemNames = items.map((item) => `${item.product.name} × ${item.quantity}`).join(", ");
   const welcomeDiscount = welcomeCouponDiscount(
     subtotal,
     welcomeCoupon?.available === true,
@@ -533,6 +540,16 @@ export default function CheckoutPage() {
                   <p className="text-sm text-red-600 text-center mt-3">
                     {submitError}
                   </p>
+                )}
+                {submitErrorCode === "PRODUCT_UNAVAILABLE" && (
+                  <div role="alert" className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                    <p className="font-bold">{lang === "en" ? "This fish has already been reserved" : "ปลาตัวนี้มีลูกค้าจองไปแล้ว"}</p>
+                    <p className="mt-1">{lang === "en" ? "Your order was not created. If you already transferred money, contact the shop and submit a refund request." : "ระบบไม่ได้สร้างออเดอร์นี้ หากคุณโอนเงินไปแล้ว กรุณาติดต่อร้านและแจ้งขอคืนเงิน"}</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <a href={getLineOrderUrl(lang === "en" ? `I transferred money but could not order: ${missedItemNames}. Please help me with a refund.` : `สวัสดีค่ะ/ครับ ฉันโอนเงินแล้วแต่สั่งปลาไม่ทัน: ${missedItemNames} ขอให้ช่วยตรวจสอบและคืนเงิน`)} target="_blank" rel="noopener noreferrer" className="rounded-xl bg-green-600 px-3 py-2 text-xs font-semibold text-white">{lang === "en" ? "Contact admin on LINE" : "ติดต่อแอดมินใน LINE"}</a>
+                      <Link href="/refunds?new=1" className="rounded-xl border border-amber-400 px-3 py-2 text-xs font-semibold">{lang === "en" ? "Track a refund request" : "แจ้งขอคืนเงินและติดตามสถานะ"}</Link>
+                    </div>
+                  </div>
                 )}
                 
               </div>

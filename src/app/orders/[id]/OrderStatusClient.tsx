@@ -7,7 +7,7 @@ import { faCheck, faCloudArrowUp, faCreditCard, faFileImage, faXmark } from "@fo
 import Link from "next/link";
 import Header from "@/sections/Header";
 import Footer from "@/sections/Footer";
-import type { Order } from "@/types";
+import type { Order, RefundRequest } from "@/types";
 import { formatMoney, shortOrderId } from "@/lib/orders/workflow";
 import { getLineOrderUrl } from "@/lib/utils/line";
 import { formatDateTime } from "@/lib/utils";
@@ -29,6 +29,7 @@ export default function OrderStatusClient({ id }: { id: string }) {
   const isEnglish = lang === "en";
   const text = (th: string, en: string) => isEnglish ? en : th;
   const [detail, setDetail] = useState<OrderDetail | null>(null);
+  const [refund, setRefund] = useState<RefundRequest | null>(null);
   const [loading, setLoading] = useState(true);
   const [loginRequired, setLoginRequired] = useState(false);
   const [error, setError] = useState("");
@@ -102,6 +103,17 @@ export default function OrderStatusClient({ id }: { id: string }) {
     };
   }, [id]);
 
+  useEffect(() => {
+    let active = true;
+    fetch("/api/customer/refunds", { cache: "no-store" })
+      .then((response) => response.ok ? response.json() : null)
+      .then((result: { data?: RefundRequest[] } | null) => {
+        if (active) setRefund(result?.data?.find((item) => item.orderId === id) ?? null);
+      })
+      .catch(() => {});
+    return () => { active = false; };
+  }, [id]);
+
   async function copy(value: string, kind: "account" | "link") {
     try {
       await navigator.clipboard.writeText(value);
@@ -139,6 +151,7 @@ export default function OrderStatusClient({ id }: { id: string }) {
     order.status !== "cancelled" &&
     order.paymentStatus !== "paid" &&
     order.paymentStatus !== "slip_submitted" &&
+    (!refund || refund.status === "rejected") &&
     (!order.reservationExpiresAt ||
       new Date(order.reservationExpiresAt).getTime() > now),
   );
@@ -149,6 +162,12 @@ export default function OrderStatusClient({ id }: { id: string }) {
   );
   const status = !order
     ? ""
+    : refund?.status === "refunded" || order.paymentStatus === "refunded"
+      ? text("คืนเงินแล้ว", "Refund completed")
+    : refund?.status === "reviewing"
+      ? text("กำลังดำเนินการคืนเงิน", "Refund in review")
+    : refund?.status === "requested"
+      ? text("รอตรวจสอบคำร้องคืนเงิน", "Refund request received")
     : order.status === "cancelled"
       ? text("ยกเลิกแล้ว", "Cancelled")
       : order.status === "completed" || order.shippingStatus === "delivered"
@@ -293,9 +312,24 @@ export default function OrderStatusClient({ id }: { id: string }) {
                 </div>
               </section>
 
+              {(refund || order?.paymentStatus === "refunded" || order?.status === "cancelled") && (
+                <section className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">
+                  <h2 className="font-bold">{refund?.status === "refunded" || order?.paymentStatus === "refunded" ? text("คืนเงินแล้ว", "Refund completed") : refund?.status === "reviewing" ? text("กำลังตรวจสอบและคืนเงิน", "Refund in progress") : refund?.status === "requested" ? text("รับคำร้องคืนเงินแล้ว", "Refund request received") : refund?.status === "rejected" ? text("คำร้องคืนเงินไม่ผ่าน", "Refund request declined") : text("ออเดอร์นี้หยุดดำเนินการ", "This order has stopped")}</h2>
+                  <p className="mt-1">{refund?.adminNote || text("หากคุณโอนเงินแล้ว กรุณาติดต่อร้านเพื่อให้ตรวจสอบและดำเนินการคืนเงิน", "If you transferred money, contact the shop so we can verify and arrange a refund.")}</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <a href={getLineOrderUrl(text(`สอบถามการคืนเงินออเดอร์ #${shortOrderId(id)}`, `Refund question for order #${shortOrderId(id)}`))} target="_blank" rel="noopener noreferrer" className="rounded-xl bg-green-600 px-3 py-2 font-semibold text-white">{text("ติดต่อแอดมินใน LINE", "Contact the shop on LINE")}</a>
+                    <Link href={refund ? "/refunds" : `/refunds?new=1&orderId=${encodeURIComponent(id)}`} className="rounded-xl border border-amber-400 px-3 py-2 font-semibold">{refund ? text("ดูสถานะคืนเงิน", "View refund status") : text("แจ้งขอคืนเงิน", "Request a refund")}</Link>
+                  </div>
+                </section>
+              )}
+
               {!payable && (
                 <p className="rounded-xl bg-amber-50 p-4 text-center text-sm font-medium text-amber-800">
-                  {order?.status === "cancelled"
+                  {refund && (refund.status === "requested" || refund.status === "reviewing")
+                    ? text("หยุดขั้นตอนชำระเงินชั่วคราวระหว่างตรวจคำร้องคืนเงิน", "Payment is paused while the refund request is reviewed.")
+                    : order?.paymentStatus === "refunded"
+                    ? text("คืนเงินแล้ว", "Refund completed")
+                    : order?.status === "cancelled"
                     ? text("ออเดอร์นี้ถูกยกเลิกแล้ว", "This order has been cancelled.")
                     : order?.paymentStatus === "paid"
                       ? text("ชำระเงินแล้ว", "Payment confirmed")

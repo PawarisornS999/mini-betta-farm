@@ -199,3 +199,5 @@ revoke all on function public.grant_welcome_coupon(text) from public, anon, auth
 grant execute on function public.grant_welcome_coupon(text) to service_role;
 revoke all on function public.place_order(text,text,text,text,jsonb,text,boolean) from public, anon, authenticated;
 grant execute on function public.place_order(text,text,text,text,jsonb,text,boolean) to service_role;
+
+notify pgrst, 'reload schema';

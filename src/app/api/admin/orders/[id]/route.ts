@@ -5,6 +5,7 @@ import { supabaseRest } from "@/lib/supabase/rest";
 import { type OrderAction } from "@/lib/orders/workflow";
 import { orderCustomerUrl } from "@/lib/orders/workflow";
 import { pushLineMessage } from "@/lib/line/messaging";
+import { hasActiveOrderRefund } from "@/lib/refunds/data";
 
 const actions = new Set<OrderAction>(["quote_shipping", "paid", "reject_slip", "ready_to_ship", "shipped", "delivered", "tracking", "cancel"]);
 const labels: Record<OrderAction, string> = {
@@ -21,6 +22,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   try {
     const before = await getOrder(id);
     if (!before) return NextResponse.json({ message: "Order not found" }, { status: 404 });
+    if (before.status === "cancelled") {
+      return NextResponse.json({ message: "ออเดอร์ที่ยกเลิกแล้วไม่สามารถดำเนินการต่อ" }, { status: 409 });
+    }
+    if (await hasActiveOrderRefund(id)) {
+      return NextResponse.json({ message: "ออเดอร์นี้อยู่ระหว่างตรวจสอบคืนเงิน กรุณาจัดการในหน้าคืนเงิน" }, { status: 409 });
+    }
     await supabaseRest("rpc/admin_update_order", {
       method: "POST", serviceRole: true,
       body: JSON.stringify({ p_order_id: id, p_action: body.action, p_value: body.value ?? null }),
@@ -49,6 +56,13 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
   try {
     const order = await getOrder(id);
     if (!order) return NextResponse.json({ message: "Order not found" }, { status: 404 });
+    const refunds = await supabaseRest<Array<{ id: string }>>(
+      `refund_requests?select=id&order_id=eq.${encodeURIComponent(id)}&limit=1`,
+      { serviceRole: true, cache: "no-store" },
+    );
+    if (refunds.length > 0) {
+      return NextResponse.json({ message: "ออเดอร์นี้มีประวัติคำร้องคืนเงิน จึงไม่สามารถลบได้" }, { status: 409 });
+    }
 
     await supabaseRest(`orders?id=eq.${encodeURIComponent(id)}`, {
       method: "DELETE",

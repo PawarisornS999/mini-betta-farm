@@ -82,7 +82,7 @@ export default function OrdersAdminClient() {
   const [busy, setBusy] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatusFilter>("all");
-  const [confirmTarget, setConfirmTarget] = useState<{ order: Order; action: "cancel" | "delete" } | null>(null);
+  const [confirmTarget, setConfirmTarget] = useState<{ order: Order; action: "cancel" | "delete" | "refund" } | null>(null);
   const [trackingTarget, setTrackingTarget] = useState<Order | null>(null);
   const [trackingValue, setTrackingValue] = useState("");
   const [trackingError, setTrackingError] = useState("");
@@ -183,6 +183,26 @@ export default function OrdersAdminClient() {
       if (action === "cancel") setConfirmTarget(null);
     } catch (cause) {
       setError(formatAdminOrderError(cause, "อัปเดตไม่สำเร็จ"));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function openRefund(order: Order) {
+    setBusy(order.id);
+    setError("");
+    try {
+      const response = await fetch("/api/admin/refunds", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: order.id }),
+      });
+      const result = await response.json() as { message?: string };
+      if (!response.ok) throw new Error(result.message || "เปิดคำร้องคืนเงินไม่สำเร็จ");
+      await load();
+      setConfirmTarget(null);
+    } catch (cause) {
+      setError(formatAdminOrderError(cause, "เปิดคำร้องคืนเงินไม่สำเร็จ"));
     } finally {
       setBusy(null);
     }
@@ -388,13 +408,23 @@ export default function OrdersAdminClient() {
                   ดูสลิป
                 </button>
               )}
-              {order.paymentStatus === "paid" && (
+              {order.paymentStatus === "paid" && order.status !== "cancelled" && (
                 <button
                   type="button"
                   onClick={() => openTrackingModal(order)}
                   className="rounded-lg bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700"
                 >
                   เลขพัสดุ
+                </button>
+              )}
+              {(order.paymentStatus === "paid" || order.paymentStatus === "slip_submitted") && order.shippingStatus === "pending" && order.status !== "cancelled" && (
+                <button
+                  type="button"
+                  disabled={busy === order.id}
+                  onClick={() => setConfirmTarget({ order, action: "refund" })}
+                  className="rounded-lg bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-800 disabled:opacity-30"
+                >
+                  แจ้งไม่ได้ปลา / เปิดคืนเงิน
                 </button>
               )}
               {actionLabels.filter(([action]) => canUpdateOrder(order, action)).map(([action, label]) => {
@@ -475,12 +505,13 @@ export default function OrdersAdminClient() {
         onConfirm={() => {
           if (!confirmTarget) return;
           if (confirmTarget.action === "delete") void deleteOrder(confirmTarget.order);
+          else if (confirmTarget.action === "refund") void openRefund(confirmTarget.order);
           else void act(confirmTarget.order, "cancel");
         }}
-        title={confirmTarget?.action === "delete" ? "ลบออเดอร์ถาวรหรือไม่?" : "ยกเลิกออเดอร์หรือไม่?"}
-        description={confirmTarget ? confirmTarget.action === "delete" ? `ออเดอร์ ${shortOrderId(confirmTarget.order.id)} จะถูกลบพร้อมรายการสินค้า การดำเนินการนี้ไม่สามารถย้อนกลับได้` : `ยกเลิกออเดอร์ ${shortOrderId(confirmTarget.order.id)} และคืน stock หรือไม่?` : undefined}
+        title={confirmTarget?.action === "delete" ? "ลบออเดอร์ถาวรหรือไม่?" : confirmTarget?.action === "refund" ? "แจ้งลูกค้าว่าไม่ได้ปลาและเปิดคำร้องคืนเงิน?" : "ยกเลิกออเดอร์หรือไม่?"}
+        description={confirmTarget ? confirmTarget.action === "delete" ? `ออเดอร์ ${shortOrderId(confirmTarget.order.id)} จะถูกลบพร้อมรายการสินค้า การดำเนินการนี้ไม่สามารถย้อนกลับได้` : confirmTarget.action === "refund" ? `ออเดอร์ ${shortOrderId(confirmTarget.order.id)} จะหยุดจัดส่งและแจ้งลูกค้าทาง LINE โปรดตรวจสอบยอดที่โอนก่อนคืนเงินจริง` : `ยกเลิกออเดอร์ ${shortOrderId(confirmTarget.order.id)} และคืน stock หรือไม่?` : undefined}
         variant="error"
-        confirmText={confirmTarget?.action === "delete" ? "ลบออเดอร์" : "ยืนยันยกเลิก"}
+        confirmText={confirmTarget?.action === "delete" ? "ลบออเดอร์" : confirmTarget?.action === "refund" ? "เปิดคำร้องคืนเงิน" : "ยืนยันยกเลิก"}
         cancelText="ยกเลิก"
       />
       <Modal
@@ -501,7 +532,7 @@ function OrderStepper({ order }: { order: Order }) {
       <aside className="rounded-2xl border border-red-100 bg-red-50 p-4">
         <p className="text-xs font-bold uppercase tracking-wider text-red-500">สถานะออเดอร์</p>
         <p className="mt-2 font-bold text-red-700">ยกเลิกแล้ว</p>
-        <p className="mt-1 text-xs leading-5 text-red-600">คืนจำนวนสินค้าเข้าสต็อกเรียบร้อยแล้ว</p>
+        <p className="mt-1 text-xs leading-5 text-red-600">หยุดดำเนินการออเดอร์แล้ว ตรวจสถานะคืนเงินก่อนปิดเรื่อง</p>
       </aside>
     );
   }

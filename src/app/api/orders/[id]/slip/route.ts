@@ -3,6 +3,7 @@ import { getOrder } from "@/lib/orders/data";
 import { supabaseRest } from "@/lib/supabase/rest";
 import { pushLineMessage } from "@/lib/line/messaging";
 import { getLineSession } from "@/lib/line/login";
+import { hasActiveOrderRefund } from "@/lib/refunds/data";
 
 const types: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
 
@@ -20,7 +21,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (!order.lineUserId || order.lineUserId !== session.userId) {
     return NextResponse.json({ message: "คุณไม่มีสิทธิ์ดำเนินการกับคำสั่งซื้อนี้" }, { status: 403 });
   }
-  if (order.status === "cancelled" || order.paymentStatus === "paid") {
+  if (order.status === "cancelled" || order.paymentStatus === "paid" || await hasActiveOrderRefund(id)) {
     return NextResponse.json({ message: "ออเดอร์นี้ไม่สามารถส่งสลิปได้" }, { status: 409 });
   }
   if (order.reservationExpiresAt && new Date(order.reservationExpiresAt).getTime() < Date.now() && order.paymentStatus !== "slip_submitted") {

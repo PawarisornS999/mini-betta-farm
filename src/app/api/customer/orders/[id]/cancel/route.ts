@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getLineSession } from "@/lib/line/login";
 import { getOrder } from "@/lib/orders/data";
 import { supabaseRest } from "@/lib/supabase/rest";
+import { hasActiveOrderRefund } from "@/lib/refunds/data";
 
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getLineSession();
@@ -16,6 +17,9 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     }
     if (order.status === "cancelled" || order.paymentStatus === "paid") {
       return NextResponse.json({ message: "ยกเลิกได้เฉพาะคำสั่งซื้อที่ยังไม่ชำระเงิน" }, { status: 409 });
+    }
+    if (await hasActiveOrderRefund(id)) {
+      return NextResponse.json({ message: "ออเดอร์นี้อยู่ระหว่างตรวจสอบคืนเงิน" }, { status: 409 });
     }
 
     await supabaseRest("rpc/admin_update_order", {

@@ -232,6 +232,24 @@ export interface Order {
   updatedAt?: string;
 }
 
+export type RefundStatus = "requested" | "reviewing" | "refunded" | "rejected";
+
+export interface RefundRequest {
+  id: string;
+  orderId?: string;
+  productSummary: string;
+  claimedAmount: number;
+  paymentReference?: string;
+  customerNote?: string;
+  adminNote?: string;
+  reason: "stock_unavailable" | "order_problem";
+  status: RefundStatus;
+  createdAt: string;
+  updatedAt: string;
+  resolvedAt?: string;
+  lineUserId?: string;
+}
+
 export interface OrderItem {
   id?: string;
   orderId?: string;

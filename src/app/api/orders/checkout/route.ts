@@ -103,10 +103,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, data: order });
   } catch (error) {
     console.error("Checkout failed", error);
-    const message = error instanceof Error ? error.message : "Checkout failed";
+    let message = error instanceof Error ? error.message : "Checkout failed";
+    try {
+      const parsed = JSON.parse(message) as { message?: string };
+      if (parsed.message) message = parsed.message;
+    } catch { /* Keep the plain database message. */ }
+    const unavailable = /Product unavailable|Insufficient stock/i.test(message);
     return NextResponse.json(
-      { success: false, message, code: "CHECKOUT_FAILED" },
-      { status: 400 },
+      {
+        success: false,
+        message: unavailable ? "ปลาที่เลือกถูกจองหรือขายไปแล้ว กรุณาเลือกปลาตัวอื่น" : message,
+        code: unavailable ? "PRODUCT_UNAVAILABLE" : "CHECKOUT_FAILED",
+      },
+      { status: unavailable ? 409 : 400 },
     );
   }
 }

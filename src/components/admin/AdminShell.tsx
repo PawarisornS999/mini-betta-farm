@@ -6,12 +6,13 @@ import { useState } from "react";
 import { adminText, useAdminLanguage } from "./LanguageProvider";
 import Modal from "../Modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGaugeHigh, faFish, faClipboardList, faBahtSign, faTags, faPenToSquare, faArrowUpRightFromSquare, faRightFromBracket, faBars, faFishFins } from "@fortawesome/free-solid-svg-icons";
+import { faGaugeHigh, faFish, faClipboardList, faBahtSign, faTags, faPenToSquare, faArrowUpRightFromSquare, faRightFromBracket, faBars, faFishFins, faRotateLeft } from "@fortawesome/free-solid-svg-icons";
 
 const navigation = [
   { href: "/admin", label: "Dashboard", icon: faGaugeHigh },
   { href: "/admin/products", label: "Products", icon: faFish },
   { href: "/admin/orders", label: "Orders", icon: faClipboardList },
+  { href: "/admin/refunds", label: "Refunds", icon: faRotateLeft },
   { href: "/admin/payment-settings", label: "Payment", icon: faBahtSign },
   { href: "/admin/categories", label: "Categories", icon: faTags },
   { href: "/admin/blogs", label: "Blogs", icon: faPenToSquare },
@@ -82,6 +83,8 @@ export default function AdminShell({
                   ? text("สินค้า", "Products")
                   : item.label === "Orders"
                     ? text("ออเดอร์", "Orders")
+                  : item.label === "Refunds"
+                    ? text("คืนเงิน", "Refunds")
                     : item.label === "Payment"
                       ? text("บัญชีรับเงิน", "Payment")
                       : item.label === "Categories"
@@ -147,6 +150,8 @@ export default function AdminShell({
                   ? text("สต็อก", "Inventory")
                   : pathname.includes("orders")
                     ? text("ออเดอร์", "Orders")
+                    : pathname.includes("refunds")
+                      ? text("คืนเงิน", "Refunds")
                     : pathname.includes("products")
                       ? text("สินค้า", "Products")
                       : pathname.includes("blogs")

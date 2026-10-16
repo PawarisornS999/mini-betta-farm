@@ -30,6 +30,7 @@ function tabMatches(order: Order, tab: Tab) {
 }
 
 function statusLabel(order: Order) {
+  if (order.paymentStatus === "refunded") return "คืนเงินแล้ว";
   if (order.status === "cancelled") return "ยกเลิกแล้ว";
   if (order.status === "completed" || order.shippingStatus === "delivered")
     return "สำเร็จแล้ว";
@@ -123,6 +124,9 @@ export default function OrdersPage() {
           </div>
           <Link href="/tracking" className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-red-700">
             ติดตามพัสดุ
+          </Link>
+          <Link href="/refunds" className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm font-bold text-amber-800 hover:bg-amber-100">
+            สถานะคืนเงิน
           </Link>
         </div>
         <div className="bg-white rounded-md p-2 mt-4 shadow-lg">

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseRest } from "@/lib/supabase/rest";
+import { hasActiveOrderRefund } from "@/lib/refunds/data";
 
 export async function GET(request: Request) {
   if (!process.env.CRON_SECRET || request.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -12,6 +13,7 @@ export async function GET(request: Request) {
   let expired = 0;
   for (const order of orders) {
     try {
+      if (await hasActiveOrderRefund(order.id)) continue;
       await supabaseRest("rpc/admin_update_order", { method: "POST", serviceRole: true,
         body: JSON.stringify({ p_order_id: order.id, p_action: "cancel", p_value: "expired" }) });
       expired += 1;

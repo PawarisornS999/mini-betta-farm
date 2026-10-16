@@ -4,6 +4,7 @@ import { promptPayPayload } from "@/lib/orders/promptpay";
 import { getLineSession } from "@/lib/line/login";
 import { getOrder } from "@/lib/orders/data";
 import { supabaseRest } from "@/lib/supabase/rest";
+import { hasActiveOrderRefund } from "@/lib/refunds/data";
 
 const privateHeaders = { "Cache-Control": "private, no-store" };
 
@@ -16,7 +17,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   if (!order || order.lineUserId !== session.userId) {
     return NextResponse.json({ message: "Order not found" }, { status: 404, headers: privateHeaders });
   }
-  if (order.status === "cancelled" || order.paymentStatus === "paid" || order.paymentStatus === "slip_submitted" || (order.reservationExpiresAt && new Date(order.reservationExpiresAt).getTime() <= Date.now())) {
+  if (order.status === "cancelled" || order.paymentStatus === "paid" || order.paymentStatus === "slip_submitted" || await hasActiveOrderRefund(id) || (order.reservationExpiresAt && new Date(order.reservationExpiresAt).getTime() <= Date.now())) {
     return NextResponse.json({ message: "Payment unavailable" }, { status: 409, headers: privateHeaders });
   }
 
