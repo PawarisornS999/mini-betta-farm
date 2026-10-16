@@ -8,6 +8,7 @@ import Footer from "@/sections/Footer";
 import type { Order, Product } from "@/types";
 import TabsMenu from "@/components/TabsMenu";
 import { formatMoney } from "@/lib/orders/workflow";
+import { formatDateTime } from "@/lib/utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBasketShopping, faFish, faCreditCard } from "@fortawesome/free-solid-svg-icons";
 import { useLangStore } from "@/store/lang";
@@ -94,7 +95,7 @@ export default function OrdersPage() {
   return (
     <>
       <Header />
-      <main className="mx-auto min-h-[70vh] max-w-4xl px-4 pb-20 pt-28 text-foreground">
+      <main className="mx-auto min-h-[70vh] max-w-4xl px-4 pb-20 pt-10 text-foreground">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold">การซื้อของฉัน</h1>
@@ -176,16 +177,7 @@ export default function OrdersPage() {
                 <div className="mt-4 flex justify-between  pt-4 text-sm">
                   <span className="text-muted">
                     <span className="mr-1">วันที่สั่งซื้อ:</span>
-                    {new Date(order.createdAt).toLocaleString(lang === "th" ? "th-TH" : "en-GB", {
-                      timeZone: "Asia/Bangkok",
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hourCycle: "h23",
-                    })}
-                    {lang === "th" ? " น." : ""}
+                    {formatDateTime(order.createdAt, lang)}
                   </span>
                   <strong>
                     ฿{Number(order.totalPrice ?? 0).toLocaleString("th-TH")}

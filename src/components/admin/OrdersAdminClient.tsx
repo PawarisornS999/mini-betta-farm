@@ -12,6 +12,7 @@ import {
 import { faBasketShopping, faCheck, faCircle, faCopy } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import BaseDropdown from "@/components/BaseDropdown";
+import { formatDateTime } from "@/lib/utils";
 
 type OrderStatusFilter =
   | "all"
@@ -314,15 +315,7 @@ export default function OrdersAdminClient() {
                 </h3>
                 <p className="text-sm text-gray-500">
                   {order.customerPhone} ·{" "}
-                  {new Date(order.createdAt).toLocaleString("th-TH", {
-                    timeZone: "Asia/Bangkok",
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hourCycle: "h23",
-                  })}
+                  {formatDateTime(order.createdAt, "th")}
                 </p>
               </div>
               <div className="text-right">

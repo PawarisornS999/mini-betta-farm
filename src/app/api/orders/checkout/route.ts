@@ -75,10 +75,12 @@ export async function POST(request: Request) {
 
     if (process.env.LINE_CHANNEL_ACCESS_TOKEN && order.customerToken) {
       try {
-        const returnTo = `/orders/${encodeURIComponent(order.id)}`;
+        // Link directly to the order page. The page can use the existing LINE
+        // session or offer login if the LINE in-app browser does not have it.
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || request.nextUrl.origin;
         const paymentUrl = new URL(
-          `/api/line/login?returnTo=${encodeURIComponent(returnTo)}`,
-          request.url,
+          `/orders/${encodeURIComponent(order.id)}`,
+          siteUrl,
         ).toString();
         await pushLineFlex(lineSession.userId, customerOrderFlexMessage(order, paymentUrl));
       } catch (lineError) {

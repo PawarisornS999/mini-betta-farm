@@ -10,6 +10,7 @@ import Footer from "@/sections/Footer";
 import type { Order } from "@/types";
 import { formatMoney, shortOrderId } from "@/lib/orders/workflow";
 import { getLineOrderUrl } from "@/lib/utils/line";
+import { formatDateTime } from "@/lib/utils";
 import { RuleWarrantyFish } from "@/components/RuleWarrantyFish";
 import { useLangStore } from "@/store/lang";
 
@@ -269,8 +270,7 @@ export default function OrderStatusClient({ id }: { id: string }) {
                   </div>
                   {order?.reservationExpiresAt && payable && (
                     <p className="text-xs text-amber-700">
-                      {text("กรุณาชำระภายใน", "Please pay by")} {new Date(order.reservationExpiresAt).toLocaleString(isEnglish ? "en-GB" : "th-TH", { timeZone: "Asia/Bangkok", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })}
-                      {lang === "th" ? " น." : ""}
+                      {text("กรุณาชำระภายใน", "Please pay by")} {formatDateTime(order.reservationExpiresAt, lang)}
                     </p>
                   )}
                   {order?.trackingNumber && (

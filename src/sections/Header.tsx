@@ -28,6 +28,7 @@ export default function Header() {
   const [cartBump, setCartBump] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [sessionChecked, setSessionChecked] = useState(false);
+  const [hasUnpaidOrders, setHasUnpaidOrders] = useState(false);
   const [lineProfile, setLineProfile] = useState<{
     displayName?: string;
     pictureUrl?: string;
@@ -125,12 +126,22 @@ export default function Header() {
             };
           }>,
       )
-      .then((result) => {
+      .then(async (result) => {
         if (result.data?.authenticated) {
           setLineProfile({
             displayName: result.data.displayName,
             pictureUrl: result.data.pictureUrl,
           });
+          const ordersResponse = await fetch("/api/customer/orders", { cache: "no-store" });
+          if (!ordersResponse.ok) return;
+          const ordersBody = (await ordersResponse.json()) as {
+            data?: Array<{ status?: string; paymentStatus?: string }>;
+          };
+          setHasUnpaidOrders(
+            (ordersBody.data ?? []).some(
+              (order) => order.status !== "cancelled" && order.paymentStatus !== "paid",
+            ),
+          );
         }
       })
       .catch(() => setLineProfile(null))
@@ -259,7 +270,15 @@ export default function Header() {
                           className="block rounded-xl px-4 py-3 text-sm font-semibold hover:bg-accent/10 hover:text-accent"
                         >
                           <FontAwesomeIcon icon={faBagShopping} className="mr-2 w-3.5 h-3.5" />
-                          การซื้อของฉัน
+                          <span className="inline-flex items-center gap-2 pb-1">
+                            {lang === "en" ? "My Orders" : "การซื้อของฉัน"}
+                            {hasUnpaidOrders && (
+                              <span
+                                aria-label={lang === "en" ? "Unpaid orders" : "มีคำสั่งซื้อที่ยังไม่ได้ชำระเงิน"}
+                                className="h-2 w-2 rounded-full bg-red-500"
+                              />
+                            )}
+                          </span>
                         </Link>
                         <button
                           type="button"

@@ -1,3 +1,12 @@
+export function formatDateTime(value: string | Date, language: string = "en"): string {
+  const date = value instanceof Date ? value : new Date(value);
+  const formatted = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Bangkok", day: "2-digit", month: "2-digit", year: "numeric",
+    hour: "2-digit", minute: "2-digit", hourCycle: "h23",
+  }).format(date);
+  return language === "th" ? `${formatted} น.` : formatted;
+}
+
 export function formatPrice(price: number): string {
   return `฿${price.toLocaleString()}`;
 }
