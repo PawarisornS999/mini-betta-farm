@@ -1,0 +1,47 @@
+src/app/api/customer/wishlist/route.ts
+  s_10d7d19f64a180::t_1f612fc5c6ad04 1-34
+src/components/WishlistPageClient.tsx
+  s_10d7d19f64a180::t_1f612fc5c6ad04 1-26,28-51
+  s_10d7d19f64a180::t_64f0375338562d 27
+src/app/wishlist/page.tsx
+  s_10d7d19f64a180::t_ec8240f0689ec8 8
+  s_10d7d19f64a180::t_1f612fc5c6ad04 1-7,9-10
+src/components/ProductCard.tsx
+  s_10d7d19f64a180::t_113e45f6917951 14
+  s_10d7d19f64a180::t_26010c5fbb5919 186,193,207-208
+src/components/WishlistButton.tsx
+  s_10d7d19f64a180::t_256fb2df3f250d 13,55-56,65
+  s_10d7d19f64a180::t_143dfc625f0dba 1-12,14-54,57-64,66-70
+supabase/migrations/202610160002_customer_wishlist.sql
+  s_10d7d19f64a180::t_1f612fc5c6ad04 1-12
+  s_10d7d19f64a180::t_4be864fb5c1b2c 13
+src/store/wishlist.ts
+  s_10d7d19f64a180::t_143dfc625f0dba 1-7,9-19,21-27,29-34,36,38-43,45
+  s_10d7d19f64a180::t_256fb2df3f250d 8,20,28,35,37,44
+src/lib/customer/wishlist.ts
+  s_10d7d19f64a180::t_143dfc625f0dba 1-42
+src/app/shop/[id]/page.tsx
+  s_10d7d19f64a180::t_08df072be44aa6 16
+  s_10d7d19f64a180::t_c0583aa8e37ca3 367,372,386-387
+src/sections/Header.tsx
+  s_10d7d19f64a180::t_5d12292a93c164 10,23,40,55,118
+  s_10d7d19f64a180::t_256fb2df3f250d 140-142,149-150,250-253,257-260,278-281,289-292,297-301,307-323,329-332
+src/app/api/customer/wishlist/[productId]/route.ts
+  s_10d7d19f64a180::t_1f612fc5c6ad04 1-16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.3",
+  "base_commit_sha": "ca8e7aff697185abd1ac536325c10b2016396c16",
+  "prompts": {},
+  "sessions": {
+    "s_10d7d19f64a180": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14528-9d35-7ef3-a705-6780210de419",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Pawarisorn <pawarisorn.son@axonstech.com>"
+    }
+  }
+}
