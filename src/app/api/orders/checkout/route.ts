@@ -77,7 +77,7 @@ export async function POST(request: Request) {
       try {
         // Link directly to the order page. The page can use the existing LINE
         // session or offer login if the LINE in-app browser does not have it.
-        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || request.nextUrl.origin;
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || new URL(request.url).origin;
         const paymentUrl = new URL(
           `/orders/${encodeURIComponent(order.id)}`,
           siteUrl,
