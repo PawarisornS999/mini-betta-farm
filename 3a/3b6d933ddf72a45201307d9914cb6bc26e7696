@@ -1,0 +1,24 @@
+src/lib/orders/data.ts
+  s_f4e9b15ed93987::t_93e1fa714cd257 11,14-16,27-36,43-51,57,62,70
+src/types/index.ts
+  s_f4e9b15ed93987::t_ebf353e5ec9f2e 258-259
+src/components/admin/OrdersAdminClient.tsx
+  s_f4e9b15ed93987::t_7ce761b7bf2fe9 355-361
+  s_f4e9b15ed93987::t_a39672af9690e2 287
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.3",
+  "base_commit_sha": "3a3b6d933ddf72a45201307d9914cb6bc26e7696",
+  "prompts": {},
+  "sessions": {
+    "s_f4e9b15ed93987": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14f7b-7943-7e71-86cd-99e2cf394896",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Pawarisorn <pawarisorn.son@axonstech.com>"
+    }
+  }
+}
