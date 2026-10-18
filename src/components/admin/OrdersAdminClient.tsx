@@ -284,6 +284,7 @@ export default function OrdersAdminClient() {
     const matchesStatus = statusFilter === "all" || orderStageKey(order) === statusFilter;
     return matchesSearch && matchesStatus;
   });
+  console.log("Filtered orders:", filtered);
   const statusOptions: Array<{ value: OrderStatusFilter; label: string }> = [
     { value: "all", label: "ทุกสถานะ" },
     { value: "awaiting_payment", label: "รอชำระเงิน" },
@@ -351,9 +352,13 @@ export default function OrdersAdminClient() {
               <div className="text-sm">
               {order.items.map((item) => (
                 <div key={item.id} className="mb-2 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-gray-50 px-3 py-2.5">
-                  <p className="font-medium">
-                    {item.productName} × {item.quantity}
-                  </p>
+                  <div>
+                    <p className="font-medium">{item.productName} × {item.quantity}</p>
+                    <p className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500">
+                      <span>รหัสสินค้า: {item.sku || "ไม่ระบุ"}</span>
+                      <span>เพศ: {item.gender === "male" ? "ผู้" : item.gender === "female" ? "เมีย" : item.gender === "unsexed" ? "ยังไม่ระบุเพศ" : "ไม่ระบุ"}</span>
+                    </p>
+                  </div>
                   <div className="flex items-center gap-2">
                     <span className={`rounded-full px-2 py-1 text-[10px] font-bold ring-1 ring-inset ${stageBadgeClass(order)}`}>
                       {orderStageLabel(order)}

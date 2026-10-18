@@ -255,6 +255,8 @@ export interface OrderItem {
   orderId?: string;
   productId?: string;
   productName?: string;
+  sku?: string;
+  gender?: "male" | "female" | "unsexed";
   product: {
     id: string;
     name: string;
