@@ -1,0 +1,22 @@
+src/app/contact/page.tsx
+  s_0deaf6757de251::t_600813e8cb0d08 9,11-22,42,46-57
+  s_0deaf6757de251::t_d68e39ff4c28d4 44-45
+src/app/globals.css
+  s_0deaf6757de251::t_189238b534b974 37-61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.3",
+  "base_commit_sha": "aff095d3bf38841b6459e72ddc4a5645e7565612",
+  "prompts": {},
+  "sessions": {
+    "s_0deaf6757de251": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a153e8-590f-7392-b501-aa8fd866d6b9",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Pawarisorn <pawarisorn.son@axonstech.com>"
+    }
+  }
+}
