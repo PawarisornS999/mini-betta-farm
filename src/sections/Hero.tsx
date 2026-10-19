@@ -122,7 +122,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              className="text-muted text-base sm:text-lg mb-8 max-w-md mx-auto md:mx-0"
+              className="text-muted text-xs lg:text-base mb-8 max-w-md mx-auto md:mx-0"
             >
               {t.subtitle}
             </motion.p>
@@ -163,7 +163,7 @@ export default function Hero() {
             >
               {t.stats.map((stat) => (
                 <div key={stat.label} className="text-center">
-                  <div className="flex flex-row items-center gap-1">
+                  <div className="flex flex-row items-center  gap-1">
                      <p className="text-xl font-bold text-foreground flex items-center justify-center gap-1">
                     {stat.value} 
                     </p>

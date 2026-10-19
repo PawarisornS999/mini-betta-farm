@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAdminSession } from "@/lib/admin/auth";
+import { getAdminSession, hasPermission } from "@/lib/admin/auth";
 import { logAdminActivity } from "@/lib/admin/products";
 import { mapProduct, type ProductRow } from "@/lib/supabase/mappers";
 import { supabaseRest } from "@/lib/supabase/rest";
@@ -7,6 +7,7 @@ import { supabaseRest } from "@/lib/supabase/rest";
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getAdminSession();
   if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!hasPermission(session, "products.edit")) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   const { id } = await params;
   const body = await request.json();
   const salePrice = body.salePrice == null || body.salePrice === "" ? null : Number(body.salePrice);
@@ -51,6 +52,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getAdminSession();
   if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!hasPermission(session, "products.delete")) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   const { id } = await params;
   try {
     const rows = await supabaseRest<ProductRow[]>(

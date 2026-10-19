@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
-import { getAdminSession } from "@/lib/admin/auth";
+import { getAdminSession, hasPermission } from "@/lib/admin/auth";
 import { supabaseRest } from "@/lib/supabase/rest";
 import { mapCategory, type CategoryRow } from "@/lib/supabase/mappers";
 
 function slugify(value: string) { return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "category"; }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  if (!(await getAdminSession())) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!hasPermission(session, "categories.manage")) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   const { id } = await params;
   const body = await request.json() as { name?: string; slug?: string; description?: string; image?: string; sortOrder?: number; isActive?: boolean };
   if (!body.name?.trim()) return NextResponse.json({ success: false, message: "กรุณากรอกชื่อหมวดหมู่" }, { status: 400 });
@@ -31,7 +33,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  if (!(await getAdminSession())) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!hasPermission(session, "categories.manage")) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   const { id } = await params;
   try {
     await supabaseRest(`categories?id=eq.${encodeURIComponent(id)}`, { method: "PATCH", serviceRole: true, headers: { Prefer: "return=minimal" }, body: JSON.stringify({ is_active: false, updated_at: new Date().toISOString() }) });

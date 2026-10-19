@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAdminSession } from "@/lib/admin/auth";
+import { getAdminSession, hasPermission } from "@/lib/admin/auth";
 import { getAdminProducts, logAdminActivity } from "@/lib/admin/products";
 import { mapProduct, type ProductRow } from "@/lib/supabase/mappers";
 import { supabaseRest } from "@/lib/supabase/rest";
@@ -85,7 +85,9 @@ function toRow(body: ProductInput) {
 }
 
 export async function GET() {
-  if (!(await getAdminSession())) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!hasPermission(session, "products.view")) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   try {
     return NextResponse.json({ success: true, data: await getAdminProducts() });
   } catch (error) {
@@ -96,6 +98,7 @@ export async function GET() {
 export async function POST(request: Request) {
   const session = await getAdminSession();
   if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!hasPermission(session, "products.create")) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   const body = (await request.json()) as ProductInput;
   const error = validate(body);
   if (error) return NextResponse.json({ success: false, message: error }, { status: 400 });

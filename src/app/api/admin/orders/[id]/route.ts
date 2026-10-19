@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAdminSession } from "@/lib/admin/auth";
+import { getAdminSession, hasPermission } from "@/lib/admin/auth";
 import { getOrder } from "@/lib/orders/data";
 import { supabaseRest } from "@/lib/supabase/rest";
 import { type OrderAction } from "@/lib/orders/workflow";
@@ -16,6 +16,7 @@ const labels: Record<OrderAction, string> = {
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getAdminSession();
   if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!hasPermission(session, "orders.update")) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   const { id } = await params;
   const body = await request.json() as { action?: OrderAction; value?: string };
   if (!body.action || !actions.has(body.action)) return NextResponse.json({ message: "Invalid action" }, { status: 400 });
@@ -52,6 +53,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getAdminSession();
   if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!hasPermission(session, "orders.delete")) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   const { id } = await params;
   try {
     const order = await getOrder(id);

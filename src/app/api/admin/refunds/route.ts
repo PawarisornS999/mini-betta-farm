@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
-import { getAdminSession } from "@/lib/admin/auth";
+import { getAdminSession, hasPermission } from "@/lib/admin/auth";
 import { listAdminRefunds } from "@/lib/refunds/data";
 import { supabaseRest } from "@/lib/supabase/rest";
 import { pushLineMessage } from "@/lib/line/messaging";
 
 export async function GET() {
-  if (!(await getAdminSession())) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!hasPermission(session, "refunds.view")) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   try {
     return NextResponse.json({ success: true, data: await listAdminRefunds() }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
@@ -15,7 +17,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  if (!(await getAdminSession())) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!hasPermission(session, "refunds.manage")) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   try {
     const body = await request.json() as { orderId?: string };
     if (!body.orderId) return NextResponse.json({ message: "Order ID is required" }, { status: 400 });

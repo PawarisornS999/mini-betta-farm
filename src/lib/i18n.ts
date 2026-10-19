@@ -19,7 +19,7 @@ const translations = {
       titleAccent: "Betta Fish",
       titleSuffix: "Awaits",
       subtitle:
-        "Discover our hand-selected collection of premium betta fish. From vibrant Halfmoons to majestic Giants — find your perfect companion.",
+        "Pop in and explore our special selection of premium Bettas, ranging from vivid Halfmoons to majestic Giants — grab your favorite one today!",
       shopNow: "Shop Now",
       careGuides: "Care Guides",
       liveArrival: "Live Arrival",
@@ -356,7 +356,7 @@ const translations = {
       titleAccent: "พรีเมียม",
       titleSuffix: "รอคุณอยู่",
       subtitle:
-        "ค้นพบคอลเลกชันปลากัดพรีเมียมคัดสรรพิเศษ ตั้งแต่ฮาฟมูนสีสันสดใสไปจนถึงยักษ์ใหญ่งดงาม — หาสายพันธุ์ที่ใช่สำหรับคุณ",
+        "แวะมาดูปลากัดพรีเมียมที่เราคัดมาพิเศษได้เลย มีตั้งแต่ฮาฟมูนสีสดๆ ยันตัวยักษ์ใหญ่สง่างาม — มาเลือกตัวที่ชอบไปเลี้ยงกัน",
       shopNow: "เลือกซื้อเลย",
       careGuides: "คู่มือการดูแล",
       liveArrival: "รับประกัน",
@@ -595,8 +595,8 @@ const translations = {
       ],
       stats: [
         { value: "1000+", label: "ตัวที่ขายไปแล้ว" },
-        { value: "6", label: "สายพันธุ์" },
-        { value: "10", label: "ปีประสบการณ์" },
+        { value: "10", label: "สายพันธุ์" },
+        { value: "10+", label: "ปีประสบการณ์" },
         { value: "4.9", label: "คะแนนจากลูกค้า" },
       ],
     },

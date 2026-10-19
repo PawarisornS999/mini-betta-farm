@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
-import { getAdminSession } from "@/lib/admin/auth";
+import { getAdminSession, hasPermission } from "@/lib/admin/auth";
 import { inventoryDelta, type InventoryOperation } from "@/lib/inventory";
 import { supabaseRest } from "@/lib/supabase/rest";
 
 export async function POST(request: Request) {
   const session = await getAdminSession();
   if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!hasPermission(session, "inventory.adjust")) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   const body = (await request.json()) as {
     productId?: string;
     operation?: InventoryOperation;

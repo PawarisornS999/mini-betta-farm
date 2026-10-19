@@ -116,3 +116,7 @@ body.thai-font {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+@keyframes slip-progress {
+  from { transform: translateX(-30%); }
+  to { transform: translateX(200%); }
+}

@@ -6,23 +6,28 @@ import { useState } from "react";
 import { adminText, useAdminLanguage } from "./LanguageProvider";
 import Modal from "../Modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGaugeHigh, faFish, faClipboardList, faBahtSign, faTags, faPenToSquare, faArrowUpRightFromSquare, faRightFromBracket, faBars, faFishFins, faRotateLeft } from "@fortawesome/free-solid-svg-icons";
+import { faGaugeHigh, faFish, faClipboardList, faBahtSign, faTags, faPenToSquare, faArrowUpRightFromSquare, faRightFromBracket, faBars, faFishFins, faRotateLeft, faUserShield } from "@fortawesome/free-solid-svg-icons";
 
 const navigation = [
-  { href: "/admin", label: "Dashboard", icon: faGaugeHigh },
-  { href: "/admin/products", label: "Products", icon: faFish },
-  { href: "/admin/orders", label: "Orders", icon: faClipboardList },
-  { href: "/admin/refunds", label: "Refunds", icon: faRotateLeft },
-  { href: "/admin/payment-settings", label: "Payment", icon: faBahtSign },
-  { href: "/admin/categories", label: "Categories", icon: faTags },
-  { href: "/admin/blogs", label: "Blogs", icon: faPenToSquare },
+  { href: "/admin", label: "Dashboard", icon: faGaugeHigh, permission: "dashboard.view" },
+  { href: "/admin/products", label: "Products", icon: faFish, permission: "products.view" },
+  { href: "/admin/orders", label: "Orders", icon: faClipboardList, permission: "orders.view" },
+  { href: "/admin/refunds", label: "Refunds", icon: faRotateLeft, permission: "refunds.view" },
+  { href: "/admin/payment-settings", label: "Payment", icon: faBahtSign, permission: "payment.view" },
+  { href: "/admin/categories", label: "Categories", icon: faTags, permission: "categories.view" },
+  { href: "/admin/blogs", label: "Blogs", icon: faPenToSquare, permission: "blogs.view" },
+  { href: "/admin/manage", label: "Manage", icon: faUserShield, permission: "admins.manage" },
 ];
 
 export default function AdminShell({
   username,
+  roleName,
+  permissions,
   children,
 }: {
   username: string;
+  roleName: string;
+  permissions: string[];
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -72,12 +77,14 @@ export default function AdminShell({
           <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[.22em] text-white/35">
             {text("จัดการร้าน", "Management")}
           </p>
-          {navigation.map((item) => {
+          {navigation.filter(item => permissions.includes(item.permission)).map((item) => {
             const active =
               pathname === item.href ||
               (item.href !== "/admin" && pathname.startsWith(item.href));
             const label =
-              item.label === "Dashboard"
+              item.label === "Manage"
+                ? text("จัดการสิทธิ์", "Access management")
+                : item.label === "Dashboard"
                 ? text("ภาพรวม", "Dashboard")
                 : item.label === "Products"
                   ? text("สินค้า", "Products")
@@ -120,7 +127,7 @@ export default function AdminShell({
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold">{username}</p>
-              <p className="text-xs text-white/40">ผู้ดูแลระบบสูงสุด</p>
+              <p className="text-xs text-white/40">{roleName}</p>
             </div>
             <button
               onClick={() => setConfirmLogout(true)}
@@ -146,7 +153,9 @@ export default function AdminShell({
                 {text("จัดการร้านค้า", "Store management")}
               </p>
               <h1 className="text-lg font-bold">
-                {pathname.includes("inventory")
+                {pathname.includes("manage")
+                  ? text("จัดการสิทธิ์", "Access management")
+                  : pathname.includes("inventory")
                   ? text("สต็อก", "Inventory")
                   : pathname.includes("orders")
                     ? text("ออเดอร์", "Orders")

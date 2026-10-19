@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAdminSession } from "@/lib/admin/auth";
+import { getAdminSession, hasPermission } from "@/lib/admin/auth";
 import { logAdminActivity } from "@/lib/admin/products";
 import { mapBlog, type BlogRow } from "@/lib/supabase/mappers";
 import { supabaseRest } from "@/lib/supabase/rest";
@@ -11,6 +11,7 @@ function slugify(value: string) {
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getAdminSession();
   if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!hasPermission(session, "blogs.manage")) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   const { id } = await params;
   const body = await request.json();
   if (!body.title?.trim() || !body.content?.trim() || !body.coverImage?.trim() || !body.category?.trim() || !body.author?.trim()) {
@@ -54,6 +55,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getAdminSession();
   if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!hasPermission(session, "blogs.manage")) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   const { id } = await params;
   try {
     const rows = await supabaseRest<Array<{ id: string }>>(`blog_posts?id=eq.${encodeURIComponent(id)}&select=id`, {

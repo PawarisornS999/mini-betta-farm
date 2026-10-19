@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAdminSession } from "@/lib/admin/auth";
+import { getAdminSession, hasPermission } from "@/lib/admin/auth";
 import { supabaseRest } from "@/lib/supabase/rest";
 
 const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -12,6 +12,7 @@ function errorMessage(error: unknown) {
 export async function POST(request: Request) {
   const session = await getAdminSession();
   if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!hasPermission(session, "media.upload")) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
 
   try {
     const formData = await request.formData();

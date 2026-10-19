@@ -65,7 +65,7 @@ const statuses = [
 
 function formatDateDMY(value?: string) {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value ?? "");
-  return match ? `${match[3]}/${match[2]}/${match[1]}` : value ?? "";
+  return match ? `${match[3]}/${match[2]}/${match[1]}` : (value ?? "");
 }
 
 function statusClass(status?: string) {
@@ -86,7 +86,11 @@ function productToForm(product: Product): FormState {
     id: product.id,
     name: product.name,
     sku,
-    slug: sku.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+    slug: sku
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, ""),
     price: String(product.basePrice ?? product.price),
     salePrice: product.salePrice == null ? "" : String(product.salePrice),
     saleStartDate: product.saleStartDate ?? "",
@@ -123,11 +127,14 @@ export default function ProductsAdminClient({
   const [showRequiredModal, setShowRequiredModal] = useState(false);
   const [requiredModalMessage, setRequiredModalMessage] = useState("");
   const [stockProduct, setStockProduct] = useState<Product | null>(null);
-  const [deleteProductTarget, setDeleteProductTarget] = useState<Product | null>(null);
+  const [deleteProductTarget, setDeleteProductTarget] =
+    useState<Product | null>(null);
   const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const [delta, setDelta] = useState("1");
-  const [stockOperation, setStockOperation] = useState<"increase" | "decrease">("increase");
+  const [stockOperation, setStockOperation] = useState<"increase" | "decrease">(
+    "increase",
+  );
   const [reason, setReason] = useState("manual_adjustment");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -167,10 +174,17 @@ export default function ProductsAdminClient({
     !Number.isInteger(adjustmentQuantity) ||
     adjustmentQuantity <= 0 ||
     (stockOperation === "decrease" && adjustmentQuantity > maxDecrease);
-  const projectedStock = stockOperation === "decrease"
-    ? currentStock - (Number.isFinite(adjustmentQuantity) ? adjustmentQuantity : 0)
-    : currentStock + (Number.isFinite(adjustmentQuantity) ? adjustmentQuantity : 0);
-  const formImageUrls = form?.images.split("\n").map((url) => url.trim()).filter(Boolean) ?? [];
+  const projectedStock =
+    stockOperation === "decrease"
+      ? currentStock -
+        (Number.isFinite(adjustmentQuantity) ? adjustmentQuantity : 0)
+      : currentStock +
+        (Number.isFinite(adjustmentQuantity) ? adjustmentQuantity : 0);
+  const formImageUrls =
+    form?.images
+      .split("\n")
+      .map((url) => url.trim())
+      .filter(Boolean) ?? [];
 
   function showToast(message: string) {
     setToast(message);
@@ -182,7 +196,11 @@ export default function ProductsAdminClient({
       if (!current) return current;
       if (key === "sku") {
         const sku = String(value).toUpperCase();
-        const slug = sku.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+        const slug = sku
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, "");
         return { ...current, sku, slug };
       }
       return { ...current, [key]: value };
@@ -191,12 +209,27 @@ export default function ProductsAdminClient({
 
   async function uploadImages(files: File[]) {
     if (!files.length) return;
-    if (files.some((file) => !["image/jpeg", "image/png", "image/webp"].includes(file.type))) {
-      setError(text("รองรับเฉพาะไฟล์ JPG, PNG หรือ WebP", "Only JPG, PNG, or WebP files are supported"));
+    if (
+      files.some(
+        (file) =>
+          !["image/jpeg", "image/png", "image/webp"].includes(file.type),
+      )
+    ) {
+      setError(
+        text(
+          "รองรับเฉพาะไฟล์ JPG, PNG หรือ WebP",
+          "Only JPG, PNG, or WebP files are supported",
+        ),
+      );
       return;
     }
     if (files.some((file) => file.size > 10 * 1024 * 1024)) {
-      setError(text("รูปภาพแต่ละไฟล์ต้องมีขนาดไม่เกิน 10 MB", "Each image must be 10 MB or less"));
+      setError(
+        text(
+          "รูปภาพแต่ละไฟล์ต้องมีขนาดไม่เกิน 10 MB",
+          "Each image must be 10 MB or less",
+        ),
+      );
       return;
     }
 
@@ -207,13 +240,22 @@ export default function ProductsAdminClient({
       for (const file of files) {
         const data = new FormData();
         data.append("file", file);
-        const response = await fetch("/api/admin/media", { method: "POST", body: data });
+        const response = await fetch("/api/admin/media", {
+          method: "POST",
+          body: data,
+        });
         const body = (await response.json().catch(() => null)) as {
           message?: string;
           data?: { url?: string };
         } | null;
         if (!response.ok || !body?.data?.url) {
-          throw new Error(body?.message ?? text(`อัปโหลดรูปไม่สำเร็จ (${response.status})`, `Image upload failed (${response.status})`));
+          throw new Error(
+            body?.message ??
+              text(
+                `อัปโหลดรูปไม่สำเร็จ (${response.status})`,
+                `Image upload failed (${response.status})`,
+              ),
+          );
         }
         uploadedUrls.push(body.data.url);
       }
@@ -221,17 +263,35 @@ export default function ProductsAdminClient({
         current
           ? {
               ...current,
-              images: [...new Set([...current.images.split("\n").map((url) => url.trim()).filter(Boolean), ...uploadedUrls])].join("\n"),
+              images: [
+                ...new Set([
+                  ...current.images
+                    .split("\n")
+                    .map((url) => url.trim())
+                    .filter(Boolean),
+                  ...uploadedUrls,
+                ]),
+              ].join("\n"),
             }
           : current,
       );
-      setInvalidFields((current) => current.filter((field) => field !== "images"));
-      showToast(text(`อัปโหลดรูปสินค้า ${uploadedUrls.length} รูปแล้ว`, `Uploaded ${uploadedUrls.length} product image(s)`));
+      setInvalidFields((current) =>
+        current.filter((field) => field !== "images"),
+      );
+      showToast(
+        text(
+          `อัปโหลดรูปสินค้า ${uploadedUrls.length} รูปแล้ว`,
+          `Uploaded ${uploadedUrls.length} product image(s)`,
+        ),
+      );
     } catch (uploadError) {
       setError(
         uploadError instanceof Error
           ? uploadError.message
-          : text("อัปโหลดรูปไม่สำเร็จ กรุณาลองอีกครั้ง", "Image upload failed. Please try again"),
+          : text(
+              "อัปโหลดรูปไม่สำเร็จ กรุณาลองอีกครั้ง",
+              "Image upload failed. Please try again",
+            ),
       );
     } finally {
       setUploading(false);
@@ -242,12 +302,37 @@ export default function ProductsAdminClient({
     event.preventDefault();
     if (!form) return;
     setError("");
-    const requiredFields = ["name", "sku", "slug", "category", "price", "stockQty"] as const;
-    const missingFields = requiredFields.filter((field) => !String(form[field] ?? "").trim());
-    const hasSale = Boolean(form.salePrice || form.saleStartDate || form.saleEndDate);
-    const saleDatesValid = !hasSale || Boolean(form.salePrice && form.saleStartDate && form.saleEndDate && form.saleEndDate >= form.saleStartDate);
-    const salePriceValid = !hasSale || (Number.isFinite(Number(form.salePrice)) && Number(form.salePrice) >= 0 && Number(form.salePrice) < Number(form.price));
-    const imageUrls = form.images.split("\n").map((url) => url.trim()).filter(Boolean);
+    const requiredFields = [
+      "name",
+      "sku",
+      "slug",
+      "category",
+      "price",
+      "stockQty",
+    ] as const;
+    const missingFields = requiredFields.filter(
+      (field) => !String(form[field] ?? "").trim(),
+    );
+    const hasSale = Boolean(
+      form.salePrice || form.saleStartDate || form.saleEndDate,
+    );
+    const saleDatesValid =
+      !hasSale ||
+      Boolean(
+        form.salePrice &&
+        form.saleStartDate &&
+        form.saleEndDate &&
+        form.saleEndDate >= form.saleStartDate,
+      );
+    const salePriceValid =
+      !hasSale ||
+      (Number.isFinite(Number(form.salePrice)) &&
+        Number(form.salePrice) >= 0 &&
+        Number(form.salePrice) < Number(form.price));
+    const imageUrls = form.images
+      .split("\n")
+      .map((url) => url.trim())
+      .filter(Boolean);
     const hasInvalidImageUrl = imageUrls.some((value) => {
       try {
         const url = new URL(value);
@@ -256,18 +341,44 @@ export default function ProductsAdminClient({
         return true;
       }
     });
-    if (missingFields.length || imageUrls.length === 0 || hasInvalidImageUrl || !saleDatesValid || !salePriceValid) {
-      setInvalidFields([...missingFields, ...(imageUrls.length === 0 || hasInvalidImageUrl ? ["images"] : []), ...(!saleDatesValid ? ["saleStartDate", "saleEndDate"] : []), ...(!salePriceValid ? ["salePrice"] : [])]);
+    if (
+      missingFields.length ||
+      imageUrls.length === 0 ||
+      hasInvalidImageUrl ||
+      !saleDatesValid ||
+      !salePriceValid
+    ) {
+      setInvalidFields([
+        ...missingFields,
+        ...(imageUrls.length === 0 || hasInvalidImageUrl ? ["images"] : []),
+        ...(!saleDatesValid ? ["saleStartDate", "saleEndDate"] : []),
+        ...(!salePriceValid ? ["salePrice"] : []),
+      ]);
       setRequiredModalMessage(
         imageUrls.length === 0
-          ? text("กรุณาเพิ่มรูปสินค้าอย่างน้อย 1 รูปก่อนบันทึก", "Add at least one product image before saving.")
+          ? text(
+              "กรุณาเพิ่มรูปสินค้าอย่างน้อย 1 รูปก่อนบันทึก",
+              "Add at least one product image before saving.",
+            )
           : hasInvalidImageUrl
-            ? text("URL รูปสินค้าต้องเป็นลิงก์ HTTP หรือ HTTPS ที่ถูกต้อง", "Product image URLs must be valid HTTP or HTTPS links.")
+            ? text(
+                "URL รูปสินค้าต้องเป็นลิงก์ HTTP หรือ HTTPS ที่ถูกต้อง",
+                "Product image URLs must be valid HTTP or HTTPS links.",
+              )
             : !salePriceValid
-              ? text("ราคาส่วนลดต้องต่ำกว่าราคาปกติ", "Sale price must be lower than the regular price.")
+              ? text(
+                  "ราคาส่วนลดต้องต่ำกว่าราคาปกติ",
+                  "Sale price must be lower than the regular price.",
+                )
               : !saleDatesValid
-                ? text("กรุณากรอกวันเริ่มและวันสิ้นสุด โดยวันสิ้นสุดต้องไม่ก่อนวันเริ่ม", "Enter valid sale dates; the end date must not be before the start date.")
-                : text("ช่องที่ยังไม่ได้กรอกถูกไฮไลต์ด้วยกรอบสีแดงแล้ว", "The missing fields are highlighted in red."),
+                ? text(
+                    "กรุณากรอกวันเริ่มและวันสิ้นสุด โดยวันสิ้นสุดต้องไม่ก่อนวันเริ่ม",
+                    "Enter valid sale dates; the end date must not be before the start date.",
+                  )
+                : text(
+                    "ช่องที่ยังไม่ได้กรอกถูกไฮไลต์ด้วยกรอบสีแดงแล้ว",
+                    "The missing fields are highlighted in red.",
+                  ),
       );
       setShowRequiredModal(true);
       return;
@@ -299,7 +410,9 @@ export default function ProductsAdminClient({
     );
     const body = await response.json();
     if (!response.ok) {
-      setError(body.message ?? text("บันทึกสินค้าไม่สำเร็จ", "Unable to save product"));
+      setError(
+        body.message ?? text("บันทึกสินค้าไม่สำเร็จ", "Unable to save product"),
+      );
       setSaving(false);
       return;
     }
@@ -310,7 +423,11 @@ export default function ProductsAdminClient({
     );
     setForm(null);
     setSaving(false);
-    showToast(form.id ? text("อัปเดตสินค้าแล้ว", "Product updated") : text("เพิ่มสินค้าแล้ว", "Product created"));
+    showToast(
+      form.id
+        ? text("อัปเดตสินค้าแล้ว", "Product updated")
+        : text("เพิ่มสินค้าแล้ว", "Product created"),
+    );
   }
 
   async function hideProduct(product: Product) {
@@ -319,12 +436,16 @@ export default function ProductsAdminClient({
     });
     if (!response.ok) {
       const body = await response.json().catch(() => null);
-      setError(body?.message ?? text("ซ่อนสินค้าไม่สำเร็จ", "Unable to hide product"));
+      setError(
+        body?.message ?? text("ซ่อนสินค้าไม่สำเร็จ", "Unable to hide product"),
+      );
       return;
     }
     setProducts((current) => current.filter((item) => item.id !== product.id));
     setDeleteProductTarget(null);
-    setSelectedProductIds((current) => current.filter((id) => id !== product.id));
+    setSelectedProductIds((current) =>
+      current.filter((id) => id !== product.id),
+    );
   }
 
   async function hideSelectedProducts() {
@@ -333,16 +454,30 @@ export default function ProductsAdminClient({
     setError("");
     try {
       const responses = await Promise.all(
-        selectedProductIds.map((productId) => fetch(`/api/admin/products/${productId}`, { method: "DELETE" })),
+        selectedProductIds.map((productId) =>
+          fetch(`/api/admin/products/${productId}`, { method: "DELETE" }),
+        ),
       );
       const failed = responses.find((response) => !response.ok);
-      if (failed) throw new Error(text("ซ่อนสินค้าบางรายการไม่สำเร็จ", "Some products could not be hidden"));
-      setProducts((current) => current.filter((item) => !selectedProductIds.includes(item.id)));
+      if (failed)
+        throw new Error(
+          text(
+            "ซ่อนสินค้าบางรายการไม่สำเร็จ",
+            "Some products could not be hidden",
+          ),
+        );
+      setProducts((current) =>
+        current.filter((item) => !selectedProductIds.includes(item.id)),
+      );
       setSelectedProductIds([]);
       setConfirmBulkDelete(false);
       showToast(text("ซ่อนสินค้าเรียบร้อยแล้ว", "Selected products hidden"));
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : text("ซ่อนสินค้าไม่สำเร็จ", "Unable to hide products"));
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : text("ซ่อนสินค้าไม่สำเร็จ", "Unable to hide products"),
+      );
     } finally {
       setSaving(false);
     }
@@ -366,7 +501,9 @@ export default function ProductsAdminClient({
     });
     const body = await response.json();
     if (!response.ok) {
-      setError(body.message ?? text("ปรับสต็อกไม่สำเร็จ", "Unable to adjust stock"));
+      setError(
+        body.message ?? text("ปรับสต็อกไม่สำเร็จ", "Unable to adjust stock"),
+      );
       setSaving(false);
       return;
     }
@@ -401,7 +538,10 @@ export default function ProductsAdminClient({
       <div className="mb-7 flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
         <div>
           <p className="text-sm text-[#7d7d75]">
-            {text("จัดการปลากัดแบบรายตัว ราคา สถานะ และสต็อก", "Manage individual fish, pricing, status, and stock")}
+            {text(
+              "จัดการปลากัดแบบรายตัว ราคา สถานะ และสต็อก",
+              "Manage individual fish, pricing, status, and stock",
+            )}
           </p>
           <h2 className="mt-1 text-3xl font-bold tracking-tight">
             {text("จัดการสินค้าและสต็อก", "Product and inventory management")}
@@ -423,7 +563,10 @@ export default function ProductsAdminClient({
           </button>
         </div>
       </div>
-      <div id="group-summary-product" className="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div
+        id="group-summary-product"
+        className="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+      >
         {[
           [text("สินค้าทั้งหมด", "All products"), counts.total, "#222"],
           [text("พร้อมขาย", "Available"), counts.available, "#18825e"],
@@ -455,7 +598,10 @@ export default function ProductsAdminClient({
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder={text("ค้นหาชื่อสินค้า, SKU หรือสายพันธุ์...", "Search name, SKU, or strain...")}
+              placeholder={text(
+                "ค้นหาชื่อสินค้า, SKU หรือสายพันธุ์...",
+                "Search name, SKU, or strain...",
+              )}
               className="w-full rounded-xl border border-black/8 bg-[#fafaf8] py-3 pl-11 pr-4 text-sm outline-none focus:border-[#d28a31]"
             />
           </div>
@@ -463,7 +609,19 @@ export default function ProductsAdminClient({
             <BaseDropdown
               value={status}
               onChange={setStatus}
-              options={statuses.map((item) => ({ value: item, label: ({ all: text("ทั้งหมด", "All"), available: text("พร้อมขาย", "Available"), reserved: text("จองแล้ว", "Reserved"), sold: text("ขายแล้ว", "Sold"), draft: text("ฉบับร่าง", "Draft"), hidden: text("ซ่อนแล้ว", "Hidden") } as Record<string, string>)[item] }))}
+              options={statuses.map((item) => ({
+                value: item,
+                label: (
+                  {
+                    all: text("ทั้งหมด", "All"),
+                    available: text("พร้อมขาย", "Available"),
+                    reserved: text("จองแล้ว", "Reserved"),
+                    sold: text("ขายแล้ว", "Sold"),
+                    draft: text("ฉบับร่าง", "Draft"),
+                    hidden: text("ซ่อนแล้ว", "Hidden"),
+                  } as Record<string, string>
+                )[item],
+              }))}
               className="min-w-36"
             />
             {selectedProductIds.length > 0 && (
@@ -473,7 +631,12 @@ export default function ProductsAdminClient({
                 disabled={saving}
                 className="rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-50"
               >
-                {saving ? text("กำลังลบ...", "Deleting...") : text(`ลบที่เลือก (${selectedProductIds.length})`, `Delete selected (${selectedProductIds.length})`)}
+                {saving
+                  ? text("กำลังลบ...", "Deleting...")
+                  : text(
+                      `ลบที่เลือก (${selectedProductIds.length})`,
+                      `Delete selected (${selectedProductIds.length})`,
+                    )}
               </button>
             )}
           </div>
@@ -482,20 +645,58 @@ export default function ProductsAdminClient({
           <table className="w-full min-w-[1050px] text-left">
             <thead>
               <tr className="border-b border-black/6 bg-[#fafaf8] text-[11px] uppercase tracking-[.12em] text-[#8a8a82]">
-                <th className="w-12 px-5 py-4"><input type="checkbox" aria-label={text("เลือกสินค้าทั้งหมด", "Select all products")} checked={filtered.length > 0 && filtered.every((item) => selectedProductIds.includes(item.id))} onChange={(event) => setSelectedProductIds(event.target.checked ? filtered.map((item) => item.id) : [])} /></th>
+                <th className="w-12 px-5 py-4">
+                  <input
+                    type="checkbox"
+                    aria-label={text(
+                      "เลือกสินค้าทั้งหมด",
+                      "Select all products",
+                    )}
+                    checked={
+                      filtered.length > 0 &&
+                      filtered.every((item) =>
+                        selectedProductIds.includes(item.id),
+                      )
+                    }
+                    onChange={(event) =>
+                      setSelectedProductIds(
+                        event.target.checked
+                          ? filtered.map((item) => item.id)
+                          : [],
+                      )
+                    }
+                  />
+                </th>
                 <th className="px-5 py-4">{text("สินค้า", "Product")}</th>
-                <th className="px-5 py-4">{text("SKU / สายพันธุ์", "SKU / Strain")}</th>
+                <th className="px-5 py-4">
+                  {text("SKU / สายพันธุ์", "SKU / Strain")}
+                </th>
                 <th className="px-5 py-4">{text("เพศ", "Gender")}</th>
                 <th className="px-5 py-4">{text("ราคา", "Price")}</th>
                 <th className="px-5 py-4">{text("สต็อก", "Stock")}</th>
                 <th className="px-5 py-4">{text("สถานะ", "Status")}</th>
-                <th className="px-5 py-4 text-right">{text("การจัดการ", "Actions")}</th>
+                <th className="px-5 py-4 text-right">
+                  {text("การจัดการ", "Actions")}
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black/5">
               {filtered.map((product) => (
                 <tr key={product.id} className="group hover:bg-[#fcfbf8]">
-                  <td className="px-5 py-4"><input type="checkbox" aria-label={`${text("เลือก", "Select")} ${product.name}`} checked={selectedProductIds.includes(product.id)} onChange={(event) => setSelectedProductIds((current) => event.target.checked ? [...current, product.id] : current.filter((id) => id !== product.id))} /></td>
+                  <td className="px-5 py-4">
+                    <input
+                      type="checkbox"
+                      aria-label={`${text("เลือก", "Select")} ${product.name}`}
+                      checked={selectedProductIds.includes(product.id)}
+                      onChange={(event) =>
+                        setSelectedProductIds((current) =>
+                          event.target.checked
+                            ? [...current, product.id]
+                            : current.filter((id) => id !== product.id),
+                        )
+                      }
+                    />
+                  </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
                       <div className="h-14 w-14 overflow-hidden rounded-xl bg-[#eee9df]">
@@ -512,9 +713,17 @@ export default function ProductsAdminClient({
                         )}
                       </div>
                       <div>
-                        <p className="font-semibold">{product.name}
-                           {product.salePrice != null && <div className="mt-1 break-words text-[10px] font-medium leading-snug text-red-600">{text("โปร", "Sale")}: ฿{product.salePrice.toLocaleString()} · {formatDateDMY(product.saleStartDate)}–{formatDateDMY(product.saleEndDate)}</div>}
-                        </p>
+                        <div className="font-semibold">
+                          {product.name}
+                          {product.salePrice != null && (
+                            <p className="mt-1 break-words text-[10px] font-medium leading-snug text-red-600">
+                              {text("โปร", "Sale")}: ฿
+                              {product.salePrice.toLocaleString()} ·{" "}
+                              {formatDateDMY(product.saleStartDate)}–
+                              {formatDateDMY(product.saleEndDate)}
+                            </p>
+                          )}
+                        </div>
                         <p className="mt-1 max-w-[260px] truncate text-xs text-[#96968d]">
                           {product.color}
                           {product.pattern ? ` · ${product.pattern}` : ""}
@@ -540,8 +749,9 @@ export default function ProductsAdminClient({
                           : "—"}
                   </td>
                   <td className="px-5 py-4 font-semibold">
-                    <div>฿{(product.basePrice ?? product.price).toLocaleString()}</div>
-                   
+                    <div>
+                      ฿{(product.basePrice ?? product.price).toLocaleString()}
+                    </div>
                   </td>
                   <td className="px-5 py-4">
                     <button
@@ -563,7 +773,15 @@ export default function ProductsAdminClient({
                     <span
                       className={`inline-flex rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider ring-1 ring-inset ${statusClass(product.adminStatus)}`}
                     >
-                      {({ available: text("พร้อมขาย", "Available"), reserved: text("จองแล้ว", "Reserved"), sold: text("ขายแล้ว", "Sold"), draft: text("ฉบับร่าง", "Draft"), hidden: text("ซ่อนแล้ว", "Hidden") } as Record<string, string>)[product.adminStatus ?? ""] ?? product.adminStatus}
+                      {(
+                        {
+                          available: text("พร้อมขาย", "Available"),
+                          reserved: text("จองแล้ว", "Reserved"),
+                          sold: text("ขายแล้ว", "Sold"),
+                          draft: text("ฉบับร่าง", "Draft"),
+                          hidden: text("ซ่อนแล้ว", "Hidden"),
+                        } as Record<string, string>
+                      )[product.adminStatus ?? ""] ?? product.adminStatus}
                     </span>
                   </td>
                   <td className="px-5 py-4">
@@ -594,7 +812,20 @@ export default function ProductsAdminClient({
         <div className="divide-y divide-black/6 md:hidden">
           {filtered.map((product) => (
             <div key={product.id} className="p-4">
-              <label className="mb-3 flex items-center gap-2 text-xs font-semibold text-[#77776f]"><input type="checkbox" checked={selectedProductIds.includes(product.id)} onChange={(event) => setSelectedProductIds((current) => event.target.checked ? [...current, product.id] : current.filter((id) => id !== product.id))} />{text("เลือกสินค้า", "Select product")}</label>
+              <label className="mb-3 flex items-center gap-2 text-xs font-semibold text-[#77776f]">
+                <input
+                  type="checkbox"
+                  checked={selectedProductIds.includes(product.id)}
+                  onChange={(event) =>
+                    setSelectedProductIds((current) =>
+                      event.target.checked
+                        ? [...current, product.id]
+                        : current.filter((id) => id !== product.id),
+                    )
+                  }
+                />
+                {text("เลือกสินค้า", "Select product")}
+              </label>
               <div className="flex gap-3">
                 <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-[#eee9df]">
                   {product.images[0] ? (
@@ -616,13 +847,25 @@ export default function ProductsAdminClient({
                     <span
                       className={`rounded-full px-2 py-1 text-[9px] font-bold uppercase ring-1 ring-inset ${statusClass(product.adminStatus)}`}
                     >
-                      {({ available: text("พร้อมขาย", "Available"), reserved: text("จองแล้ว", "Reserved"), sold: text("ขายแล้ว", "Sold"), draft: text("ฉบับร่าง", "Draft"), hidden: text("ซ่อนแล้ว", "Hidden") } as Record<string, string>)[product.adminStatus ?? ""] ?? product.adminStatus}
+                      {(
+                        {
+                          available: text("พร้อมขาย", "Available"),
+                          reserved: text("จองแล้ว", "Reserved"),
+                          sold: text("ขายแล้ว", "Sold"),
+                          draft: text("ฉบับร่าง", "Draft"),
+                          hidden: text("ซ่อนแล้ว", "Hidden"),
+                        } as Record<string, string>
+                      )[product.adminStatus ?? ""] ?? product.adminStatus}
                     </span>
                   </div>
                   <div className="mt-3 flex items-center justify-between">
                     <p className="font-bold">
                       ฿{(product.basePrice ?? product.price).toLocaleString()}
-                      {product.salePrice != null && <span className="ml-2 break-words text-[11px] leading-snug text-red-600 sm:text-xs">โปร ฿{product.salePrice.toLocaleString()}</span>}
+                      {product.salePrice != null && (
+                        <span className="ml-2 break-words text-[11px] leading-snug text-red-600 sm:text-xs">
+                          โปร ฿{product.salePrice.toLocaleString()}
+                        </span>
+                      )}
                     </p>
                     <p className="text-sm">
                       {text("สต็อก", "Stock")} <b>{product.stockQty ?? 0}</b>
@@ -664,17 +907,25 @@ export default function ProductsAdminClient({
         {!filtered.length && (
           <div className="py-20 text-center">
             <p className="text-4xl">🐟</p>
-            <p className="mt-3 font-semibold">{text("ไม่พบสินค้า", "No products found")}</p>
+            <p className="mt-3 font-semibold">
+              {text("ไม่พบสินค้า", "No products found")}
+            </p>
             <p className="mt-1 text-sm text-[#92928a]">
-              {text("ลองเปลี่ยนคำค้นหาหรือตัวกรอง", "Try changing the search or filter")}
+              {text(
+                "ลองเปลี่ยนคำค้นหาหรือตัวกรอง",
+                "Try changing the search or filter",
+              )}
             </p>
           </div>
         )}
         <div className="flex items-center justify-between border-t border-black/6 px-5 py-4 text-xs text-[#83837b]">
           <span>
-            {text(`แสดง ${filtered.length} จาก ${products.length} รายการ`, `Showing ${filtered.length} of ${products.length} products`)}
+            {text(
+              `แสดง ${filtered.length} จาก ${products.length} รายการ`,
+              `Showing ${filtered.length} of ${products.length} products`,
+            )}
           </span>
-              <span>{text("หน้า 1 จาก 1", "Page 1 of 1")}</span>
+          <span>{text("หน้า 1 จาก 1", "Page 1 of 1")}</span>
         </div>
       </section>
 
@@ -691,7 +942,9 @@ export default function ProductsAdminClient({
                   {text("แก้ไขข้อมูลสินค้า", "Product editor")}
                 </p>
                 <h3 className="text-xl font-bold">
-                  {form.id ? text("แก้ไขสินค้า", "Edit product") : text("เพิ่มปลาใหม่", "Add new fish")}
+                  {form.id
+                    ? text("แก้ไขสินค้า", "Edit product")
+                    : text("เพิ่มปลาใหม่", "Add new fish")}
                 </h3>
               </div>
               <button
@@ -704,12 +957,14 @@ export default function ProductsAdminClient({
             </div>
             <div className="grid gap-7 p-6 lg:grid-cols-[1.4fr_1fr]">
               <div className="space-y-6">
-                <FormSection title={text("ข้อมูลสินค้า", "Product information")}>
+                <FormSection
+                  title={text("ข้อมูลสินค้า", "Product information")}
+                >
                   <Field label={text("ชื่อสินค้า *", "Product name *")}>
-                      <input
-                        value={form.name}
-                        onChange={(e) => setField("name", e.target.value)}
-                        className={`input-admin ${invalidFields.includes("name") ? "!border-red-500 focus:!border-red-500 focus:!ring-red-500/20" : ""}`}
+                    <input
+                      value={form.name}
+                      onChange={(e) => setField("name", e.target.value)}
+                      className={`input-admin ${invalidFields.includes("name") ? "!border-red-500 focus:!border-red-500 focus:!ring-red-500/20" : ""}`}
                     />
                   </Field>
                   <div className="grid gap-4 sm:grid-cols-2">
@@ -727,18 +982,46 @@ export default function ProductsAdminClient({
                         onChange={(e) => setField("slug", e.target.value)}
                         className={`input-admin ${invalidFields.includes("slug") ? "!border-red-500" : ""}`}
                       />
-                      <span className="text-[8px] text-[#8b8174] whitespace-nowrap">{text("สร้างจาก SKU อัตโนมัติ และแก้ไขได้", "Generated from SKU and can be edited")}</span>
+                      <span className="text-[8px] text-[#8b8174] whitespace-nowrap">
+                        {text(
+                          "สร้างจาก SKU อัตโนมัติ และแก้ไขได้",
+                          "Generated from SKU and can be edited",
+                        )}
+                      </span>
                     </Field>
                   </div>
                   <div className="flex flex-col gap-4">
-                      <Field label={text("หมวดหมู่ *", "Category *")}>
-                        <BaseDropdown className={invalidFields.includes("category") ? "[&_button]:!border-red-500" : ""} value={form.category} onChange={(value) => setField("category", value)} options={categories.filter((category) => category.isActive !== false).map((category) => ({ value: category.slug, label: category.name }))} />
-                      </Field>
+                    <Field label={text("หมวดหมู่ *", "Category *")}>
+                      <BaseDropdown
+                        className={
+                          invalidFields.includes("category")
+                            ? "[&_button]:!border-red-500"
+                            : ""
+                        }
+                        value={form.category}
+                        onChange={(value) => setField("category", value)}
+                        options={categories
+                          .filter((category) => category.isActive !== false)
+                          .map((category) => ({
+                            value: category.slug,
+                            label: category.name,
+                          }))}
+                      />
+                    </Field>
                     <Field label={text("เพศ", "Gender")}>
                       <BaseDropdown
                         value={form.gender}
-                        onChange={(value) => setField("gender", value as FormState["gender"])}
-                        options={[{ value: "male", label: text("เพศผู้", "Male") }, { value: "female", label: text("เพศเมีย", "Female") }, { value: "unsexed", label: text("ไม่ระบุเพศ", "Unsexed") }]}
+                        onChange={(value) =>
+                          setField("gender", value as FormState["gender"])
+                        }
+                        options={[
+                          { value: "male", label: text("เพศผู้", "Male") },
+                          { value: "female", label: text("เพศเมีย", "Female") },
+                          {
+                            value: "unsexed",
+                            label: text("ไม่ระบุเพศ", "Unsexed"),
+                          },
+                        ]}
                       />
                     </Field>
                   </div>
@@ -747,7 +1030,10 @@ export default function ProductsAdminClient({
                       <input
                         value={form.tailType}
                         onChange={(e) => setField("tailType", e.target.value)}
-                        placeholder={text("เช่น หางพระจันทร์ครึ่งดวง", "e.g. Halfmoon")}
+                        placeholder={text(
+                          "เช่น หางพระจันทร์ครึ่งดวง",
+                          "e.g. Halfmoon",
+                        )}
                         className="input-admin"
                       />
                     </Field>
@@ -768,7 +1054,10 @@ export default function ProductsAdminClient({
                     <span>
                       {uploading
                         ? text("กำลังอัปโหลด...", "Uploading...")
-                        : text("↑ อัปโหลด JPG, PNG หรือ WebP", "↑ Upload JPG, PNG, or WebP")}
+                        : text(
+                            "↑ อัปโหลด JPG, PNG หรือ WebP",
+                            "↑ Upload JPG, PNG, or WebP",
+                          )}
                     </span>
                     <input
                       type="file"
@@ -784,9 +1073,17 @@ export default function ProductsAdminClient({
                     />
                   </label>
                   <p className="text-xs text-[#8a8a82]">
-                    {text("เลือกได้หลายรูป · JPG, PNG หรือ WebP · รูปละไม่เกิน 10 MB", "Select multiple images · JPG, PNG, or WebP · up to 10 MB each")}
+                    {text(
+                      "เลือกได้หลายรูป · JPG, PNG หรือ WebP · รูปละไม่เกิน 10 MB",
+                      "Select multiple images · JPG, PNG, or WebP · up to 10 MB each",
+                    )}
                   </p>
-                  <Field label={text("URL รูปสินค้า * (หนึ่งรายการต่อบรรทัด)", "Product image URLs * (one per line)")}>
+                  <Field
+                    label={text(
+                      "URL รูปสินค้า * (หนึ่งรายการต่อบรรทัด)",
+                      "Product image URLs * (one per line)",
+                    )}
+                  >
                     <textarea
                       rows={4}
                       value={form.images}
@@ -798,12 +1095,31 @@ export default function ProductsAdminClient({
                   {formImageUrls.length > 0 && (
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                       {formImageUrls.map((url, index) => (
-                        <div key={`${url}-${index}`} className="relative overflow-hidden rounded-xl bg-[#f1eee8]">
-                          <img src={url} alt={`${text("ตัวอย่างรูปสินค้า", "Product image preview")} ${index + 1}`} className="h-36 w-full object-cover" />
+                        <div
+                          key={`${url}-${index}`}
+                          className="relative overflow-hidden rounded-xl bg-[#f1eee8]"
+                        >
+                          <img
+                            src={url}
+                            alt={`${text("ตัวอย่างรูปสินค้า", "Product image preview")} ${index + 1}`}
+                            className="h-36 w-full object-cover"
+                          />
                           <button
                             type="button"
-                            onClick={() => setField("images", formImageUrls.filter((_, imageIndex) => imageIndex !== index).join("\n"))}
-                            aria-label={text(`ลบรูปที่ ${index + 1}`, `Remove image ${index + 1}`)}
+                            onClick={() =>
+                              setField(
+                                "images",
+                                formImageUrls
+                                  .filter(
+                                    (_, imageIndex) => imageIndex !== index,
+                                  )
+                                  .join("\n"),
+                              )
+                            }
+                            aria-label={text(
+                              `ลบรูปที่ ${index + 1}`,
+                              `Remove image ${index + 1}`,
+                            )}
                             className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-black/65 text-sm font-bold text-white hover:bg-red-600"
                           >
                             ×
@@ -815,7 +1131,9 @@ export default function ProductsAdminClient({
                 </FormSection>
               </div>
               <div className="space-y-6">
-                <FormSection title={text("ราคาและสต็อก", "Pricing & inventory")}>
+                <FormSection
+                  title={text("ราคาและสต็อก", "Pricing & inventory")}
+                >
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
                     <Field label={text("ราคา (บาท) *", "Price (THB) *")}>
                       <input
@@ -835,25 +1153,44 @@ export default function ProductsAdminClient({
                         onChange={(e) => setField("salePrice", e.target.value)}
                         className={`input-admin ${invalidFields.includes("salePrice") ? "!border-red-500" : ""}`}
                       />
-                      <span className="mt-1 block text-[11px] leading-snug text-[#8b8174] sm:text-xs">{text("เว้นว่างเพื่อปิดโปร", "Leave blank to disable the promotion")}</span>
+                      <span className="mt-1 block text-[11px] leading-snug text-[#8b8174] sm:text-xs">
+                        {text(
+                          "เว้นว่างเพื่อปิดโปร",
+                          "Leave blank to disable the promotion",
+                        )}
+                      </span>
                     </Field>
                     <Field label={text("วันเริ่มโปร", "Sale start date")}>
                       <input
                         type="date"
                         value={form.saleStartDate}
-                        onChange={(e) => setField("saleStartDate", e.target.value)}
+                        onChange={(e) =>
+                          setField("saleStartDate", e.target.value)
+                        }
                         className={`input-admin ${invalidFields.includes("saleStartDate") ? "!border-red-500" : ""}`}
                       />
-                      <span className="mt-1 block text-[11px] leading-snug text-[#8b8174] sm:text-xs">{text("เริ่มเวลา 00:00 น. ตามเวลาไทย", "Starts at 00:00 Thailand time")}</span>
+                      <span className="mt-1 block text-[11px] leading-snug text-[#8b8174] sm:text-xs">
+                        {text(
+                          "เริ่มเวลา 00:00 น. ตามเวลาไทย",
+                          "Starts at 00:00 Thailand time",
+                        )}
+                      </span>
                     </Field>
                     <Field label={text("วันสิ้นสุดโปร", "Sale end date")}>
                       <input
                         type="date"
                         value={form.saleEndDate}
-                        onChange={(e) => setField("saleEndDate", e.target.value)}
+                        onChange={(e) =>
+                          setField("saleEndDate", e.target.value)
+                        }
                         className={`input-admin ${invalidFields.includes("saleEndDate") ? "!border-red-500" : ""}`}
                       />
-                      <span className="mt-1 block text-[11px] leading-snug text-[#8b8174] sm:text-xs">{text("รวมทั้งวันจนถึง 23:59 น. ตามเวลาไทย", "Valid through 23:59 Thailand time")}</span>
+                      <span className="mt-1 block text-[11px] leading-snug text-[#8b8174] sm:text-xs">
+                        {text(
+                          "รวมทั้งวันจนถึง 23:59 น. ตามเวลาไทย",
+                          "Valid through 23:59 Thailand time",
+                        )}
+                      </span>
                     </Field>
                     <Field label={text("ต้นทุน (บาท)", "Cost (THB)")}>
                       <input
@@ -879,7 +1216,9 @@ export default function ProductsAdminClient({
                         <button
                           type="button"
                           onClick={() => {
-                            const product = products.find((item) => item.id === form.id);
+                            const product = products.find(
+                              (item) => item.id === form.id,
+                            );
                             if (!product) return;
                             setForm(null);
                             setError("");
@@ -889,15 +1228,40 @@ export default function ProductsAdminClient({
                           }}
                           className="mt-2 text-left text-xs font-bold text-[#a16522] hover:underline"
                         >
-                          {text("ปรับเพิ่มหรือลดสต็อก →", "Increase or decrease stock →")}
+                          {text(
+                            "ปรับเพิ่มหรือลดสต็อก →",
+                            "Increase or decrease stock →",
+                          )}
                         </button>
                       )}
                     </Field>
                     <Field label={text("สถานะ", "Status")}>
                       <BaseDropdown
                         value={form.adminStatus}
-                        onChange={(value) => setField("adminStatus", value as FormState["adminStatus"])}
-                        options={["available", "reserved", "sold", "draft", "hidden"].map((value) => ({ value, label: ({ available: text("พร้อมขาย", "Available"), reserved: text("จองแล้ว", "Reserved"), sold: text("ขายแล้ว", "Sold"), draft: text("ฉบับร่าง", "Draft"), hidden: text("ซ่อนแล้ว", "Hidden") } as Record<string, string>)[value] }))}
+                        onChange={(value) =>
+                          setField(
+                            "adminStatus",
+                            value as FormState["adminStatus"],
+                          )
+                        }
+                        options={[
+                          "available",
+                          "reserved",
+                          "sold",
+                          "draft",
+                          "hidden",
+                        ].map((value) => ({
+                          value,
+                          label: (
+                            {
+                              available: text("พร้อมขาย", "Available"),
+                              reserved: text("จองแล้ว", "Reserved"),
+                              sold: text("ขายแล้ว", "Sold"),
+                              draft: text("ฉบับร่าง", "Draft"),
+                              hidden: text("ซ่อนแล้ว", "Hidden"),
+                            } as Record<string, string>
+                          )[value],
+                        }))}
                       />
                     </Field>
                     <Field label={text("อายุ (เดือน)", "Age (months)")}>
@@ -929,20 +1293,37 @@ export default function ProductsAdminClient({
                       onChange={(value) => setField("badge", value)}
                       placeholder={text("ไม่ติดป้าย", "No badge")}
                       options={[
-                        { value: "Best Seller", label: text("สินค้าขายดี", "Best Seller") },
-                        { value: "VIP", label: text("พรีเมียม - VIP", "Premium - VIP") },
-                        { value: "VVIP", label: text("พรีเมียม - VVIP", "Premium - VVIP") },
+                        {
+                          value: "Best Seller",
+                          label: text("สินค้าขายดี", "Best Seller"),
+                        },
+                        {
+                          value: "VIP",
+                          label: text("พรีเมียม - VIP", "Premium - VIP"),
+                        },
+                        {
+                          value: "VVIP",
+                          label: text("พรีเมียม - VVIP", "Premium - VVIP"),
+                        },
                         { value: "Rare", label: text("หายาก", "Rare") },
                         { value: "New", label: text("มาใหม่", "New") },
-                        { value: "For Breed", label: text("พ่อแม่พันธุ์", "For Breed") },
+                        {
+                          value: "For Breed",
+                          label: text("พ่อแม่พันธุ์", "For Breed"),
+                        },
                       ]}
                     />
                   </Field>
                   <label className="flex cursor-pointer items-center justify-between rounded-xl bg-[#f6f3ed] p-4">
                     <div>
-                      <p className="text-sm font-semibold">{text("สินค้าแนะนำ", "Featured product")}</p>
+                      <p className="text-sm font-semibold">
+                        {text("สินค้าแนะนำ", "Featured product")}
+                      </p>
                       <p className="text-xs text-[#878077]">
-                        {text("แสดงสินค้าในส่วนแนะนำ", "Show this product in featured sections")}
+                        {text(
+                          "แสดงสินค้าในส่วนแนะนำ",
+                          "Show this product in featured sections",
+                        )}
                       </p>
                     </div>
                     <input
@@ -991,8 +1372,14 @@ export default function ProductsAdminClient({
                 </p>
                 <h3 className="mt-1 text-xl font-bold">{stockProduct.name}</h3>
                 <p className="mt-1 text-sm text-[#85857d]">
-                  {text("สต็อกปัจจุบัน", "Current stock")}: <b>{currentStock}</b>
-                  {reservedStock > 0 && <> · {text("จองแล้ว", "Reserved")}: <b>{reservedStock}</b></>}
+                  {text("สต็อกปัจจุบัน", "Current stock")}:{" "}
+                  <b>{currentStock}</b>
+                  {reservedStock > 0 && (
+                    <>
+                      {" "}
+                      · {text("จองแล้ว", "Reserved")}: <b>{reservedStock}</b>
+                    </>
+                  )}
                 </p>
               </div>
               <button
@@ -1008,14 +1395,20 @@ export default function ProductsAdminClient({
                 <div className="grid grid-cols-2 gap-2 rounded-xl bg-[#f2f2ef] p-1">
                   <button
                     type="button"
-                    onClick={() => { setStockOperation("increase"); setError(""); }}
+                    onClick={() => {
+                      setStockOperation("increase");
+                      setError("");
+                    }}
                     className={`rounded-lg px-4 py-2.5 text-sm font-bold transition ${stockOperation === "increase" ? "bg-emerald-600 text-white shadow-sm" : "text-[#66665f]"}`}
                   >
                     ＋ {text("เพิ่มสต็อก", "Increase")}
                   </button>
                   <button
                     type="button"
-                    onClick={() => { setStockOperation("decrease"); setError(""); }}
+                    onClick={() => {
+                      setStockOperation("decrease");
+                      setError("");
+                    }}
                     className={`rounded-lg px-4 py-2.5 text-sm font-bold transition ${stockOperation === "decrease" ? "bg-red-600 text-white shadow-sm" : "text-[#66665f]"}`}
                   >
                     − {text("ลดสต็อก", "Decrease")}
@@ -1035,19 +1428,48 @@ export default function ProductsAdminClient({
                 />
                 <p className="mt-1 text-xs text-[#8a8a82]">
                   {stockOperation === "decrease"
-                    ? text(`ลดได้สูงสุด ${maxDecrease} ตัว (ไม่นับ ${reservedStock} ตัวที่จองไว้)`, `You can remove up to ${maxDecrease} (${reservedStock} reserved)`)
-                    : text("ระบุจำนวนที่รับเข้าสต็อก", "Enter the quantity being added")}
+                    ? text(
+                        `ลดได้สูงสุด ${maxDecrease} ตัว (ไม่นับ ${reservedStock} ตัวที่จองไว้)`,
+                        `You can remove up to ${maxDecrease} (${reservedStock} reserved)`,
+                      )
+                    : text(
+                        "ระบุจำนวนที่รับเข้าสต็อก",
+                        "Enter the quantity being added",
+                      )}
                 </p>
               </Field>
-              <div className={`flex items-center justify-between rounded-xl p-4 ${adjustmentInvalid ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-800"}`}>
-                <span className="text-sm">{text("สต็อกหลังปรับ", "Stock after adjustment")}</span>
-                <strong className="text-xl">{adjustmentInvalid ? "—" : projectedStock}</strong>
+              <div
+                className={`flex items-center justify-between rounded-xl p-4 ${adjustmentInvalid ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-800"}`}
+              >
+                <span className="text-sm">
+                  {text("สต็อกหลังปรับ", "Stock after adjustment")}
+                </span>
+                <strong className="text-xl">
+                  {adjustmentInvalid ? "—" : projectedStock}
+                </strong>
               </div>
               <Field label={text("เหตุผล", "Reason")}>
                 <BaseDropdown
                   value={reason}
                   onChange={setReason}
-                  options={[{ value: "new_stock", label: text("รับสินค้าเข้า", "New stock") }, { value: "manual_adjustment", label: text("ปรับยอดด้วยตนเอง", "Manual adjustment") }, { value: "damaged", label: text("ปลาเสียหาย/ตาย", "Damaged fish") }, { value: "reservation_release", label: text("คืนจากการจอง", "Reservation release") }]}
+                  options={[
+                    {
+                      value: "new_stock",
+                      label: text("รับสินค้าเข้า", "New stock"),
+                    },
+                    {
+                      value: "manual_adjustment",
+                      label: text("ปรับยอดด้วยตนเอง", "Manual adjustment"),
+                    },
+                    {
+                      value: "damaged",
+                      label: text("ปลาเสียหาย/ตาย", "Damaged fish"),
+                    },
+                    {
+                      value: "reservation_release",
+                      label: text("คืนจากการจอง", "Reservation release"),
+                    },
+                  ]}
                 />
               </Field>
             </div>
@@ -1063,7 +1485,9 @@ export default function ProductsAdminClient({
                 disabled={saving || adjustmentInvalid}
                 className="rounded-xl bg-[#20201e] px-5 py-3 text-sm font-bold text-white disabled:opacity-50"
               >
-                {saving ? text("กำลังปรับสต็อก...", "Adjusting...") : text("ยืนยันการปรับสต็อก", "Confirm adjustment")}
+                {saving
+                  ? text("กำลังปรับสต็อก...", "Adjusting...")
+                  : text("ยืนยันการปรับสต็อก", "Confirm adjustment")}
               </button>
             </div>
           </form>
@@ -1072,8 +1496,17 @@ export default function ProductsAdminClient({
       <Modal
         isOpen={showRequiredModal}
         onClose={() => setShowRequiredModal(false)}
-        title={text("กรุณากรอกข้อมูลให้ครบ", "Please complete the required fields")}
-        description={requiredModalMessage || text("ช่องที่ยังไม่ได้กรอกถูกไฮไลต์ด้วยกรอบสีแดงแล้ว", "The missing fields are highlighted in red.")}
+        title={text(
+          "กรุณากรอกข้อมูลให้ครบ",
+          "Please complete the required fields",
+        )}
+        description={
+          requiredModalMessage ||
+          text(
+            "ช่องที่ยังไม่ได้กรอกถูกไฮไลต์ด้วยกรอบสีแดงแล้ว",
+            "The missing fields are highlighted in red.",
+          )
+        }
         variant="warning"
         cancelText={text("รับทราบ", "Got it")}
       />
@@ -1089,9 +1522,18 @@ export default function ProductsAdminClient({
       <Modal
         isOpen={Boolean(deleteProductTarget)}
         onClose={() => setDeleteProductTarget(null)}
-        onConfirm={() => deleteProductTarget && void hideProduct(deleteProductTarget)}
+        onConfirm={() =>
+          deleteProductTarget && void hideProduct(deleteProductTarget)
+        }
         title={text("ลบสินค้าใช่ไหม?", "Delete this product?")}
-        description={deleteProductTarget ? text("ข้อมูลจะถูกลบถาวรและกู้คืนไม่ได้", "This data will be permanently deleted and cannot be recovered.") : undefined}
+        description={
+          deleteProductTarget
+            ? text(
+                "ข้อมูลจะถูกลบถาวรและกู้คืนไม่ได้",
+                "This data will be permanently deleted and cannot be recovered.",
+              )
+            : undefined
+        }
         variant="warning"
         confirmText={text("ลบสินค้า", "Delete product")}
         cancelText={text("ยกเลิก", "Cancel")}
@@ -1100,10 +1542,20 @@ export default function ProductsAdminClient({
         isOpen={confirmBulkDelete}
         onClose={() => !saving && setConfirmBulkDelete(false)}
         onConfirm={() => void hideSelectedProducts()}
-        title={text(`ลบสินค้า ${selectedProductIds.length} รายการ?`, `Delete ${selectedProductIds.length} products?`)}
-        description={text("ข้อมูลจะถูกลบถาวรและกู้คืนไม่ได้", "These products will be permanently deleted and cannot be recovered.")}
+        title={text(
+          `ลบสินค้า ${selectedProductIds.length} รายการ?`,
+          `Delete ${selectedProductIds.length} products?`,
+        )}
+        description={text(
+          "ข้อมูลจะถูกลบถาวรและกู้คืนไม่ได้",
+          "These products will be permanently deleted and cannot be recovered.",
+        )}
         variant="warning"
-        confirmText={saving ? text("กำลังลบ...", "Deleting...") : text("ลบสินค้า", "Delete products")}
+        confirmText={
+          saving
+            ? text("กำลังลบ...", "Deleting...")
+            : text("ลบสินค้า", "Delete products")
+        }
         cancelText={text("ยกเลิก", "Cancel")}
       />
     </div>
@@ -1138,7 +1590,11 @@ function Field({
     <label className="block">
       <span className="mb-1.5 block text-xs font-semibold text-[#6f6f68]">
         {labelText}
-        {isRequired && <span className="ml-1 text-red-500" aria-hidden="true">*</span>}
+        {isRequired && (
+          <span className="ml-1 text-red-500" aria-hidden="true">
+            *
+          </span>
+        )}
       </span>
       {children}
     </label>

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAdminSession } from "@/lib/admin/auth";
+import { getAdminSession, hasPermission } from "@/lib/admin/auth";
 import { getAdminBlogs } from "@/lib/admin/blogs";
 import { logAdminActivity } from "@/lib/admin/products";
 import { mapBlog, type BlogRow } from "@/lib/supabase/mappers";
@@ -55,7 +55,9 @@ function toRow(body: BlogInput) {
 }
 
 export async function GET() {
-  if (!(await getAdminSession())) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!hasPermission(session, "blogs.view")) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   try {
     return NextResponse.json({ success: true, data: await getAdminBlogs() });
   } catch (error) {
@@ -66,6 +68,7 @@ export async function GET() {
 export async function POST(request: Request) {
   const session = await getAdminSession();
   if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!hasPermission(session, "blogs.manage")) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   const body = (await request.json()) as BlogInput;
   const validationError = validate(body);
   if (validationError) return NextResponse.json({ success: false, message: validationError }, { status: 400 });

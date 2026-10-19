@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAdminSession } from "@/lib/admin/auth";
+import { getAdminSession, hasPermission } from "@/lib/admin/auth";
 import { getCategories } from "@/lib/supabase/queries";
 import { supabaseRest } from "@/lib/supabase/rest";
 import { mapCategory, type CategoryRow } from "@/lib/supabase/mappers";
@@ -14,7 +14,9 @@ function errorMessage(error: unknown) {
 }
 
 export async function GET() {
-  if (!(await getAdminSession())) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!hasPermission(session, "categories.view")) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   try {
     return NextResponse.json({ success: true, data: await getCategories(true) });
   } catch (error) {
@@ -23,7 +25,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  if (!(await getAdminSession())) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!hasPermission(session, "categories.manage")) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   const body = await request.json() as { name?: string; slug?: string; description?: string; image?: string; sortOrder?: number; isActive?: boolean };
   const name = body.name?.trim();
   if (!name) return NextResponse.json({ success: false, message: "กรุณากรอกชื่อหมวดหมู่" }, { status: 400 });

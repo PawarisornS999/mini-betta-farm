@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAdminSession } from "@/lib/admin/auth";
+import { getAdminSession, hasPermission } from "@/lib/admin/auth";
 import { supabaseRest } from "@/lib/supabase/rest";
 import { pushLineMessage } from "@/lib/line/messaging";
 
@@ -10,7 +10,9 @@ const labels = {
 };
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  if (!(await getAdminSession())) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!hasPermission(session, "refunds.manage")) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   const { id } = await params;
   try {
     const body = await request.json() as { status?: string; adminNote?: string };

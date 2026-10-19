@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
-import { getAdminSession } from "@/lib/admin/auth";
+import { getAdminSession, hasPermission } from "@/lib/admin/auth";
 import { supabaseRest } from "@/lib/supabase/rest";
 
 type Settings = { payment_bank: string | null; payment_account_name: string | null; payment_account_number: string | null; payment_promptpay_number: string | null; shipping_fee: number | string };
 
 export async function GET() {
-  if (!(await getAdminSession())) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!hasPermission(session, "payment.view")) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   const rows = await supabaseRest<Settings[]>("store_settings?id=eq.default&select=payment_bank,payment_account_name,payment_account_number,payment_promptpay_number,shipping_fee", { serviceRole: true, cache: "no-store" });
   return NextResponse.json({ data: rows[0] || null });
 }
@@ -13,6 +15,7 @@ export async function GET() {
 export async function PATCH(request: Request) {
   const session = await getAdminSession();
   if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!hasPermission(session, "payment.edit")) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   const body = await request.json() as { bank?: string; accountName?: string; accountNumber?: string; promptpayNumber?: string };
   const bank = body.bank?.trim() || "";
   const accountName = body.accountName?.trim() || "";

@@ -13,7 +13,6 @@ import { faBasketShopping, faCheck, faCircle, faCopy } from "@fortawesome/free-s
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import BaseDropdown from "@/components/BaseDropdown";
 import { formatDateTime } from "@/lib/utils";
-
 type OrderStatusFilter =
   | "all"
   | "awaiting_payment"
@@ -88,6 +87,9 @@ export default function OrdersAdminClient() {
   const [trackingError, setTrackingError] = useState("");
   const [copiedAddressOrderId, setCopiedAddressOrderId] = useState<string | null>(null);
   const [copiedTrackingOrderId, setCopiedTrackingOrderId] = useState<string | null>(null);
+  const [slipUrl, setSlipUrl] = useState<string | null>(null);
+  const [slipLoadingId, setSlipLoadingId] = useState<string | null>(null);
+  const [slipProgress, setSlipProgress] = useState(0);
 
   async function copyCustomerAddress(order: Order) {
     const shippingDetails = [
@@ -263,6 +265,10 @@ export default function OrdersAdminClient() {
 
   async function openSlip(id: string) {
     setError("");
+    setSlipLoadingId(id);
+    setSlipProgress(5);
+    setSlipUrl(null);
+    const progressTimer = window.setInterval(() => setSlipProgress((current) => Math.min(90, current + Math.ceil((90 - current) / 8))), 120);
     try {
       const response = await fetch(`/api/admin/orders/${id}/slip`);
       const result = (await response.json()) as {
@@ -271,8 +277,20 @@ export default function OrdersAdminClient() {
       };
       if (!response.ok || !result.url)
         throw new Error(result.message || "เปิดสลิปไม่สำเร็จ");
-      window.open(result.url, "_blank", "noopener,noreferrer");
+      await new Promise<void>((resolve, reject) => {
+        const image = new window.Image();
+        image.onload = () => resolve();
+        image.onerror = () => reject(new Error("โหลดภาพสลิปไม่สำเร็จ กรุณาลองอีกครั้ง"));
+        image.src = result.url!;
+      });
+      window.clearInterval(progressTimer);
+      setSlipProgress(100);
+      await new Promise((resolve) => window.setTimeout(resolve, 300));
+      setSlipUrl(result.url);
+      setSlipLoadingId(null);
     } catch (cause) {
+      window.clearInterval(progressTimer);
+      setSlipLoadingId(null);
       setError(formatAdminOrderError(cause, "เปิดสลิปไม่สำเร็จ"));
     }
   }
@@ -284,7 +302,7 @@ export default function OrdersAdminClient() {
     const matchesStatus = statusFilter === "all" || orderStageKey(order) === statusFilter;
     return matchesSearch && matchesStatus;
   });
-  console.log("Filtered orders:", filtered);
+
   const statusOptions: Array<{ value: OrderStatusFilter; label: string }> = [
     { value: "all", label: "ทุกสถานะ" },
     { value: "awaiting_payment", label: "รอชำระเงิน" },
@@ -408,9 +426,10 @@ export default function OrdersAdminClient() {
                 <button
                   type="button"
                   onClick={() => void openSlip(order.id)}
-                  className="rounded-lg bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700"
+                  disabled={slipLoadingId === order.id}
+                  className="rounded-lg bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700 disabled:opacity-60"
                 >
-                  ดูสลิป
+                  {slipLoadingId === order.id ? "กำลังเปิดสลิป..." : "ดูสลิป"}
                 </button>
               )}
               {order.paymentStatus === "paid" && order.status !== "cancelled" && (
@@ -527,6 +546,29 @@ export default function OrdersAdminClient() {
         variant="error"
         cancelText="ปิด"
       />
+      {slipLoadingId && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 p-4">
+          <section role="dialog" aria-modal="true" aria-label="กำลังเปิดสลิป" className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="mb-5 flex items-center justify-between"><h2 className="font-semibold text-gray-900">กำลังเปิดสลิป</h2><span className="text-sm font-semibold tabular-nums text-emerald-700">{slipProgress}%</span></div>
+            <div className="h-2 overflow-hidden rounded-full bg-gray-100" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={slipProgress}><div className="h-full rounded-full bg-emerald-600 transition-[width] duration-200 ease-out" style={{ width: `${slipProgress}%` }} /></div>
+            <p className="mt-3 text-sm text-gray-500">กำลังเตรียมภาพสลิป กรุณารอสักครู่</p>
+          </section>
+        </div>
+      )}
+      {slipUrl && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-3 sm:p-6" onMouseDown={(event) => { if (event.target === event.currentTarget) setSlipUrl(null); }}>
+          <section role="dialog" aria-modal="true" aria-label="ดูสลิปการชำระเงิน" className="relative flex max-h-[94vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <header className="flex items-center justify-between border-b border-gray-100 px-4 py-3 sm:px-5">
+              <h2 className="font-semibold text-gray-900">สลิปการชำระเงิน</h2>
+              <button type="button" onClick={() => setSlipUrl(null)} className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100" aria-label="ปิดหน้าต่างสลิป">ปิด</button>
+            </header>
+            <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-gray-50 p-3 sm:p-5">
+              <img src={slipUrl} alt="สลิปการชำระเงิน" className="max-h-[78vh] max-w-full rounded-lg object-contain" />
+            </div>
+          </section>
+
+        </div>
+      )}
     </div>
   );
 }

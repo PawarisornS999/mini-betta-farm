@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
-import { getAdminSession } from "@/lib/admin/auth";
+import { getAdminSession, hasPermission } from "@/lib/admin/auth";
 import { getOrder } from "@/lib/orders/data";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  if (!(await getAdminSession())) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!hasPermission(session, "orders.view")) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   const { id } = await params;
   const order = await getOrder(id);
   if (!order?.slipPath) return NextResponse.json({ message: "ไม่พบสลิป" }, { status: 404 });
