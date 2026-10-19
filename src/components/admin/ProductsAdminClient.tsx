@@ -7,6 +7,7 @@ import { maximumStockDecrease } from "@/lib/inventory";
 import { adminText, useAdminLanguage } from "./LanguageProvider";
 import BaseDropdown from "../BaseDropdown";
 import Modal from "../Modal";
+import { useAdminPermission } from "./AdminPermissions";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 
@@ -118,6 +119,11 @@ export default function ProductsAdminClient({
   categories: Category[];
 }) {
   const { language } = useAdminLanguage();
+  const canCreate = useAdminPermission("products.create");
+  const canEdit = useAdminPermission("products.edit");
+  const canDelete = useAdminPermission("products.delete");
+  const canAdjustStock = useAdminPermission("inventory.adjust");
+  const canUpload = useAdminPermission("media.upload");
   const text = (th: string, en: string) => adminText(language, th, en);
   const [products, setProducts] = useState(initialProducts);
   const [search, setSearch] = useState("");
@@ -548,10 +554,7 @@ export default function ProductsAdminClient({
           </h2>
         </div>
         <div className="flex gap-3">
-          <button className="rounded-xl border border-black/10 bg-white px-4 py-3 text-sm font-semibold text-[#55554f]">
-            ↓ {text("ส่งออก", "Export")}
-          </button>
-          <button
+          {canCreate && <button
             onClick={() => {
               setError("");
               setInvalidFields([]);
@@ -560,7 +563,7 @@ export default function ProductsAdminClient({
             className="rounded-xl bg-gradient-to-r from-[#d79639] to-[#ba6c22] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-orange-900/15"
           >
             ＋ {text("เพิ่มสินค้า", "Add product")}
-          </button>
+          </button>}
         </div>
       </div>
       <div
@@ -624,7 +627,7 @@ export default function ProductsAdminClient({
               }))}
               className="min-w-36"
             />
-            {selectedProductIds.length > 0 && (
+            {canDelete && selectedProductIds.length > 0 && (
               <button
                 type="button"
                 onClick={() => setConfirmBulkDelete(true)}
@@ -645,7 +648,7 @@ export default function ProductsAdminClient({
           <table className="w-full min-w-[1050px] text-left">
             <thead>
               <tr className="border-b border-black/6 bg-[#fafaf8] text-[11px] uppercase tracking-[.12em] text-[#8a8a82]">
-                <th className="w-12 px-5 py-4">
+                {canDelete && <th className="w-12 px-5 py-4">
                   <input
                     type="checkbox"
                     aria-label={text(
@@ -666,7 +669,7 @@ export default function ProductsAdminClient({
                       )
                     }
                   />
-                </th>
+                </th>}
                 <th className="px-5 py-4">{text("สินค้า", "Product")}</th>
                 <th className="px-5 py-4">
                   {text("SKU / สายพันธุ์", "SKU / Strain")}
@@ -683,7 +686,7 @@ export default function ProductsAdminClient({
             <tbody className="divide-y divide-black/5">
               {filtered.map((product) => (
                 <tr key={product.id} className="group hover:bg-[#fcfbf8]">
-                  <td className="px-5 py-4">
+                  {canDelete && <td className="px-5 py-4">
                     <input
                       type="checkbox"
                       aria-label={`${text("เลือก", "Select")} ${product.name}`}
@@ -696,7 +699,7 @@ export default function ProductsAdminClient({
                         )
                       }
                     />
-                  </td>
+                  </td>}
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
                       <div className="h-14 w-14 overflow-hidden rounded-xl bg-[#eee9df]">
@@ -754,7 +757,7 @@ export default function ProductsAdminClient({
                     </div>
                   </td>
                   <td className="px-5 py-4">
-                    <button
+                    {canAdjustStock ? <button
                       onClick={() => {
                         setError("");
                         setStockProduct(product);
@@ -767,7 +770,7 @@ export default function ProductsAdminClient({
                       <span className="ml-1 text-xs font-normal text-[#8b8174]">
                         {text("ปรับ", "adjust")}
                       </span>
-                    </button>
+                    </button> : <span className="font-bold">{product.stockQty ?? 0}</span>}
                   </td>
                   <td className="px-5 py-4">
                     <span
@@ -786,7 +789,7 @@ export default function ProductsAdminClient({
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex justify-end gap-2 opacity-80 group-hover:opacity-100">
-                      <button
+                      {canEdit && <button
                         onClick={() => {
                           setError("");
                           setInvalidFields([]);
@@ -795,13 +798,13 @@ export default function ProductsAdminClient({
                         className="rounded-lg border border-black/8 px-3 py-2 text-xs font-semibold hover:border-[#d28a31] hover:text-[#a86524]"
                       >
                         {text("แก้ไข", "Edit")}
-                      </button>
-                      <button
+                      </button>}
+                      {canDelete && <button
                         onClick={() => setDeleteProductTarget(product)}
                         className="rounded-lg border border-black/8 px-3 py-2 text-xs font-semibold text-red-600 hover:border-red-200 hover:bg-red-50"
                       >
                         {text("ลบ", "Delete")}
-                      </button>
+                      </button>}
                     </div>
                   </td>
                 </tr>
@@ -812,7 +815,7 @@ export default function ProductsAdminClient({
         <div className="divide-y divide-black/6 md:hidden">
           {filtered.map((product) => (
             <div key={product.id} className="p-4">
-              <label className="mb-3 flex items-center gap-2 text-xs font-semibold text-[#77776f]">
+              {canDelete && <label className="mb-3 flex items-center gap-2 text-xs font-semibold text-[#77776f]">
                 <input
                   type="checkbox"
                   checked={selectedProductIds.includes(product.id)}
@@ -825,7 +828,7 @@ export default function ProductsAdminClient({
                   }
                 />
                 {text("เลือกสินค้า", "Select product")}
-              </label>
+              </label>}
               <div className="flex gap-3">
                 <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-[#eee9df]">
                   {product.images[0] ? (
@@ -874,7 +877,7 @@ export default function ProductsAdminClient({
                 </div>
               </div>
               <div className="mt-3 flex gap-2">
-                <button
+                {canEdit && <button
                   onClick={() => {
                     setInvalidFields([]);
                     setForm(productToForm(product));
@@ -882,8 +885,8 @@ export default function ProductsAdminClient({
                   className="flex-1 rounded-lg bg-[#20201e] py-2 text-xs font-semibold text-white"
                 >
                   {text("แก้ไข", "Edit")}
-                </button>
-                <button
+                </button>}
+                {canAdjustStock && <button
                   onClick={() => {
                     setError("");
                     setDelta("1");
@@ -893,13 +896,13 @@ export default function ProductsAdminClient({
                   className="flex-1 rounded-lg bg-[#f0ece4] py-2 text-xs font-semibold"
                 >
                   {text("ปรับสต็อก", "Adjust stock")}
-                </button>
-                <button
+                </button>}
+                {canDelete && <button
                   onClick={() => setDeleteProductTarget(product)}
                   className="flex-1 rounded-lg border border-red-200 py-2 text-xs font-semibold text-red-600"
                 >
                   {text("ลบ", "Delete")}
-                </button>
+                </button>}
               </div>
             </div>
           ))}
@@ -1048,7 +1051,7 @@ export default function ProductsAdminClient({
                   </Field>
                 </FormSection>
                 <FormSection title={text("รูปสินค้า", "Product images")}>
-                  <label
+                  {canUpload && <label
                     className={`flex cursor-pointer items-center justify-center rounded-xl border border-dashed border-[#d7b17d] bg-[#fffaf2] px-4 py-4 text-sm font-bold text-[#9c6226] ${uploading ? "pointer-events-none opacity-60" : ""}`}
                   >
                     <span>
@@ -1071,13 +1074,13 @@ export default function ProductsAdminClient({
                         e.target.value = "";
                       }}
                     />
-                  </label>
-                  <p className="text-xs text-[#8a8a82]">
+                  </label>}
+                  {canUpload && <p className="text-xs text-[#8a8a82]">
                     {text(
                       "เลือกได้หลายรูป · JPG, PNG หรือ WebP · รูปละไม่เกิน 10 MB",
                       "Select multiple images · JPG, PNG, or WebP · up to 10 MB each",
                     )}
-                  </p>
+                  </p>}
                   <Field
                     label={text(
                       "URL รูปสินค้า * (หนึ่งรายการต่อบรรทัด)",
@@ -1212,7 +1215,7 @@ export default function ProductsAdminClient({
                         className={`input-admin ${invalidFields.includes("stockQty") ? "!border-red-500 focus:!border-red-500 focus:!ring-red-500/20" : ""}`}
                         disabled={Boolean(form.id)}
                       />
-                      {form.id && (
+                      {canAdjustStock && form.id && (
                         <button
                           type="button"
                           onClick={() => {

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { RefundRequest, RefundStatus } from "@/types";
 import { formatDateTime } from "@/lib/utils";
+import { useAdminPermission } from "./AdminPermissions";
 
 const labels: Record<RefundStatus, string> = {
   requested: "รอตรวจสอบ",
@@ -13,6 +14,8 @@ const labels: Record<RefundStatus, string> = {
 };
 
 export default function AdminRefundsClient() {
+  const canManage = useAdminPermission("refunds.manage");
+  const canViewOrders = useAdminPermission("orders.view");
   const [refunds, setRefunds] = useState<RefundRequest[]>([]);
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState("");
@@ -26,7 +29,10 @@ export default function AdminRefundsClient() {
   }
 
   useEffect(() => {
-    void load().catch((cause) => setError(cause instanceof Error ? cause.message : "โหลดคำร้องคืนเงินไม่สำเร็จ"));
+    const timer = setTimeout(() => {
+      void load().catch((cause) => setError(cause instanceof Error ? cause.message : "โหลดคำร้องคืนเงินไม่สำเร็จ"));
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   async function update(refund: RefundRequest, status: "reviewing" | "refunded" | "rejected") {
@@ -60,7 +66,7 @@ export default function AdminRefundsClient() {
           <div>
             <p className="text-xs text-gray-500">#{refund.id.slice(0, 8).toUpperCase()} · {formatDateTime(refund.createdAt, "th")}</p>
             <h3 className="mt-1 font-bold">{refund.productSummary}</h3>
-            {refund.orderId && <Link href={`/admin/orders`} className="mt-1 inline-block text-xs text-blue-700">ออเดอร์ #{refund.orderId.slice(0, 8).toUpperCase()}</Link>}
+            {canViewOrders && refund.orderId && <Link href={`/admin/orders`} className="mt-1 inline-block text-xs text-blue-700">ออเดอร์ #{refund.orderId.slice(0, 8).toUpperCase()}</Link>}
           </div>
           <span className={`rounded-full px-3 py-1 text-xs font-bold ${refund.status === "refunded" ? "bg-green-100 text-green-800" : refund.status === "rejected" ? "bg-red-100 text-red-800" : "bg-amber-100 text-amber-800"}`}>{labels[refund.status]}</span>
         </div>
@@ -70,16 +76,16 @@ export default function AdminRefundsClient() {
           <p>เลขอ้างอิง: {refund.paymentReference || "ไม่ระบุ"}</p>
           <p>หมายเหตุลูกค้า: {refund.customerNote || "ไม่ระบุ"}</p>
         </div>
-        <label className="mt-4 block text-sm font-medium">หมายเหตุถึงลูกค้า
+        {canManage && <label className="mt-4 block text-sm font-medium">หมายเหตุถึงลูกค้า
           <textarea rows={2} maxLength={1000} value={notes[refund.id] ?? refund.adminNote ?? ""} onChange={(event) => setNotes((current) => ({ ...current, [refund.id]: event.target.value }))} disabled={refund.status === "refunded" || refund.status === "rejected"} className="mt-1.5 w-full rounded-xl border border-gray-200 p-3 disabled:bg-gray-50" />
-        </label>
-        <div className="mt-3 flex flex-wrap gap-2">
+        </label>}
+        {canManage && <div className="mt-3 flex flex-wrap gap-2">
           {refund.status === "requested" && <>
             <button disabled={busy === refund.id} onClick={() => void update(refund, "reviewing")} className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">เริ่มตรวจสอบ</button>
             <button disabled={busy === refund.id} onClick={() => void update(refund, "rejected")} className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-50">ไม่อนุมัติ</button>
           </>}
           {refund.status === "reviewing" && <button disabled={busy === refund.id} onClick={() => void update(refund, "refunded")} className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">ยืนยันคืนเงินแล้ว</button>}
-        </div>
+        </div>}
       </article>)}
     </div>
   </div>;

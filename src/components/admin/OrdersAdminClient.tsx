@@ -12,6 +12,7 @@ import {
 import { faBasketShopping, faCheck, faCircle, faCopy } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import BaseDropdown from "@/components/BaseDropdown";
+import { useAdminPermission } from "./AdminPermissions";
 import { formatDateTime } from "@/lib/utils";
 type OrderStatusFilter =
   | "all"
@@ -76,6 +77,9 @@ function formatAdminOrderError(cause: unknown, fallback: string) {
 }
 
 export default function OrdersAdminClient() {
+  const canUpdate = useAdminPermission("orders.update");
+  const canDelete = useAdminPermission("orders.delete");
+  const canManageRefunds = useAdminPermission("refunds.manage");
   const [orders, setOrders] = useState<Order[]>([]);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
@@ -432,7 +436,7 @@ export default function OrdersAdminClient() {
                   {slipLoadingId === order.id ? "กำลังเปิดสลิป..." : "ดูสลิป"}
                 </button>
               )}
-              {order.paymentStatus === "paid" && order.status !== "cancelled" && (
+              {canUpdate && order.paymentStatus === "paid" && order.status !== "cancelled" && (
                 <button
                   type="button"
                   onClick={() => openTrackingModal(order)}
@@ -441,7 +445,7 @@ export default function OrdersAdminClient() {
                   เลขพัสดุ
                 </button>
               )}
-              {(order.paymentStatus === "paid" || order.paymentStatus === "slip_submitted") && order.shippingStatus === "pending" && order.status !== "cancelled" && (
+              {canManageRefunds && (order.paymentStatus === "paid" || order.paymentStatus === "slip_submitted") && order.shippingStatus === "pending" && order.status !== "cancelled" && (
                 <button
                   type="button"
                   disabled={busy === order.id}
@@ -451,7 +455,7 @@ export default function OrdersAdminClient() {
                   แจ้งไม่ได้ปลา / เปิดคืนเงิน
                 </button>
               )}
-              {actionLabels.filter(([action]) => canUpdateOrder(order, action)).map(([action, label]) => {
+              {canUpdate && actionLabels.filter(([action]) => canUpdateOrder(order, action)).map(([action, label]) => {
                 const disabled = busy === order.id;
                 return (
                   <button
@@ -465,14 +469,14 @@ export default function OrdersAdminClient() {
                   </button>
                 );
               })}
-              <button
+              {canDelete && <button
                 type="button"
                 disabled={busy === order.id}
                 onClick={() => setConfirmTarget({ order, action: "delete" })}
                 className="rounded-lg bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 disabled:opacity-30"
               >
                 ลบออเดอร์
-              </button>
+              </button>}
             </div>
           </article>
         ))}

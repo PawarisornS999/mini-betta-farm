@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -83,6 +84,7 @@ export default function AdminLoginPage() {
           </button>
         </form>
         <p className="mt-8 text-center text-xs text-slate-400">ระบบจัดการร้านค้า · Mini Betta Farm</p>
+        <p className="mt-3 text-center text-xs"><Link className="text-sky-700 underline" href="/admin/setup">ตั้งค่า Owner ครั้งแรก</Link></p>
       </section>
     </main>
   );

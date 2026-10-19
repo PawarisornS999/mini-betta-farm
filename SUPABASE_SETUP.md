@@ -37,8 +37,7 @@ stock restoration. The supplied TTB and PromptPay details are initialized in
 
 ## Admin dashboard
 
-- Sign in at `/admin/login` using `ADMIN_USERNAME` and `ADMIN_PASSWORD` from
-  `.env.local`.
+- Apply the admin role and bootstrap migrations, then open `/admin/setup` to create the first Owner using `ADMIN_SETUP_TOKEN` from `.env.local`. After setup, sign in at `/admin/login` with the account created in the system. See `ADMIN_ROLES.md`.
 - `/admin` shows product, stock, and catalog health summaries.
 - `/admin/products` supports search, filters, add, edit, hide, image upload, and
   stock adjustment.

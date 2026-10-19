@@ -6,6 +6,7 @@ import type { BlogCategory, BlogPost } from "@/types";
 import BaseDropdown from "../BaseDropdown";
 import Modal from "../Modal";
 import { adminText, useAdminLanguage } from "./LanguageProvider";
+import { useAdminPermission } from "./AdminPermissions";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 
@@ -87,6 +88,8 @@ export default function BlogsAdminClient({
 }: {
   initialBlogs: BlogPost[];
 }) {
+  const canManage = useAdminPermission("blogs.manage");
+  const canUpload = useAdminPermission("media.upload");
   const { language } = useAdminLanguage();
   const text = (th: string, en: string) => adminText(language, th, en);
   const [blogs, setBlogs] = useState(initialBlogs);
@@ -286,7 +289,7 @@ export default function BlogsAdminClient({
             {text("จัดการบทความ", "Blog content management")}
           </h2>
         </div>
-        <button
+        {canManage && <button
           onClick={() => {
             setError("");
             setDraft({ ...emptyDraft });
@@ -294,7 +297,7 @@ export default function BlogsAdminClient({
           className="rounded-xl bg-gradient-to-r from-[#d79639] to-[#ba6c22] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-orange-900/15"
         >
           ＋ {text("เขียนบทความใหม่", "New post")}
-        </button>
+        </button>}
       </div>
 
       {error && !draft && (
@@ -399,7 +402,7 @@ export default function BlogsAdminClient({
                     {text("ดูหน้าเว็บ", "View")}
                   </a>
                 )}
-                <button
+                {canManage && <button
                   onClick={() => {
                     setError("");
                     setDraft(toDraft(post));
@@ -407,13 +410,13 @@ export default function BlogsAdminClient({
                   className="rounded-lg bg-[#20201e] px-4 py-2 text-xs font-semibold text-white"
                 >
                   {text("แก้ไข", "Edit")}
-                </button>
-                <button
+                </button>}
+                {canManage && <button
                   onClick={() => setDeleteTarget(post)}
                   className="rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600"
                 >
                   {text("ลบ", "Delete")}
-                </button>
+                </button>}
               </div>
             </article>
           ))}
@@ -571,7 +574,7 @@ export default function BlogsAdminClient({
                   </Field>
                 </Panel>
                 <Panel title={text("รูปปก *", "Cover image *")}>
-                  <label
+                  {canUpload && <label
                     className={`flex cursor-pointer justify-center rounded-xl border border-dashed border-[#d7b17d] bg-[#fffaf2] px-4 py-3 text-sm font-bold text-[#9c6226] ${uploading ? "pointer-events-none opacity-60" : ""}`}
                   >
                     {uploading
@@ -588,7 +591,7 @@ export default function BlogsAdminClient({
                         event.target.value = "";
                       }}
                     />
-                  </label>
+                  </label>}
                   <Field label={text("หรือ URL รูปภาพ", "Or image URL")}>
                     <input
                       required

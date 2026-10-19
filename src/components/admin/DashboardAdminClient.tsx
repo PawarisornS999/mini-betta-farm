@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import type { Product } from "@/types";
 import SalesChart from "@/components/admin/SalesChart";
+import { useAdminPermission } from "./AdminPermissions";
 import { adminText, useAdminLanguage } from "./LanguageProvider";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -25,6 +26,7 @@ export default function DashboardAdminClient({
     monthlySales: Array<{ key: string; label: string; total: number }>;
   };
 }) {
+  const canViewProducts = useAdminPermission("products.view");
   const { language } = useAdminLanguage();
   const text = (th: string, en: string) => adminText(language, th, en);
   const available = products.filter((p) => p.adminStatus === "available").length;
@@ -49,9 +51,9 @@ export default function DashboardAdminClient({
             {text("สวัสดี ผู้ดูแลระบบ", "Good morning, Admin.")}
           </h2>
         </div>
-        <Link href="/admin/products" className="rounded-xl bg-[#20201e] px-5 py-3 text-sm font-semibold text-white shadow-lg">
+        {canViewProducts && <Link href="/admin/products" className="rounded-xl bg-[#20201e] px-5 py-3 text-sm font-semibold text-white shadow-lg">
           {text("จัดการสินค้า", "Manage products")} →
-        </Link>
+        </Link>}
       </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map(({ label, value, icon, note }) => (
@@ -75,9 +77,9 @@ export default function DashboardAdminClient({
               <h3 className="font-bold">{text("อัปเดตล่าสุด", "Recently updated")}</h3>
               <p className="text-sm text-[#85857d]">{text("สินค้าที่มีการแก้ไขล่าสุด", "Recently modified products")}</p>
             </div>
-            <Link href="/admin/products" className="text-sm font-semibold text-[#a76424]">
+            {canViewProducts && <Link href="/admin/products" className="text-sm font-semibold text-[#a76424]">
               {text("ดูทั้งหมด", "View all")}
-            </Link>
+            </Link>}
           </div>
           <div id="recent-product" className="mt-5 divide-y divide-black/5">
             {products.slice(0, 6).map((product) => (

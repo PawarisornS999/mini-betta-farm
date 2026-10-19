@@ -5,12 +5,14 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { adminText, useAdminLanguage } from "./LanguageProvider";
 import Modal from "../Modal";
+import { AdminPermissionsProvider } from "./AdminPermissions";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGaugeHigh, faFish, faClipboardList, faBahtSign, faTags, faPenToSquare, faArrowUpRightFromSquare, faRightFromBracket, faBars, faFishFins, faRotateLeft, faUserShield } from "@fortawesome/free-solid-svg-icons";
+import { faGaugeHigh, faFish, faBoxesStacked, faClipboardList, faBahtSign, faTags, faPenToSquare, faArrowUpRightFromSquare, faRightFromBracket, faBars, faFishFins, faRotateLeft, faUserShield } from "@fortawesome/free-solid-svg-icons";
 
 const navigation = [
   { href: "/admin", label: "Dashboard", icon: faGaugeHigh, permission: "dashboard.view" },
   { href: "/admin/products", label: "Products", icon: faFish, permission: "products.view" },
+  { href: "/admin/inventory", label: "Inventory", icon: faBoxesStacked, permission: "inventory.view" },
   { href: "/admin/orders", label: "Orders", icon: faClipboardList, permission: "orders.view" },
   { href: "/admin/refunds", label: "Refunds", icon: faRotateLeft, permission: "refunds.view" },
   { href: "/admin/payment-settings", label: "Payment", icon: faBahtSign, permission: "payment.view" },
@@ -51,6 +53,7 @@ export default function AdminShell({
   }
 
   return (
+    <AdminPermissionsProvider permissions={permissions}>
     <div className="min-h-screen bg-[#f6f6f3] text-[#252522]">
       {open && (
         <button
@@ -216,5 +219,6 @@ export default function AdminShell({
         cancelText={text("ยกเลิก", "Cancel")}
       />
     </div>
+    </AdminPermissionsProvider>
   );
 }

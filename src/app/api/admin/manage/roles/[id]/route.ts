@@ -7,7 +7,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (!session) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   const { id } = await params;
   const body = await request.json();
-  if (!validRole(body.name, body.permissions) || body.name.trim().toLowerCase() === "owner") return NextResponse.json({ message: "Role ไม่ถูกต้อง" }, { status: 400 });
+  if (!(await validRole(body.name, body.permissions)) || body.name.trim().toLowerCase() === "owner") return NextResponse.json({ message: "Role ไม่ถูกต้อง" }, { status: 400 });
   try {
     const [role] = await supabaseRest<RoleRow[]>(`admin_roles?id=eq.${encodeURIComponent(id)}&select=id,name,permissions,is_system`, { method: "PATCH", serviceRole: true, headers: { Prefer: "return=representation" }, body: JSON.stringify({ name: body.name.trim(), permissions: [...new Set(body.permissions)], updated_at: new Date().toISOString() }) });
     if (!role) return NextResponse.json({ message: "ไม่พบ Role" }, { status: 404 });
