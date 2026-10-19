@@ -1,0 +1,145 @@
+src/components/admin/CategoriesAdminClient.tsx
+  s_b3c5652379d2fb::t_43956e576afb39 7,19-26,40-45,52-54,57,69-71,75-78,82-90,93-97,107-109,112-115,117-121,124-128,139-142,144-146,148-158,160-164,168-171,174-182
+  s_b3c5652379d2fb::t_2a0dc4d4fbdf27 183
+src/components/admin/DashboardAdminClient.tsx
+  s_b3c5652379d2fb::t_94150013b0f06a 8,29,54,56,80,82
+supabase/migrations/202610200003_admin_setup_existing_owner.sql
+  s_b3c5652379d2fb::t_2af7948de13ea8 1-44
+src/components/admin/AdminShell.tsx
+  s_b3c5652379d2fb::t_c2f4a413f0be0c 8,56,222
+  s_b3c5652379d2fb::t_6f47a312f65d3e 10,15
+src/app/api/admin/manage/permissions/route.ts
+  s_b3c5652379d2fb::t_af9b44199490b3 1-17
+src/components/admin/AdminPermissions.tsx
+  s_b3c5652379d2fb::t_c2f4a413f0be0c 1-24
+src/components/admin/OrdersAdminClient.tsx
+  s_b3c5652379d2fb::t_dd7f7f03b2d1a0 15,80-82,439,448,458,472,479
+src/components/admin/ProductsAdminClient.tsx
+  s_b3c5652379d2fb::t_6eeaf49f96ddec 1054,1077-1078,1083,1218
+  s_b3c5652379d2fb::t_56ba63edacf4da 10,122-126,557,566,630
+  s_b3c5652379d2fb::t_5838373f2f6dde 651,672,689,702,760,773,792,801-802,807,818,831,880,888-889,899-900,905
+supabase/migrations/202610200002_admin_bootstrap.sql
+  s_b3c5652379d2fb::t_2d4e43e910044f 1-28
+SUPABASE_SETUP.md
+  s_b3c5652379d2fb::t_bed3be27f76386 40
+src/components/admin/BlogsAdminClient.tsx
+  s_b3c5652379d2fb::t_3f2136eea38486 292,300,405,413-414,419,577,594
+  s_b3c5652379d2fb::t_20c8ce144da86a 9,91-92
+src/app/api/admin/manage/route.ts
+  s_b3c5652379d2fb::t_af9b44199490b3 7,10,12
+src/components/admin/AdminRefundsClient.tsx
+  s_b3c5652379d2fb::t_e3311ef2e6f591 32-35
+  s_b3c5652379d2fb::t_dc27b0453f03c1 7,17-18,69,79,81-82,88
+src/lib/admin/auth.ts
+  s_b3c5652379d2fb::t_2d4e43e910044f 19-26,30-33,39-40,43-45,47-48,63-66,71
+  s_b3c5652379d2fb::t_e993f23bc5ff1a 125-139
+  s_b3c5652379d2fb::t_2ece1c2ba23bf4 1-6,72-82,87-89,91-95,98-100,105-106,108-121,123-124,140-143,145-151
+src/app/api/admin/setup/route.ts
+  s_b3c5652379d2fb::t_2d4e43e910044f 1-18,20-28
+  s_b3c5652379d2fb::t_2af7948de13ea8 19
+src/app/api/admin/manage/permissions/[id]/route.ts
+  s_b3c5652379d2fb::t_af9b44199490b3 1-29
+src/lib/admin/manage.ts
+  s_b3c5652379d2fb::t_af9b44199490b3 5,8-12
+src/app/api/admin/manage/roles/route.ts
+  s_b3c5652379d2fb::t_af9b44199490b3 9
+ADMIN_ROLES.md
+  s_b3c5652379d2fb::t_14ceb6497b1689 6,14
+  s_b3c5652379d2fb::t_def139e16bb92a 8
+  s_b3c5652379d2fb::t_2af7948de13ea8 7
+src/components/admin/ManageAdminClient.tsx
+  s_b3c5652379d2fb::t_47ac72a3718fc8 101-107,110-120,123-127,129-135,137-142,225-232,234-245,272,276-287,289-295,297,303,307,309-326,328,331,338-339,348-349,382-383,385-386,388-394,397-404,406-408,410-412,414,416-423,425-430,432-436,438-439,441-446,448-455,457-459,461-465,467-473,475-481,483-486,489-491,493-496,498,500-502,504-512,514-523,525-527,529-531,533-541,543-545,547-556,558-561,564-566,568-587,589-596,598-605,607-608,615,619-623,629-642,644-655,657-659
+  s_b3c5652379d2fb::t_84e37434e16562 6-7,9-13,68-73,191-195,197-221
+  s_b3c5652379d2fb::t_c2718c6ac359d0 298-302,304-306,308,352-374,380,409,557,609-614,616-617,626-628
+  s_b3c5652379d2fb::t_e8c73691824dfd 5,50-51,59-63,65,78-80,143-153,156-172,185,196,222,246-265,270,706
+  s_b3c5652379d2fb::t_252dd081ba0195 661-704
+  s_b3c5652379d2fb::t_d5e11109dfbb32 64
+  s_b3c5652379d2fb::t_3a3e370d2de700 99-100
+  s_b3c5652379d2fb::t_2bc8036839656f 128
+  s_b3c5652379d2fb::t_10e3f202c133c3 136
+  s_b3c5652379d2fb::t_63ba8c61ebb6a4 154-155
+  s_b3c5652379d2fb::t_1ddfbd9c5391f4 173-175,182-184
+  s_b3c5652379d2fb::t_1e66444a679f32 186-190
+  s_b3c5652379d2fb::t_c09fdd18c78c3a 223-224
+  s_b3c5652379d2fb::t_a85cb6dc0b9951 233
+  s_b3c5652379d2fb::t_5f1e2e5c3950b3 266-269
+  s_b3c5652379d2fb::t_05975c75f24c8e 271
+  s_b3c5652379d2fb::t_41ee76b8ebbfcb 273-275
+  s_b3c5652379d2fb::t_62228a155e3cab 288
+  s_b3c5652379d2fb::t_c1210ad188c885 296
+  s_b3c5652379d2fb::t_01dcbad566b01e 327
+  s_b3c5652379d2fb::t_6d753b05072f2d 329-330
+  s_b3c5652379d2fb::t_eac8105b9be605 332-337
+  s_b3c5652379d2fb::t_f081b48667fa14 340-342,345-347
+  s_b3c5652379d2fb::t_6037af407b2fda 350-351
+  s_b3c5652379d2fb::t_3e535a18d5a88d 375-379
+  s_b3c5652379d2fb::t_821799ebff7aef 381
+  s_b3c5652379d2fb::t_a42e074c6cb096 384
+  s_b3c5652379d2fb::t_c00cb0bcf1b268 387
+  s_b3c5652379d2fb::t_325e80524e7f5e 395-396
+  s_b3c5652379d2fb::t_856123ab099af6 405
+  s_b3c5652379d2fb::t_52fe9ffbcfb20b 413
+  s_b3c5652379d2fb::t_42b2c2aae466b8 415
+  s_b3c5652379d2fb::t_df5c9b8beda2a0 424
+  s_b3c5652379d2fb::t_8566c4d9a3a0ee 431
+  s_b3c5652379d2fb::t_45d8a1c2f36412 437
+  s_b3c5652379d2fb::t_3a488f163ee82b 440
+  s_b3c5652379d2fb::t_e7ec19ae5bada6 447
+  s_b3c5652379d2fb::t_0d03c33952ab9e 456
+  s_b3c5652379d2fb::t_8dbcf48eaa1ff2 460
+  s_b3c5652379d2fb::t_4795ef6af79478 466
+  s_b3c5652379d2fb::t_58fa28e6083b7c 474
+  s_b3c5652379d2fb::t_156044f68f2dae 482
+  s_b3c5652379d2fb::t_fef1f5eb095a33 487-488
+  s_b3c5652379d2fb::t_87c2c25e83831b 492
+  s_b3c5652379d2fb::t_a0ceedd870af0c 497
+  s_b3c5652379d2fb::t_84e57b09eade5e 499
+  s_b3c5652379d2fb::t_e2c124e028d7bc 503
+  s_b3c5652379d2fb::t_84afa4285512c5 513
+  s_b3c5652379d2fb::t_dbed5917151c83 524
+  s_b3c5652379d2fb::t_96e50bf5a1dd64 528
+  s_b3c5652379d2fb::t_84f6bd77e6cb88 532
+  s_b3c5652379d2fb::t_84414dbe6ddbc7 542
+  s_b3c5652379d2fb::t_5eb3641008bbb7 546
+  s_b3c5652379d2fb::t_d6b83c8706563d 562-563
+  s_b3c5652379d2fb::t_0417afb56e6aae 567
+  s_b3c5652379d2fb::t_9bfc1720c5c984 588
+  s_b3c5652379d2fb::t_bd7a92cad7142d 597
+  s_b3c5652379d2fb::t_ccfec80dc2d9d9 606
+  s_b3c5652379d2fb::t_258d983206342a 618
+  s_b3c5652379d2fb::t_2450046317f6aa 624-625
+  s_b3c5652379d2fb::t_90693610fc7c35 643
+  s_b3c5652379d2fb::t_b22c918344c3a2 656
+  s_b3c5652379d2fb::t_fbbce569ced990 660
+  s_b3c5652379d2fb::t_00a07a1b9b4d24 705
+  s_b3c5652379d2fb::t_adb310db4fe0de 15-47,82-87,89-90,92-96,176-181,343-344
+src/app/admin/setup/page.tsx
+  s_b3c5652379d2fb::t_2af7948de13ea8 13-14
+  s_b3c5652379d2fb::t_64fd1f0af317bb 1-6,15-16
+  s_b3c5652379d2fb::t_deba0e05538ed6 7-12
+supabase/migrations/202610200004_admin_custom_permissions.sql
+  s_b3c5652379d2fb::t_af9b44199490b3 1-20
+src/app/api/admin/manage/roles/[id]/route.ts
+  s_b3c5652379d2fb::t_af9b44199490b3 10
+src/app/admin/login/page.tsx
+  s_b3c5652379d2fb::t_64fd1f0af317bb 5,87
+src/components/admin/SetupOwnerForm.tsx
+  s_b3c5652379d2fb::t_64fd1f0af317bb 1-25,27
+  s_b3c5652379d2fb::t_2af7948de13ea8 26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.3",
+  "base_commit_sha": "8d7e95fc43ebd90b102bcf0e63bce5d0e6734400",
+  "prompts": {},
+  "sessions": {
+    "s_b3c5652379d2fb": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1553d-403f-7520-a32b-faf4ca4ada02",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "Pawarisorn <pawarisorn.son@axonstech.com>"
+    }
+  }
+}
