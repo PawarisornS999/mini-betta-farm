@@ -6,13 +6,24 @@ import { useLangStore } from "@/store/lang";
 import { getT } from "@/lib/i18n";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMobileScreenButton, faEnvelope, faLocationDot, faClock } from "@fortawesome/free-solid-svg-icons";
+import { faFacebook, faInstagram, faLine, faYoutube } from "@fortawesome/free-brands-svg-icons";
 
+const socialLinks = [
+  { label: "Facebook", href: "https://www.facebook.com/mini.betta.farm", icon: faFacebook, color: "text-blue-600" },
+  { label: "Instagram", href: "https://www.instagram.com/mini.betta.farm", icon: faInstagram, color: "text-pink-500" },
+  { label: "YouTube", href: "https://www.youtube.com/@mini-betta-farm", icon: faYoutube, color: "text-red-600" },
+  { label: "LINE OA", href: `https://line.me/R/ti/p/${encodeURIComponent(process.env.NEXT_PUBLIC_LINE_OA_ID || "")}`, icon: faLine, color: "text-green-500" },
+];
+const contactInfo = [
+  { label: "โทรศัพท์", value: process.env.NEXT_PUBLIC_CONTACT_PHONE || "-", desc: "เวลาทำการ 09:00 - 18:00 น.", icon: faMobileScreenButton },
+  { label: "อีเมล", value: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "-", desc: "ตอบกลับภายใน 24 ชั่วโมง", icon: faEnvelope },
+  { label: "ที่อยู่", value: process.env.NEXT_PUBLIC_CONTACT_ADDRESS || "-", desc: "เชียงราย ประเทศไทย", icon: faLocationDot },
+  { label: "เวลาทำการ", value: process.env.NEXT_PUBLIC_CONTACT_HOURS || "-", desc: "ทุกวันจันทร์ - ศุกร์", icon: faClock },
+];
 export default function ContactPage() {
   const lang = useLangStore((s) => s.lang);
   const t = getT(lang).contact;
   const lineId = process.env.NEXT_PUBLIC_LINE_OA_ID;
-  const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL;
-  const contactAddress = process.env.NEXT_PUBLIC_CONTACT_ADDRESS || "เชียงราย ประเทศไทย";
   return (
     <>
       <Header />
@@ -28,46 +39,22 @@ export default function ContactPage() {
           <div className="grid md:grid-cols-2 gap-8">
             <div className="bg-white rounded-2xl shadow-sm p-6">
               <h2 className="text-lg font-bold text-foreground mb-4">
-                {lang === "en" ? "Send a Message" : "ส่งข้อความ"}
+                {lang === "en" ? "Follow and Contact Us" : "ติดตามและติดต่อเรา"}
               </h2>
-              <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-                <div>
-                  <label className="text-sm font-medium text-foreground block mb-1.5">
-                    {t.name}
-                  </label>
-                  <input
-                    type="text"
-                    placeholder={t.namePlaceholder}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-accent focus:outline-none text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-foreground block mb-1.5">
-                    {t.email}
-                  </label>
-                  <input
-                    type="email"
-                    placeholder={t.emailPlaceholder}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-accent focus:outline-none text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-foreground block mb-1.5">
-                    {t.message}
-                  </label>
-                  <textarea
-                    placeholder={t.messagePlaceholder}
-                    rows={5}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-accent focus:outline-none text-sm resize-none"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="w-full bg-accent text-white py-3 rounded-xl font-semibold hover:bg-accent-dark transition-colors"
-                >
-                  {t.send}
-                </button>
-              </form>
+              <div className="grid gap-3 sm:grid-cols-1">
+                {socialLinks.map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 rounded-xl border border-gray-100 px-4 py-3 font-semibold text-foreground transition-colors hover:border-accent/30 hover:bg-sky-50"
+                  >
+                    <FontAwesomeIcon icon={item.icon} className={`w-5 text-xl ${item.color}`} />
+                    <span>{item.label}</span>
+                  </a>
+                ))}
+              </div>
             </div>
 
             <div className="space-y-6">
@@ -76,41 +63,7 @@ export default function ContactPage() {
                   {t.infoTitle}
                 </h2>
                 <div className="space-y-4">
-                  {[
-                    {
-                      icon: faMobileScreenButton,
-                      label: t.lineLabel,
-                      value: lineId || "รอตั้งค่า LINE OA",
-                      desc:
-                        lang === "en"
-                          ? "Fastest way to reach us"
-                          : "วิธีที่เร็วที่สุด",
-                    },
-                    {
-                      icon: faEnvelope,
-                      label: t.emailLabel,
-                      value: contactEmail || (lang === "en" ? "Not configured" : "ยังไม่ได้ตั้งค่า"),
-                      desc:
-                        lang === "en"
-                          ? "We reply within 24 hours"
-                          : "ตอบกลับภายใน 24 ชั่วโมง",
-                    },
-                    {
-                      icon: faLocationDot,
-                      label: t.addressLabel,
-                      value: contactAddress,
-                      desc:
-                        lang === "en"
-                          ? "Farm visits by appointment"
-                          : "นัดหมายล่วงหน้า",
-                    },
-                    {
-                      icon: faClock,
-                      label: t.hoursLabel,
-                      value: t.hoursValue,
-                      desc:"",
-                    },
-                  ].map((item) => (
+                  {contactInfo.map((item) => (
                     <div key={item.label} className="flex items-start gap-3">
                       <FontAwesomeIcon icon={item.icon} className="mt-1 w-6 text-2xl text-accent" />
                       <div>
@@ -129,7 +82,8 @@ export default function ContactPage() {
 
               <div className="bg-green-50 rounded-2xl p-6">
                 <h3 className="font-bold text-foreground mb-2">
-                  💬 {lang === "en" ? "Order via LINE" : "สั่งซื้อผ่าน LINE"}
+                  <FontAwesomeIcon icon={faLine} className="mr-2 text-green-500 text-xl" />
+                  {lang === "en" ? "Order via LINE" : "สั่งซื้อผ่าน LINE"}
                 </h3>
                 <p className="text-sm text-muted mb-4">
                   {lang === "en"

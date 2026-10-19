@@ -30,7 +30,7 @@ export async function GET(request: Request) {
   const lowStock = products.filter((product) => product.stock_qty > 0 && product.stock_qty <= 3).length;
   const soldOut = products.filter((product) => product.stock_qty === 0 || product.admin_status === "sold").length;
   const date = new Intl.DateTimeFormat("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "medium" }).format(new Date());
-  const text = `📊 สรุปยอด Mini Betta Farm\n${date}\n━━━━━━━━━━━━\nคำสั่งซื้อวันนี้: ${activeOrders.length} รายการ\nชำระเงินแล้ว: ${paidOrders.length} รายการ\nยอดขายที่ชำระแล้ว: ฿${sales.toLocaleString("th-TH")}\nยกเลิก: ${orders.length - activeOrders.length} รายการ\nสต็อกต่ำ: ${lowStock} รายการ\nสินค้าหมด/ขายแล้ว: ${soldOut} รายการ\n━━━━━━━━━━━━\nดูรายละเอียดเพิ่มเติมได้ที่หน้า Admin`;
+  const text = `📊 สรุปยอด Mini Betta Farm\n${date}\n━━━━━━━━━━━━\n📝คำสั่งซื้อวันนี้: ${activeOrders.length} รายการ\n💰ชำระเงินแล้ว: ${paidOrders.length} รายการ\n✅ยอดขายที่ชำระแล้ว: ฿${sales.toLocaleString("th-TH")}\n🚫ยกเลิก: ${orders.length - activeOrders.length} รายการ\nสินค้าพร้อมขาย: ${lowStock} รายการ`;
   await pushLineMessage(recipient, text);
   return NextResponse.json({ success: true, orders: activeOrders.length, sales, lowStock, soldOut });
 }

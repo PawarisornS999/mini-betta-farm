@@ -34,6 +34,31 @@ body {
 body.thai-font {
   font-family: "IBM Plex Sans Thai", sans-serif;
 }
+
+@keyframes testimonial-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.testimonial-track {
+  animation: testimonial-scroll 40s linear infinite;
+  will-change: transform;
+}
+
+.testimonial-track:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testimonial-track {
+    animation: none;
+  }
+}
+
 ::-webkit-scrollbar {
   width: 8px;
 }
