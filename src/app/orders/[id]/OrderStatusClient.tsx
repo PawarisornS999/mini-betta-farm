@@ -301,6 +301,12 @@ export default function OrderStatusClient({ id }: { id: string }) {
                   {order?.trackingNumber && (
                     <div className="rounded-xl bg-sky-50 p-3 font-semibold text-sky-800">
                       <p>{text("เลขพัสดุ", "Tracking number")}: {order.trackingNumber}</p>
+                      {order.trackingCheckedAt && (
+                        <p className="mt-1 text-xs font-normal">
+                          {text("สถานะไปรษณีย์", "Postal status")}: {order.trackingStatusDescription || text("ยังไม่พบข้อมูลพัสดุ", "No tracking events yet")}
+                          {" · "}{text("เช็คล่าสุด", "Last checked")} {formatDateTime(order.trackingCheckedAt, lang)}
+                        </p>
+                      )}
                       <Link
                         href={`/tracking?number=${encodeURIComponent(order.trackingNumber)}`}
                         className="mt-3 block rounded-lg bg-red-600 px-4 py-2.5 text-center text-sm font-bold text-white hover:bg-red-700"

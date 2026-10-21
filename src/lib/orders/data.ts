@@ -7,6 +7,8 @@ export type OrderRow = {
   shipping_fee: number | string; total_price: number | string; status: Order["status"];
   payment_status: Order["paymentStatus"]; shipping_status: Order["shippingStatus"];
   tracking_number: string | null; slip_path: string | null; line_user_id: string | null;
+  tracking_status_code: string | null; tracking_status_description: string | null;
+  tracking_checked_at: string | null;
   customer_token?: string; created_at: string; reservation_expires_at: string | null;
   order_items?: Array<{ id: string; product_id: string | null; product_name: string; price: number | string; quantity: number }>;
 };
@@ -21,6 +23,9 @@ export function mapOrder(row: OrderRow, products: Map<string, ProductDetails> = 
     totalPrice: Number(row.total_price), status: row.status,
     paymentStatus: row.payment_status, shippingStatus: row.shipping_status,
     trackingNumber: row.tracking_number || undefined, slipPath: row.slip_path || undefined,
+    trackingStatusCode: row.tracking_status_code || undefined,
+    trackingStatusDescription: row.tracking_status_description || undefined,
+    trackingCheckedAt: row.tracking_checked_at || undefined,
     lineUserId: row.line_user_id || undefined, customerToken: row.customer_token,
     reservationExpiresAt: row.reservation_expires_at || undefined,
     createdAt: row.created_at,
@@ -37,7 +42,7 @@ export function mapOrder(row: OrderRow, products: Map<string, ProductDetails> = 
   };
 }
 
-const select = "id,customer_name,customer_phone,customer_address,notes,subtotal,discount,shipping_fee,total_price,status,payment_status,shipping_status,tracking_number,slip_path,line_user_id,customer_token,created_at,reservation_expires_at,order_items(id,product_id,product_name,price,quantity)";
+const select = "id,customer_name,customer_phone,customer_address,notes,subtotal,discount,shipping_fee,total_price,status,payment_status,shipping_status,tracking_number,tracking_status_code,tracking_status_description,tracking_checked_at,slip_path,line_user_id,customer_token,created_at,reservation_expires_at,order_items(id,product_id,product_name,price,quantity)";
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 async function mapOrdersWithProducts(rows: OrderRow[]): Promise<Order[]> {

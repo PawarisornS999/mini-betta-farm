@@ -8,6 +8,7 @@ export type ThailandPostEvent = {
   location: string;
   postcode: string;
   deliveryDescription: string;
+  deliveryStatus: string;
   receiverName: string;
 };
 
@@ -19,6 +20,7 @@ type RawEvent = {
   location?: string;
   postcode?: string;
   delivery_description?: string | null;
+  delivery_status?: string | null;
   receiver_name?: string | null;
 };
 
@@ -86,6 +88,7 @@ export async function trackThailandPost(barcode: string) {
     location: event.location || "",
     postcode: event.postcode || "",
     deliveryDescription: event.delivery_description || "",
+    deliveryStatus: event.delivery_status || "",
     receiverName: event.receiver_name || "",
   }));
 }

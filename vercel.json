@@ -7,6 +7,10 @@
     {
       "path": "/api/orders/expire",
       "schedule": "0 14 * * *"
+    },
+    {
+      "path": "/api/orders/check-tracking",
+      "schedule": "0 2 * * *"
     }
   ]
 }

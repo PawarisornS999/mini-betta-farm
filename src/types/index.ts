@@ -221,6 +221,9 @@ export interface Order {
   paymentStatus?: "pending" | "awaiting_slip" | "slip_submitted" | "paid" | "rejected" | "failed" | "refunded";
   shippingStatus?: "pending" | "ready_to_ship" | "shipped" | "delivered" | "returned";
   trackingNumber?: string;
+  trackingStatusCode?: string;
+  trackingStatusDescription?: string;
+  trackingCheckedAt?: string;
   slipPath?: string;
   lineUserId?: string;
   reservationExpiresAt?: string;

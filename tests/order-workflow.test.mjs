@@ -12,6 +12,7 @@ async function loadModule(path) {
 }
 
 const workflow = await loadModule("src/lib/orders/workflow.ts");
+const tracking = await loadModule("src/lib/orders/tracking.ts");
 const welcomeCoupon = await loadModule("src/lib/orders/welcome-coupon.ts");
 const line = await loadModule("src/lib/utils/line.ts");
 const messaging = await loadModule("src/lib/line/messaging.ts");
@@ -42,6 +43,16 @@ test("paid or shipped orders cannot be cancelled and unpaid orders cannot ship",
   assert.equal(workflow.canUpdateOrder({ status: "processing", paymentStatus: "paid", shippingStatus: "ready_to_ship", trackingNumber: "TH123456789" }, "shipped"), true);
   assert.equal(workflow.canUpdateOrder({ status: "pending", paymentStatus: "slip_submitted", shippingStatus: "pending", slipPath: "slip.jpg" }, "paid"), true);
   assert.equal(workflow.canUpdateOrder({ status: "pending", paymentStatus: "slip_submitted", shippingStatus: "pending" }, "paid"), false);
+});
+
+test("tracking closes an order only for a successful final delivery event", () => {
+  const event = (status, deliveryStatus) => ({ status, deliveryStatus, statusDescription: "status" });
+  assert.equal(tracking.latestTrackingEvent([]), null);
+  assert.deepEqual(tracking.latestTrackingEvent([event("101", ""), event("501", "S")]), event("501", "S"));
+  assert.equal(tracking.isDeliveredTrackingEvent(event("501", "S")), true);
+  assert.equal(tracking.isDeliveredTrackingEvent(event("501", "F")), false);
+  assert.equal(tracking.isDeliveredTrackingEvent(event("301", "S")), false);
+  assert.equal(tracking.isDeliveredTrackingEvent(null), false);
 });
 
 test("LINE order link points to configured OA and encodes Thai message", () => {

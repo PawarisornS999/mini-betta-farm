@@ -411,6 +411,11 @@ export default function OrdersAdminClient() {
                 <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-800">
                   <span>เลขพัสดุ:</span>
                   <span className="font-mono">{order.trackingNumber}</span>
+                  {order.trackingCheckedAt && (
+                    <span className="w-full text-xs font-normal">
+                      สถานะไปรษณีย์: {order.trackingStatusDescription || "ยังไม่พบข้อมูลพัสดุ"} · เช็คล่าสุด {formatDateTime(order.trackingCheckedAt, "th")}
+                    </span>
+                  )}
                   <button
                     type="button"
                     onClick={() => void copyTrackingNumber(order)}

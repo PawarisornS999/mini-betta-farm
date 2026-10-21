@@ -210,6 +210,11 @@ export default function OrdersPage() {
                     ฿{Number(order.totalPrice ?? 0).toLocaleString("th-TH")}
                   </strong>
                 </div>
+                {order.trackingNumber && order.trackingCheckedAt && (
+                  <p className="mt-2 px-5 text-xs text-muted">
+                    สถานะไปรษณีย์: {order.trackingStatusDescription || "ยังไม่พบข้อมูลพัสดุ"} · เช็คล่าสุด {formatDateTime(order.trackingCheckedAt, lang)}
+                  </p>
+                )}
                 </Link>
                 <div className="flex flex-row justify-end gap-2 mb-4 px-4">
                   {order.status !== "cancelled" && order.paymentStatus !== "paid" && (
