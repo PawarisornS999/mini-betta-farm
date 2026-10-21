@@ -1,0 +1,43 @@
+src/components/admin/OrdersAdminClient.tsx
+  s_fba90970e586da::t_6773f91bc3dbb6 414-418
+src/lib/thailand-post.ts
+  s_fba90970e586da::t_5a944fdc3f4c79 11,23,91
+src/app/orders/page.tsx
+  s_fba90970e586da::t_b71194c20592ce 213-217
+src/lib/orders/data.ts
+  s_fba90970e586da::t_6773f91bc3dbb6 10-11,26-28,45
+src/app/orders/[id]/OrderStatusClient.tsx
+  s_fba90970e586da::t_6773f91bc3dbb6 304-309
+src/lib/orders/tracking.ts
+  s_fba90970e586da::t_2f68fa1759a705 4-5
+  s_fba90970e586da::t_5a944fdc3f4c79 1-3,6-10
+tests/order-workflow.test.mjs
+  s_fba90970e586da::t_b71194c20592ce 15,48-55
+  s_fba90970e586da::t_e3cddf620c82a8 56-57
+supabase/migrations/202610220001_auto_tracking.sql
+  s_fba90970e586da::t_5a944fdc3f4c79 11-26
+  s_fba90970e586da::t_6773f91bc3dbb6 55
+  s_fba90970e586da::t_46e05095b6dadf 1-10,27-54,56-59
+src/app/api/orders/check-tracking/route.ts
+  s_fba90970e586da::t_2f68fa1759a705 1-70
+src/types/index.ts
+  s_fba90970e586da::t_6773f91bc3dbb6 224-226
+vercel.json
+  s_fba90970e586da::t_2f68fa1759a705 10-13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.3",
+  "base_commit_sha": "e8bbbdce5209c3182d4a2857f1c2efb5192b72f4",
+  "prompts": {},
+  "sessions": {
+    "s_fba90970e586da": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a15fd1-0998-7913-985a-8b7a6f610ab6",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "Pawarisorn <pawarisorn.son@axonstech.com>"
+    }
+  }
+}
